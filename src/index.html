@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contraptors HTML5 Game</title>
+    <link rel="stylesheet" href="content/css/style.css">
+    <script src="build/game.js"></script>
+    <script>
+        window.addEventListener('load', gameSetup, false);
+    </script>
+</head>
+<body>
+<div id="overlay">
+    Loading...
+</div>
+<canvas id="debug" width="1200" height="650"></canvas>
+<canvas id="interface" width="1200" height="650"></canvas>
+<canvas id="game" width="1200" height="650">
+    <h1>You no support canvas</h1>
+
+    <p>I'm really sorry, but we need HTML5 &nbsp; Javascript to make this work.</p>
+
+    <p>Maybe you could come to my house to play my game some time?</p>
+</canvas>
+<canvas id="loader" width="0" height="0"></canvas>
+
+</body>
+</html>

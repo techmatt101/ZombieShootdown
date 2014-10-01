@@ -1,0 +1,20 @@
+{
+  "name": "ZombieShootout",
+  "version": "0.1.0",
+  "description": "ZombieShootout",
+  "author": "Matthew Kemp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/techmatt101/ZombieShootout.git"
+  },
+  "dependencies": {
+    "typescript": "~1.0.1"
+  },
+  "devDependencies": {
+  	"phantomjs": "~1.9.7-12",
+    "jasmine-node": "~1.14.3",
+    "karma": "~0.12.16",
+	"karma-jasmine": "~0.1.5",
+    "karma-phantomjs-launcher": "~0.1.4"
+  }
+}

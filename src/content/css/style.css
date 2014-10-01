@@ -1,0 +1,20 @@
+html {
+    background: url("../img/bg.png") #222;
+    font-family: Arial, sans-serif;
+}
+
+#game {
+    /*background: transparent;*/
+    background: #fff;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 20px;
+    padding:20px;
+    border-radius: 3px;
+    color: #fff;
+    background: #000;
+}

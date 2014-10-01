@@ -1,0 +1,81 @@
+{
+    "meta": {
+        "name": "test_map",
+        "displayName": "Map One",
+        "description": "the first ever map",
+        "type": "captureFlag",
+        "size": 12,
+        "minSize": 2
+    },
+
+    "sectionSize": {
+        "width": 1280,
+        "height": 720
+    },
+
+    "mapSize": {
+        "width": 3000,
+        "height": 2000
+    },
+
+    "graphics": [
+        {
+            "id": "platform",
+            "src": "platform"
+        }
+    ],
+
+    "audio": [
+    ],
+
+    "objects": [
+        {
+            "x": 0,
+            "y": 100,
+            "width": 250,
+            "height": 80,
+            "type": "platform",
+            "imgId": "platform",
+            "event": "jump"
+        },
+        {
+            "x": 40,
+            "y": 80,
+            "width": 250,
+            "height": 80,
+            "type": "platform",
+            "imgId": "platform",
+            "event": "jump"
+        },
+        {
+            "x": 150,
+            "y": 280,
+            "width": 250,
+            "height": 80,
+            "type": "platform",
+            "imgId": "platform",
+            "event": "jump"
+        },
+        {
+            "x": 250,
+            "y": 70,
+            "width": 250,
+            "height": 80,
+            "type": "platform",
+            "imgId": "platform",
+            "event": "jump"
+        },
+        {
+            "x": 230,
+            "y": 150,
+            "width": 250,
+            "height": 80,
+            "type": "platform",
+            "imgId": "platform",
+            "event": "jump"
+        }
+    ],
+
+    "collisionData": {
+    }
+}
