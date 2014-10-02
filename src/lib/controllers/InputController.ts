@@ -83,7 +83,7 @@ class InputController {
         this._pointerPos.y = e.offsetY || e.layerY;
     }
 
-    getPoiterPos() {
+    getPointerPos() {
         return this._pointerPos;
     }
 

@@ -18,27 +18,35 @@ class Vector {
         return this;
     }
 
+    offsetCopy(other : Vector, offset : Vector) {
+        this.x = other.x + offset.x;
+        this.y = other.y + offset.y;
+        this.angle = other.angle + offset.angle;
+        return this;
+    }
+
     rotateDirection(other : Vector) {
         this.angle = fastAtan2(
-            this.x - other.x,
-            this.y - other.y
+            other.x - this.x,
+            other.y - this.y
         );
         return this;
     }
 
+    rotate(other : Vector) {
+        var x = this.x - other.x,
+            y = this.y - other.y,
+            cos = Math.cos(this.angle),
+            sin = Math.sin(this.angle);
+        this.x = x * cos - y * sin + other.x;
+        this.y = x * sin + y * cos + other.y;
+        return this;
+    }
 
-//    // Calculate angle between two points (in radians)
-//    static rotate(x, y, xm, ym, a) : Vector {  //todo: remove
-////        a = a * Math.PI / 180;
-//        x -= xm;
-//        y -= ym;
-//        var cos = Math.cos(a), sin = Math.sin(a);
-//
-//        return new Vector(
-//            x * cos - y * sin + xm,
-//            x * sin + y * cos + ym
-//        );
-//    }
+    traject (speed) {
+        this.x += speed * Math.cos(this.angle);
+        this.y += speed * Math.sin(this.angle);
+    }
 
     //    static calcLine (x, y) { //todo: look at
 //        var a = new Vector(this.y - y, this.x - x).atan2();
@@ -130,15 +138,7 @@ class Vector {
     //    return radian;
     //}
 
-    //rotate(other : Vector) {
-    //    this.angle *= Math.PI / 180;
-    //    this.x -= other.x;
-    //    this.y -= other.y;
-    //    var cos = Math.cos(this.angle), sin = Math.sin(this.angle);
-    //    this.x = this.x * cos - this.y * sin + other.x;
-    //    this.y = this.x * sin + this.y * cos + other.y;
-    //    return this;
-    //}
+
 
     //project(other : Vector) {
     //    var amt = this.dot(other) / other.len2();
