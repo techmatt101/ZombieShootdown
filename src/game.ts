@@ -51,8 +51,10 @@ function gameSetup() {
         //}
     ],
         function complete() {
-            var player = new Player(new Vector(200, 500), 50, 50, null);
+            var gun = new Gun(new Vector(5, 5), 5, 5, null);
+            var player = new Player(new Vector(200, 500), 30, 50, null, gun);
             level.addEntity(player);
+            level.addEntity(gun);
             //level.setObjectToFollow(player);
 //          viewport.update(1);
             loop.update = function (dt) { //TODO: remove hack

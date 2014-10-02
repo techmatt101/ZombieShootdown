@@ -1,34 +1,18 @@
 /// <reference path="../Entity.ts" />
+/// <reference path="../gear/Gun.ts" />
 /// <reference path="../../lib/controllers/InputController.ts" />
 
 class Player extends Entity {
-    acceleration = 0.8;
-    speed = 0;
-    maxSpeed = 24;
+    weapon : Gun;
+    gunPlacementOffset = new Vector(50, 0);
 
+    constructor(position, width, height, img, gun : Gun) {
+        super(position, width, height, img);
+        this.weapon = gun;
+    }
 
     update(dt : number) {
-        this.pos.rotateDirection(Input.getPoiterPos());
-
-        if (Input.isDown(InputAction.LEFT)) {
-            this.speed -= this.acceleration;
-        } else if (Input.isDown(InputAction.RIGHT)) {
-            this.speed += this.acceleration;
-        }
-
-        if(this.speed > 0) {
-            this.speed -= this.acceleration / 2;
-        } else {
-            this.speed += this.acceleration / 2;
-        }
-
-        if(this.speed > this.maxSpeed) {
-            this.speed = this.maxSpeed;
-        } else if (this.speed < -this.maxSpeed) {
-            this.speed = -this.maxSpeed;
-        }
-
-        this.pos.x += ~~this.speed * dt;
+        this.pos.rotateDirection(Input.getPointerPos());
 
         if (Input.isDown(InputAction.UP)) {
             this.pos.y -= 24 * dt;
@@ -41,5 +25,13 @@ class Player extends Entity {
         } else if (Input.isDown(InputAction.RIGHT)) {
             this.pos.x += 24 * dt;
         }
+
+        if(Input.isDown(InputAction.ACTION_1)) {
+            this.weapon.attack();
+        }
+        this.weapon.pos.offsetCopy(this.pos, this.gunPlacementOffset);
+        this.weapon.pos.rotate(this.pos);
+
+        this.weapon.update(dt);
     }
 }

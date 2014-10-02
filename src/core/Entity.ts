@@ -17,7 +17,11 @@ class Entity implements IUpdate {
         this.img = img;
     }
 
-    update (dt) {
+    //updatePosition (posistion : Vector) {
+    //    this.pos.x =
+    //}
+
+    update (dt : number) {
 
     }
 
