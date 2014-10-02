@@ -75,14 +75,14 @@ class Vector {
     //    return this;
     //}
     //
-    //normalize() {
-    //    var d = this.len();
-    //    if (d > 0) {
-    //        this.x = this.x / d;
-    //        this.y = this.y / d;
-    //    }
-    //    return this;
-    //}
+    normalize() {
+        var d = this.len();
+        if (d > 0) {
+            this.x = this.x / d;
+            this.y = this.y / d;
+        }
+        return this;
+    }
     //
     //add(other : Vector) {
     //    this.x += other.x;
@@ -115,17 +115,17 @@ class Vector {
     //}
     //
     //
-    //dot(other : Vector) {
-    //    return this.x * other.x + this.y * other.y;
-    //}
+    dot(other : Vector) {
+        return this.x * other.x + this.y * other.y;
+    }
     //
     //len2() {
     //    return this.dot(this);
     //}
     //
-    //len() {
-    //    return Math.sqrt(this.dot(this));
-    //}
+    len() {
+        return Math.sqrt(this.dot(this));
+    }
     //
     //atan2() {
     //    if (this.x == 0 && this.y == 0) {

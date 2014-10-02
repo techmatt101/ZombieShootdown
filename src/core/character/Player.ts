@@ -3,6 +3,7 @@
 /// <reference path="../../lib/controllers/InputController.ts" />
 
 class Player extends Entity {
+    speed = 24;
     weapon : Gun;
     gunPlacementOffset = new Vector(50, 0);
 
@@ -14,17 +15,20 @@ class Player extends Entity {
     update(dt : number) {
         this.pos.rotateDirection(Input.getPointerPos());
 
-        if (Input.isDown(InputAction.UP)) {
-            this.pos.y -= 24 * dt;
-        } else if (Input.isDown(InputAction.DOWN)) {
-            this.pos.y += 24 * dt;
-        }
+        var movement = new Vector(0,0);
 
-        if (Input.isDown(InputAction.LEFT)) {
-            this.pos.x -= 24 * dt;
-        } else if (Input.isDown(InputAction.RIGHT)) {
-            this.pos.x += 24 * dt;
-        }
+        if(Input.isDown(InputAction.LEFT)) movement.x -= 1;
+        if(Input.isDown(InputAction.RIGHT)) movement.x += 1;
+        if(Input.isDown(InputAction.UP)) movement.y -= 1;
+        if(Input.isDown(InputAction.DOWN)) movement.y += 1;
+
+        movement.normalize();
+
+        movement.x *= this.speed * dt;
+        movement.y *= this.speed * dt;
+
+        this.pos.x += movement.x;
+        this.pos.y += movement.y;
 
         if(Input.isDown(InputAction.ACTION_1)) {
             this.weapon.attack();

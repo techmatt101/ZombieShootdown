@@ -8,6 +8,7 @@
 /// <reference path="core/InterfaceController.ts" />
 /// <reference path="core/level/MapManager.ts" />
 /// <reference path="core/character/Player.ts" />
+/// <reference path="core/character/Zombie.ts" />
 /// <reference path="lib/ResourceManager.ts" />
 /// <reference path="lib/TaskCollection.ts" />
 
@@ -53,8 +54,10 @@ function gameSetup() {
         function complete() {
             var gun = new Gun(new Vector(5, 5), 5, 5, null);
             var player = new Player(new Vector(200, 500), 30, 50, null, gun);
+            var zombie = new Zombie(new Vector(0, 0), 30, 50, null, player);
             level.addEntity(player);
             level.addEntity(gun);
+            level.addEntity(zombie);
             //level.setObjectToFollow(player);
 //          viewport.update(1);
             loop.update = function (dt) { //TODO: remove hack

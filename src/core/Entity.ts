@@ -17,16 +17,9 @@ class Entity implements IUpdate {
         this.img = img;
     }
 
-    //updatePosition (posistion : Vector) {
-    //    this.pos.x =
-    //}
 
     update (dt : number) {
 
-    }
-
-    draw(ctx : CanvasRenderingContext2D) : void {
-        //ctx.drawImage(this.img, this.pos.x, this.pos.y, this.width, this.height);
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

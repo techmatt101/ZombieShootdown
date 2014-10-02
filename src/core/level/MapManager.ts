@@ -37,13 +37,6 @@ class MapManager implements IBox, IUpdate{
     update(dt : number) : void {
     }
 
-    draw(ctx : CanvasRenderingContext2D) {
-        for (var i = 0; i < this.objects.length; i++) {
-            this.objects[i].drawDebug(ctx);
-//            ctx.rect(this.objects[i].x, this.objects[i].y, this.objects[i].weight, this.objects[i].height);
-        }
-    }
-
     drawDebug(ctx : CanvasRenderingContext2D) {
         for (var i = 0; i < this.objects.length; i++) {
             this.objects[i].drawDebug(ctx);
