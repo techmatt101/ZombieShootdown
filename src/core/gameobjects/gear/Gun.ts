@@ -4,16 +4,14 @@
 
 class Gun extends Entity implements IWeapon {
     bullets : Bullet[] = [];
-    coolDown = 5;
+    nextBullet = 0;
+    coolDown = 2;
     activeCoolDown = -1;
 
 
-    constructor(position, width, height, img) {
+    constructor(position, width, height, img, bullets) {
         super(position, width, height, img);
-
-        for (var i = 0; i < 20; i++) {
-            this.bullets.push(new Bullet(position, width, height, img));
-        }
+        this.bullets = bullets;
     }
 
     update (dt : number) {
@@ -27,6 +25,12 @@ class Gun extends Entity implements IWeapon {
     attack () {
         if(this.activeCoolDown === 0) {
             console.log("POW");
+            if(this.nextBullet >= this.bullets.length) {
+                this.nextBullet = 0;
+            }
+            this.bullets[this.nextBullet].active = true;
+            this.bullets[this.nextBullet].pos.copy(this.pos);
+            this.nextBullet++;
             this.activeCoolDown = this.coolDown;
         }
     }

@@ -52,7 +52,12 @@ function gameSetup() {
         //}
     ],
         function complete() {
-            var gun = new Gun(new Vector(5, 5), 5, 5, null);
+            var bullets = [];
+            for (var i = 0; i < 20; i++) {
+                bullets.push(new Bullet(new Vector(0,0), 8, 3, null));
+                level.addEntity(bullets[i]);
+            }
+            var gun = new Gun(new Vector(5, 5), 8, 5, null, bullets);
             var player = new Player(new Vector(200, 500), 30, 50, null, gun);
             var zombie = new Zombie(new Vector(0, 0), 30, 50, null, player);
             level.addEntity(player);

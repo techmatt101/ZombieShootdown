@@ -36,6 +36,6 @@ class Player extends Entity {
         this.weapon.pos.offsetCopy(this.pos, this.gunPlacementOffset);
         this.weapon.pos.rotate(this.pos);
 
-        this.weapon.update(dt);
+        //this.weapon.update(dt);
     }
 }
