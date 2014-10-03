@@ -6,11 +6,22 @@ class Room {
     width : number;
     height : number;
     tiles : Array<Tile[]> = [];
-    walls = []; //indexes for wall tiles
+    walls : Wall[] = [];
+    solidWalls : Wall[] = [];
+
 
     constructor(position : Vector, width : number, height : number) {
         this.pos = position;
         this.width = width;
         this.height = height;
+    }
+
+    addWall(wall : Wall) {
+        this.walls.push(wall);
+    }
+
+    addSolidWall(wall : Wall) {
+        this.walls.push(wall);
+        this.solidWalls.push(wall);
     }
 }

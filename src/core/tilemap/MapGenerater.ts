@@ -1,5 +1,9 @@
 // Based on: http://breinygames.blogspot.com/2011/07/random-map-generation.html
 
+// Needs improvment:
+// - It is possible with small rooms for it to not be closed (i.e. a wall tile missing)
+// - Walls often double up (more room spacing?)
+
 /// <reference path="_helpers.ts" />
 /// <reference path="Room.ts" />
 /// <reference path="Tile.ts" />
@@ -9,8 +13,8 @@ class MapGenerater {
     private _grid : Array<Tile[]> = [];
     private _rooms : Room[] = [];
 
-    generate (gridSize : Vector, minRoomSize : number, maxRoomSize : number, maxRooms : number) {
-        this.createEmptyGrid(gridSize);
+    generate (gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
+        this._grid = this.createEmptyGrid(gridSize, TileType.EMPTY);
 
         //place first room in the middle of the map
         this._rooms = [this.generateRoom(minRoomSize, maxRoomSize)];
@@ -20,13 +24,15 @@ class MapGenerater {
         ));
     }
 
-    private createEmptyGrid (gridSize : Vector) {
+    private createEmptyGrid (gridSize : Vector, fillType : TileType) { //TODO: hmmm... Vector? box maybe?
+        var grid = [];
         for (var x = 0; x < gridSize.x; ++x) {
-            this._grid[x] = [];
+            grid[x] = [];
             for (var y = 0; y < gridSize.y; ++y) {
-                this._grid[x][y] = new Tile(TileType.EMPTY);
+                grid[x][y] = new Tile(fillType);
             }
         }
+        return grid;
     }
 
     private generateRoom (minSize : number, maxSize : number) {
@@ -36,47 +42,24 @@ class MapGenerater {
             helpers.randInt(minSize, maxSize)
         );
 
-        for (var x = 0; x < room.width; ++x) {
-            room.tiles[x] = [];
-            for (var y = 0; y < room.height; ++y) {
-                var tile = new Tile(TileType.FLOOR);
-                room.tiles[x][y] = tile;
+        room.tiles = this.createEmptyGrid(new Vector(room.width, room.height), TileType.FLOOR);
 
-                //add walls
-                if (x === 0 || x === room.width - 1 || y === 0 || y === room.height - 1) {
-                    tile.type = TileType.WALL;
-                    var wall = new Wall();
-                    room.walls.push(wall);
-
-                    //store position of normal walls (not corners)
-                    if (y !== 0 && y !== room.height - 1) {
-                        if (x === 0) {
-                            wall.direction = Direction.WEST;
-                        } else if (x === room.width - 1) {
-                            wall.direction = Direction.EAST;
-                        }
-                    } else if (x !== 0 && x !== room.width - 1) {
-                        if (y === 0) {
-                            wall.direction = Direction.NORTH;
-                        } else if (y === room.height - 1) {
-                            wall.direction = Direction.SOUTH;
-                        }
-                    }
-                    else { //add corners
-                        wall.corner = true;
-                        if (x === 0 && y === 0) {
-                            wall.direction = Direction.NORTH;
-                        } else if (x === 0 && y === room.height - 1) {
-                            wall.direction = Direction.WEST;
-                        } else if (x === room.width - 1 && y === 0) {
-                            wall.direction = Direction.EAST;
-                        } else if (x === room.width - 1 && y === room.height - 1) {
-                            wall.direction = Direction.SOUTH;
-                        }
-                    }
-                }
-            }
+        //create walls round edge of room tiles
+        for (var x = 1; x < room.width - 1; ++x) {
+            room.addSolidWall(new Wall(room.tiles[x][0], Direction.WEST));
+            room.addSolidWall(new Wall(room.tiles[x][room.height - 1], Direction.EAST));
         }
+
+        for (var y = 1; y < room.height - 1; ++y) {
+            room.addSolidWall(new Wall(room.tiles[0][y], Direction.NORTH));
+            room.addSolidWall(new Wall(room.tiles[room.width - 1][y], Direction.SOUTH));
+        }
+
+        //create corner walls
+        room.addWall(new Wall(room.tiles[0][0],Direction.NORTH_WEST, true));
+        room.addWall(new Wall(room.tiles[room.width - 1][0], Direction.NORTH_EAST, true));
+        room.addWall(new Wall(room.tiles[0][room.height - 1], Direction.SOUTH_WEST, true));
+        room.addWall(new Wall(room.tiles[room.width - 1][room.height - 1], Direction.SOUTH_EAST, true));
 
         return room;
     }

@@ -1,7 +1,11 @@
 enum Direction {
     NONE,
     NORTH,
-    SOUTH,
+    NORTH_EAST,
     EAST,
-    WEST
+    SOUTH_EAST,
+    SOUTH,
+    SOUTH_WEST,
+    WEST,
+    NORTH_WEST
 }
