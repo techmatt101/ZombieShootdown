@@ -48,6 +48,11 @@ class Vector {
         this.y += speed * Math.sin(this.angle);
     }
 
+    floor () {
+        this.x = ~~this.x;
+        this.y = ~~this.y;
+    }
+
     //    static calcLine (x, y) { //todo: look at
 //        var a = new Vector(this.y - y, this.x - x).atan2();
 //        return new Vector(
