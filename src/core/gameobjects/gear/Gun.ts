@@ -1,4 +1,4 @@
-/// <reference path="../Entity.ts" />
+/// <reference path="../../Entity.ts" />
 /// <reference path="Bullet.ts" />
 /// <reference path="IWeapon.ts" />
 

@@ -1,4 +1,4 @@
-/// <reference path="../Entity.ts" />
+/// <reference path="../../Entity.ts" />
 
 class Bullet extends Entity {
     speed = 5;

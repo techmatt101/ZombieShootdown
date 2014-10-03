@@ -1,6 +1,6 @@
-/// <reference path="../Entity.ts" />
+/// <reference path="../../Entity.ts" />
 /// <reference path="../gear/Gun.ts" />
-/// <reference path="../../lib/controllers/InputController.ts" />
+/// <reference path="../../../lib/controllers/InputController.ts" />
 
 class Player extends Entity {
     speed = 24;

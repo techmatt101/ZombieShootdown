@@ -1,4 +1,4 @@
-/// <reference path="../Entity.ts" />
+/// <reference path="../../Entity.ts" />
 
 class Zombie extends Entity {
     private _player : Player;

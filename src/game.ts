@@ -7,8 +7,8 @@
 /// <reference path="core/Drawer.ts" />
 /// <reference path="core/InterfaceController.ts" />
 /// <reference path="core/level/MapManager.ts" />
-/// <reference path="core/character/Player.ts" />
-/// <reference path="core/character/Zombie.ts" />
+/// <reference path="core/gameobjects/character/Player.ts" />
+/// <reference path="core/gameobjects/character/Zombie.ts" />
 /// <reference path="lib/ResourceManager.ts" />
 /// <reference path="lib/TaskCollection.ts" />
 
