@@ -1,11 +1,16 @@
 html {
     background: url("../img/bg.png") #222;
     font-family: Arial, sans-serif;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 #game {
     /*background: transparent;*/
     background: #fff;
+    cursor: url('../img/crosshair.png'), auto;
 }
 
 #overlay {
