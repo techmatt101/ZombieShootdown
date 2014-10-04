@@ -11,6 +11,10 @@
 /// <reference path="core/gameobjects/character/Zombie.ts" />
 /// <reference path="lib/ResourceManager.ts" />
 /// <reference path="lib/TaskCollection.ts" />
+/// <reference path="core/tilemap/MapGenerator.ts" />
+
+var m = new MapGenerator();
+m.generate(new Vector(60, 60), 3, 16);
 
 function gameSetup() {
     console.time("Load_Setup");
@@ -53,7 +57,7 @@ function gameSetup() {
     ],
         function complete() {
             var bullets = [];
-            for (var i = 0; i < 20; i++) {
+            for (var i = 0; i < 10; i++) {
                 bullets.push(new Bullet(new Vector(0,0), 8, 3, null));
                 level.addEntity(bullets[i]);
             }

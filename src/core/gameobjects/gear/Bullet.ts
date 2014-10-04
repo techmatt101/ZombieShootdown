@@ -1,7 +1,7 @@
 /// <reference path="../../Entity.ts" />
 
 class Bullet extends Entity {
-    speed = 32;
+    speed = 80;
     active = false;
 
 

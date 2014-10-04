@@ -24,7 +24,6 @@ class Gun extends Entity implements IWeapon {
 
     attack () {
         if(this.activeCoolDown === 0) {
-            console.log("POW");
             if(this.nextBullet >= this.bullets.length) {
                 this.nextBullet = 0;
             }
