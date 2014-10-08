@@ -1,20 +1,26 @@
 /// <reference path="../../lib/ResourceManager.ts" />
 /// <reference path="../Entity.ts" />
+/// <reference path="../tilemap/MapGenerator.ts" />
 
-class MapManager implements IBox, IUpdate{
-    metaData;
-    objects : Entity[] = [];
-    graphics = [];
-    audio = [];
-    width : number;
-    height : number;
-    x : number;
-    y : number;
-    angle : number;
+class MapManager implements IBox, IUpdate {
+    //metaData;
+    //objects : Entity[] = [];
+    //graphics = [];
+    //audio = [];
+    width:number;
+    height:number;
+    pos:Vector;
+    x:number;
+    y:number;
+    mapGenerator:MapGenerator;
+    //angle : number;
 
 
-    constructor(x, y, width, height, points, img) {
-//        super(x, y, width, height, points, img);
+    constructor(pos:Vector, width, height, mapGenerator:MapGenerator) {
+        this.pos = pos;
+        this.width = width;
+        this.height = height;
+        this.mapGenerator = mapGenerator;
     }
 
     //loadMap (mapData, callback) {
@@ -34,13 +40,19 @@ class MapManager implements IBox, IUpdate{
     //    });
     //}
 
-    update(dt : number) : void {
+    update(dt:number):void {
     }
 
-    drawDebug(ctx : CanvasRenderingContext2D) {
-        for (var i = 0; i < this.objects.length; i++) {
-            this.objects[i].drawDebug(ctx);
-//            ctx.rect(this.objects[i].x, this.objects[i].y, this.objects[i].weight, this.objects[i].height);
+    drawDebug(ctx:CanvasRenderingContext2D) {
+        ctx.fillStyle = '#aaa';
+        //TODO: only start from viable
+        var grid = this.mapGenerator.getGird();
+        for (var x = 0; x < grid.length; x++) {
+            for (var y = 0; y < grid[x].length; y++) {
+                if (grid[x][y].type === TileType.WALL) {
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
         }
     }
 }

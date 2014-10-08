@@ -13,9 +13,7 @@
 /// <reference path="lib/TaskCollection.ts" />
 /// <reference path="core/tilemap/MapGenerator.ts" />
 
-var m = new MapGenerator();
-m.generate(new Vector(60, 60), 3, 16);
-
+var tileSize = 32;
 function gameSetup() {
     console.time("Load_Setup");
 
@@ -24,7 +22,10 @@ function gameSetup() {
     canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
     canvas.context = canvas.element.getContext('2d');
 
-    var map = new MapManager(0, 0, 0, 0, [], null);
+    var mg = new MapGenerator();
+    mg.generate(new Vector(canvas.width / tileSize, canvas.height / tileSize), 14, 24);
+
+    var map = new MapManager(new Vector(0,0), 0, 0, mg);
     var skeleton;
 
     var drawer = new Drawer(canvas);

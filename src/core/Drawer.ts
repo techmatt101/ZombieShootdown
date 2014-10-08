@@ -2,13 +2,17 @@
 /// <reference path="../lib/Canvas.ts" />
 
 class Drawer { //TODO: better name
-
     private _canvas : Canvas;
     private _ctx : CanvasRenderingContext2D;
+
 
     constructor (canvas : Canvas) {
         this._canvas = canvas;
         this._ctx = canvas.context;
+    }
+
+    getCTX() {
+        return this._ctx;
     }
 
     render (entity : Entity[]) {
@@ -27,7 +31,5 @@ class Drawer { //TODO: better name
             entity[i].drawDebug(this._ctx);
             this._ctx.restore();
         }
-
-        return this._ctx;
     }
 }

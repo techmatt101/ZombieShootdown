@@ -14,6 +14,10 @@ class MapGenerator {
     private _grid : Array<Tile[]> = [];
     private _rooms : Room[] = [];
 
+    getGird() {
+        return this._grid;
+    }
+
     generate (gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
         this._grid = this.createEmptyGrid(gridSize, TileType.EMPTY);
 

@@ -48,7 +48,7 @@ class Level {
             this._entities[i].update(time);
         }
 
-        var ctx = this._drawer.render(this._entities);
-        this._map.drawDebug(ctx);
+        this._drawer.render(this._entities);
+        this._map.drawDebug(this._drawer.getCTX());
     }
 }
