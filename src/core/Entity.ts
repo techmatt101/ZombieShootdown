@@ -8,6 +8,7 @@ class Entity implements IUpdate {
     width : number;
     height : number;
     img : HTMLImageElement;
+    touching = false;
 
 
     constructor (position, width, height, img) {
@@ -17,6 +18,13 @@ class Entity implements IUpdate {
         this.img = img;
     }
 
+
+    isBoundingBoxWith (box : Entity) {
+        return this.pos.x - this.width / 2 < box.pos.x + box.width / 2 &&
+            this.pos.x + this.width / 2 > box.pos.x - box.width / 2 &&
+            this.pos.y - this.height / 2 < box.pos.y + box.height / 2 &&
+            this.pos.y + this.height / 2 > box.pos.y - box.height / 2;
+    }
 
     update (dt : number) {
 

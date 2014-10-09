@@ -6,7 +6,7 @@ class Player extends Entity {
     speed = 24;
     input : InputController;
     weapon : Gun;
-    gunPlacementOffset = new Vector(25, 0);
+    gunPlacementOffset = new Vector(38, 0); //TODO: hmmm..
 
     constructor(position, width, height, img, input : InputController, gun : Gun) {
         super(position, width, height, img);

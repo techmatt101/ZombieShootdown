@@ -2,7 +2,7 @@
 
 class Zombie extends Entity {
     private _player : Player;
-    private _speed = 18;
+    private _speed = 5;
 
 
     constructor(position, width, height, img, player) {
