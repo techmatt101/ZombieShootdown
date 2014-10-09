@@ -18,6 +18,10 @@ class MapGenerator {
         return this._grid;
     }
 
+    getMainRoom() {
+        return this._rooms[0];
+    }
+
     generate (gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
         this._grid = this.createEmptyGrid(gridSize, TileType.EMPTY);
 

@@ -5,17 +5,19 @@
 class Player extends Entity {
     speed = 24;
     input : InputController;
+    camera : Camera;
     weapon : Gun;
     gunPlacementOffset = new Vector(38, 0); //TODO: hmmm..
 
-    constructor(position, width, height, img, input : InputController, gun : Gun) {
+    constructor(position, width, height, img, input : InputController, camera : Camera, gun : Gun) {
         super(position, width, height, img);
         this.input = input;
+        this.camera = camera;
         this.weapon = gun;
     }
 
     update(dt : number) {
-        this.pos.rotateDirection(this.input.getPointerPos());
+        this.pos.rotateDirection(new Vector(0,0).copy(this.camera.view).reverse().offset(this.input.getPointerPos())); //TODO: optimize
 
         var movement = new Vector(0,0);
 
@@ -35,7 +37,7 @@ class Player extends Entity {
         if(this.input.isDown(InputAction.ACTION_1)) {
             this.weapon.attack();
         }
-        this.weapon.pos.offsetCopy(this.pos, this.gunPlacementOffset);
+        this.weapon.pos.copy(this.pos).offset(this.gunPlacementOffset);
         this.weapon.pos.rotate(this.pos);
 
         //this.weapon.update(dt);

@@ -1,34 +1,35 @@
 /// <reference path="../../lib/geometry/Vector.ts" />
 /// <reference path="../../lib/geometry/IBox.ts" />
 /// <reference path="../../lib/Canvas.ts" />
+/// <reference path="../Entity.ts" />
 
 class Camera {
-    private _canvas : Canvas;
-    public view : IBox;
+    public view : Vector;
     public boundary : IBox;
-    private _target : IBox = new Box(0, 0, 0, 0);
-    private _smoothing = new Vector(1.5, 1.5);
+    private _canvas : Canvas;
+    private _target : Entity = new Entity(new Vector(0,0), 0, 0, null);
+    private _smoothing = new Vector(2, 2);
 
 
     constructor(canvas : Canvas, boundary : IBox) {
         this._canvas = canvas;
-        this.view = new Box(0,0, canvas.width, canvas.height);
+        this.view = new Vector(0,0);
         this.boundary = boundary;
     }
 
-    setTarget(obj : IBox) {
+    setTarget(obj : Entity) {
         this._target = obj;
     }
 
     moveToTarget(time) {
-        this.view.x += (((this._canvas.center.x - this._target.width / 2 - this._target.x) - this.view.x) / this._smoothing.x) * time; //smooth camera movement
-        this.view.y += (((this._canvas.center.y - this._target.height / 2 - this._target.y) - this.view.y) / this._smoothing.y) * time;
+        this.view.x += (((this._canvas.center.x - this._target.width / 2 - this._target.pos.x) - this.view.x) / this._smoothing.x) * time; //smooth camera movement
+        this.view.y += (((this._canvas.center.y - this._target.height / 2 - this._target.pos.y) - this.view.y) / this._smoothing.y) * time;
         this.retainInBoundary();
     }
 
     jumpToTarget() {
-        this.view.x = (this._canvas.center.x - this._target.width / 2 - this._target.x) - this.view.x;
-        this.view.y = (this._canvas.center.y - this._target.height / 2 - this._target.y) - this.view.y;
+        this.view.x = (this._canvas.center.x - this._target.width / 2 - this._target.pos.x) - this.view.x;
+        this.view.y = (this._canvas.center.y - this._target.height / 2 - this._target.pos.y) - this.view.y;
         this.retainInBoundary();
     }
 

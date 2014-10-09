@@ -18,10 +18,25 @@ class Vector {
         return this;
     }
 
-    offsetCopy(other : Vector, offset : Vector) {
-        this.x = other.x + offset.x;
-        this.y = other.y + offset.y;
-        this.angle = other.angle + offset.angle;
+    offset(offset : Vector) {
+        this.x += offset.x;
+        this.y += offset.y;
+        this.angle += offset.angle;
+        return this;
+    }
+
+    reverse() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    }
+
+    normalize() {
+        var d = this.len();
+        if (d > 0) {
+            this.x = this.x / d;
+            this.y = this.y / d;
+        }
         return this;
     }
 
@@ -74,20 +89,9 @@ class Vector {
     //    return this;
     //}
     //
-    //reverse() {
-    //    this.x = -this.x;
-    //    this.y = -this.y;
-    //    return this;
-    //}
+
     //
-    normalize() {
-        var d = this.len();
-        if (d > 0) {
-            this.x = this.x / d;
-            this.y = this.y / d;
-        }
-        return this;
-    }
+
     //
     //add(other : Vector) {
     //    this.x += other.x;

@@ -26,11 +26,11 @@ function gameSetup() {
     mg.generate(new Vector(canvas.width / tileSize, canvas.height / tileSize), 14, 24);
 
     var map = new MapManager(new Vector(0,0), 0, 0, mg);
-    var skeleton;
 
     var drawer = new Drawer(canvas);
     var loop = new GameLoop();
-    var level = new Level(canvas, drawer, map);
+    var camera = new Camera(canvas, map);
+    var level = new Level(drawer, map, camera);
 
     //Does it belong here?
     var sound = new SoundController();
@@ -63,12 +63,14 @@ function gameSetup() {
                 level.addEntity(bullets[i]);
             }
             var gun = new Gun(new Vector(5, 5), 14, 5, null, bullets);
-            var player = new Player(new Vector(200, 500), 30, 50, null, input, gun);
+            var player = new Player(new Vector(
+                (mg.getMainRoom().pos.x * tileSize) + (mg.getMainRoom().width * tileSize / 2),
+                (mg.getMainRoom().pos.y * tileSize) + (mg.getMainRoom().height * tileSize / 2)), 30, 50, null, input, camera, gun);
             var zombie = new Zombie(new Vector(0, 0), 20, 60, null, player);
             level.addEntity(player);
             level.addEntity(gun);
             level.addEntity(zombie);
-            //level.setObjectToFollow(player);
+            level.setObjectToFollow(player);
 //          viewport.update(1);
             loop.update = function (dt) { //TODO: remove hack
                 level.update(dt);

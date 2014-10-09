@@ -12,14 +12,8 @@ enum InputAction {
 }
 
 class InputController {
-    private _pressed = {
-        //InputAction.UP: true //example
-    };
-
-    private _keyMapper = {
-        //87: InputAction.UP //example
-    };
-
+    private _pressed = {}; //InputAction.UP: true //example
+    private _keyMapper = {}; //87: InputAction.UP //example
     private _pointerPos = new Vector(0,0);
 
 
@@ -31,7 +25,6 @@ class InputController {
             this._pressed[action] = false;
         }
 
-        //Considered using a function to adding the event listeners, however decided to do it the longer more simplier way and save some unnecessary calls to a function passing parameters.
         window.addEventListener('keyup', function (e : KeyboardEvent) {
             self.onUp(e.keyCode);
         }, false);

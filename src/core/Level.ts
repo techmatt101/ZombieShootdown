@@ -3,28 +3,23 @@
 /// <reference path="../lib/Canvas.ts" />
 /// <reference path="view/Camera.ts" />
 /// <reference path="Entity.ts" />
-/// <reference path="view/SectionsHelper.ts" />
-/// <reference path="view/Section.ts" />
 /// <reference path="level/MapManager.ts" />
 /// <reference path="Drawer.ts" />
 
 class Level {
-    private _canvas:Canvas;
-    private _camera:Camera;
-    private _map:MapManager;
-    private _drawer:Drawer;
-    private _sectionsHelper:SectionsHelper;
+    private _camera : Camera;
+    private _map : MapManager;
+    private _drawer : Drawer;
+    //private _sectionsHelper : SectionsHelper;
 
-    private _entities:Entity[] = [];
-    private _layers:Entity[] = [];
+    private _entities : Entity[] = [];
 
 
-    constructor(canvas:Canvas, drawer:Drawer, map:MapManager) {
-        this._canvas = canvas;
-        this._camera = new Camera(canvas, map);
+    constructor (drawer : Drawer, map : MapManager, camera : Camera) {
+        this._camera = camera;
         this._map = map;
         this._drawer = drawer;
-        this._sectionsHelper = new SectionsHelper(this._camera);
+        //this._sectionsHelper = new SectionsHelper(this._camera);
 
 
         var g = this._map.mapGenerator.getGird();
@@ -38,20 +33,16 @@ class Level {
         }
     }
 
-    addLayer(layer:Entity) {
-        this._layers.push(layer);
-    }
-
-    addEntity(entity:Entity) {
+    addEntity (entity : Entity) {
         this._entities.push(entity);
     }
 
-    setObjectToFollow(obj:IBox) {
+    setObjectToFollow (obj : Entity) {
         this._camera.setTarget(obj);
     }
 
-    update(time) {
-//        this._camera.moveToTarget(time);
+    update (time) {
+        this._camera.moveToTarget(time);
 
         this._map.update(time);
 
@@ -72,7 +63,7 @@ class Level {
             }
         }
 
-        this._drawer.render(this._entities);
+        this._drawer.render(this._entities, this._camera);
         //this._map.drawDebug(this._drawer.getCTX());
     }
 }

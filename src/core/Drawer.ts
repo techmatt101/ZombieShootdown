@@ -1,4 +1,5 @@
 /// <reference path="Entity.ts" />
+/// <reference path="view/Camera.ts" />
 /// <reference path="../config.ts" />
 /// <reference path="../lib/Canvas.ts" />
 
@@ -16,7 +17,7 @@ class Drawer { //TODO: better name
         return this._ctx;
     }
 
-    render (entity : Entity[]) {
+    render (entity : Entity[], camera : Camera) {
         //Clear fix
         this._ctx.fillStyle = "#000";
         this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
@@ -27,6 +28,7 @@ class Drawer { //TODO: better name
         //}
 
         this._ctx.fillStyle = '#fff';
+        this._ctx.translate(camera.view.x, camera.view.y);
 
         for (var i = 0; i < entity.length; i++) {
             this._ctx.save();
@@ -52,5 +54,7 @@ class Drawer { //TODO: better name
                 this._ctx.restore();
             }
         }
+
+        this._ctx.translate(-camera.view.x, -camera.view.y);
     }
 }
