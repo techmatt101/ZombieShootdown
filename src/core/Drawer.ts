@@ -25,11 +25,19 @@ class Drawer { //TODO: better name
         //    this._ctx.fillRect(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
         //}
 
+        this._ctx.fillStyle = '#fff';
+        this._ctx.strokeStyle = '#f00';
+
         for (var i = 0; i < entity.length; i++) {
-            this._ctx.fillStyle = '#fff';
             this._ctx.save();
             entity[i].drawDebug(this._ctx);
             this._ctx.restore();
+
+            this._ctx.rect(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
+
+
+            //this._ctx.drawImage(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
         }
+        this._ctx.stroke();
     }
 }

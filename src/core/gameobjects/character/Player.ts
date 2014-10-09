@@ -5,7 +5,7 @@
 class Player extends Entity {
     speed = 24;
     weapon : Gun;
-    gunPlacementOffset = new Vector(50, 0);
+    gunPlacementOffset = new Vector(25, 0);
 
     constructor(position, width, height, img, gun : Gun) {
         super(position, width, height, img);
