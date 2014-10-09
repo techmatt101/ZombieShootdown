@@ -33,11 +33,11 @@ function gameSetup() {
     var level = new Level(canvas, drawer, map);
 
     //Does it belong here?
-    Sound = new SoundController();
-    Interface = new InterfaceController(loop); //TODO: hmmm...
-    Input = new InputController(canvas.element);
+    var sound = new SoundController();
+    var ui = new InterfaceController(loop); //TODO: hmmm...
+    var input = new InputController(canvas.element);
     Resources = new ResourceManager();
-    Input.loadKeyMappings(Config.keyMappings);
+    input.loadKeyMappings(Config.keyMappings);
 
     document.getElementById('debug').hidden = true;
     document.getElementById('interface').hidden = true;
@@ -63,7 +63,7 @@ function gameSetup() {
                 level.addEntity(bullets[i]);
             }
             var gun = new Gun(new Vector(5, 5), 8, 5, null, bullets);
-            var player = new Player(new Vector(200, 500), 30, 50, null, gun);
+            var player = new Player(new Vector(200, 500), 30, 50, null, input, gun);
             var zombie = new Zombie(new Vector(0, 0), 30, 50, null, player);
             level.addEntity(player);
             level.addEntity(gun);
@@ -75,15 +75,15 @@ function gameSetup() {
             };
 
             loop.start();
-            startGame();
+            startGame(ui);
         }
     ).run("Loading Resources");
 }
 
 
-function startGame() {
+function startGame(ui) {
 
-    Interface.loaded();
+    ui.loaded();
 
     console.timeEnd("Load_Setup");
     console.log('GAME OVER MAN!');

@@ -10,5 +10,3 @@ class SoundController {
         this._audioClips[key].play();
     }
 }
-
-var Sound : SoundController;  //TODO: really?

@@ -76,11 +76,15 @@ class InputController {
             this._pressed[this._keyMapper[e]] = false;
         }
     }
-//
+
     private onMove (e : MouseEvent) {
-        //FireFox does not support offsetX and Y
-        this._pointerPos.x = e.offsetX || e.layerX;
-        this._pointerPos.y = e.offsetY || e.layerY;
+        this._pointerPos.x = e.offsetX;
+        this._pointerPos.y = e.offsetY;
+    }
+
+    private onMoveLegacy (e : MouseEvent) { //TODO: implement switch
+        this._pointerPos.x = e.layerX;
+        this._pointerPos.y = e.layerY;
     }
 
     getPointerPos() {
@@ -91,5 +95,3 @@ class InputController {
         return this._pressed[action];
     }
 }
-
-var Input : InputController;  //TODO: really?

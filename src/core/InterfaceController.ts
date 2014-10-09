@@ -60,5 +60,3 @@ class InterfaceController {
         this.overlayElement.hidden = true;
     }
 }
-
-var Interface : InterfaceController;  //TODO: really?
