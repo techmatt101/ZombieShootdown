@@ -10,7 +10,7 @@ html {
 #game {
     /*background: transparent;*/
     background: #fff;
-    cursor: url('../img/crosshair.png'), auto;
+    cursor: url('../img/crosshair.png') 16 16, auto;
 }
 
 #overlay {
