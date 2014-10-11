@@ -24,12 +24,19 @@ class MapGenerator {
 
     generate (gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
         this._grid = this.createEmptyGrid(gridSize, TileType.EMPTY);
+        this._rooms = [];
 
         //place first room in the middle of the map
-        this._rooms = [this.generateRoom(minRoomSize, maxRoomSize)];
+        this._rooms.push(this.generateRoom(minRoomSize, maxRoomSize));
         this.placeRoom(this._rooms[0], new Vector(
             (gridSize.x / 2) - (this._rooms[0].width / 2),
             (gridSize.y / 2) - (this._rooms[0].height / 2)
+        ));
+
+        this._rooms.push(this.generateRoom(7, 7));
+        this.placeRoom(this._rooms[1], new Vector(
+            this._rooms[0].pos.x + this._rooms[0].width,
+            this._rooms[0].pos.y + 8
         ));
 
         //TODO: add some monsters, items, and gold in random areas of the map.
