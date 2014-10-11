@@ -9,6 +9,8 @@
 /// <reference path="core/level/MapManager.ts" />
 /// <reference path="core/gameobjects/character/Player.ts" />
 /// <reference path="core/gameobjects/character/Zombie.ts" />
+/// <reference path="core/gamerules/PlayerController.ts" />
+/// <reference path="core/ai/ZombieAI.ts" />
 /// <reference path="lib/ResourceManager.ts" />
 /// <reference path="lib/TaskCollection.ts" />
 /// <reference path="core/tilemap/MapGenerator.ts" />
@@ -65,8 +67,15 @@ function gameSetup() {
             var gun = new Gun(new Vector(5, 5), 14, 5, null, bullets);
             var player = new Player(new Vector(
                 (mg.getMainRoom().pos.x * tileSize) + (mg.getMainRoom().width * tileSize / 2),
-                (mg.getMainRoom().pos.y * tileSize) + (mg.getMainRoom().height * tileSize / 2)), 30, 50, null, input, camera, gun);
-            var zombie = new Zombie(new Vector(0, 0), 20, 60, null, player);
+                (mg.getMainRoom().pos.y * tileSize) + (mg.getMainRoom().height * tileSize / 2)), 30, 50, null, gun);
+            var zombie = new Zombie(new Vector(0, 0), 20, 60, null);
+
+            var zombieAI = new ZombieAI(zombie, player);
+            var playerControler = new PlayerController(player, input, camera);
+
+            level.addControllers(zombieAI);
+            level.addControllers(playerControler);
+
             level.addEntity(player);
             level.addEntity(gun);
             level.addEntity(zombie);
