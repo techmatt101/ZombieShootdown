@@ -43,8 +43,6 @@ function gameSetup() {
     input.loadKeyMappings(Config.keyMappings);
 
     document.getElementById('debug').hidden = true;
-    document.getElementById('interface').hidden = true;
-
 
     new TaskCollection([
             function loadMap(callback) {

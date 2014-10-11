@@ -28,7 +28,7 @@ class Entity implements IUpdate {
             this.pos.y + this.height / 2 > box.pos.y - box.height / 2;
     }
 
-    onCollision () {
+    onCollision (colliedEntity : Entity) {
 
     }
 

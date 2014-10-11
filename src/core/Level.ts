@@ -58,7 +58,7 @@ class Level {
                     this._entities[i].touching = true;
                     this._entities[ii].touching = true;
                     this._entities[i].pos.copy(this._entities[i].lastPos);
-                    this._entities[i].onCollision();
+                    this._entities[i].onCollision(this._entities[ii]);
                 }
             }
         }
