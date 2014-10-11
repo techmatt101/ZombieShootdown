@@ -4,6 +4,11 @@ class Bullet extends Entity {
     speed = 80;
     active = false;
 
+    onCollision() {
+        this.active = !this.active;
+        this.pos.x = 0;
+        this.pos.y = 0;
+    }
 
     update (dt : number) {
         super.update(dt);
