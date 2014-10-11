@@ -11,6 +11,12 @@ class Vector {
         this.y = y;
     }
 
+    clone() {
+        var out = new Vector(this.x, this.y);
+        out.angle = this.angle;
+        return out;
+    }
+
     copy(other : Vector) {
         this.x = other.x;
         this.y = other.y;

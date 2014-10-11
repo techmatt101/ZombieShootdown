@@ -14,6 +14,7 @@
 /// <reference path="lib/ResourceManager.ts" />
 /// <reference path="lib/TaskCollection.ts" />
 /// <reference path="core/tilemap/MapGenerator.ts" />
+/// <reference path="core/factory/ZombieSpawner.ts" />
 
 var tileSize = 32;
 function gameSetup() {
@@ -68,16 +69,13 @@ function gameSetup() {
             var player = new Player(new Vector(
                 (mg.getMainRoom().pos.x * tileSize) + (mg.getMainRoom().width * tileSize / 2),
                 (mg.getMainRoom().pos.y * tileSize) + (mg.getMainRoom().height * tileSize / 2)), 30, 50, null, gun);
-            var zombie = new Zombie(new Vector(0, 0), 20, 60, null);
-
-            var zombieAI = new ZombieAI(zombie, player);
-            var playerController = new PlayerController(player, input, camera);
-            zombie.controller = zombieAI;
-            player.controller = playerController;
+            player.controller = new PlayerController(player, input, camera);
 
             level.addEntity(player);
             level.addEntity(gun);
-            level.addEntity(zombie);
+            level.addEntity(ZombieSpawner.spawnZombie(mg.getMainRoom(), player));
+            level.addEntity(ZombieSpawner.spawnZombie(mg.getMainRoom(), player));
+            level.addEntity(ZombieSpawner.spawnZombie(mg.getMainRoom(), player));
             level.setObjectToFollow(player);
 //          viewport.update(1);
             loop.update = function (dt) { //TODO: remove hack
