@@ -6,6 +6,7 @@ class Bullet extends Entity {
 
 
     update (dt : number) {
+        super.update(dt);
         if(this.active === false) {
             return;
         }

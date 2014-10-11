@@ -13,7 +13,6 @@ class Level {
     //private _sectionsHelper : SectionsHelper;
 
     private _entities : Entity[] = [];
-    private _controllers : IEntityController[] = [];
 
 
     constructor (drawer : Drawer, map : MapManager, camera : Camera) {
@@ -34,10 +33,6 @@ class Level {
         }
     }
 
-    addControllers (entity : IEntityController) {
-        this._controllers.push(entity);
-    }
-
     addEntity (entity : Entity) {
         this._entities.push(entity);
     }
@@ -54,20 +49,15 @@ class Level {
         for (var i = 0; i < this._entities.length; i++) {
             this._entities[i].update(time);
             this._entities[i].touching = false;
-        }
 
-        for (var i = 0; i < this._controllers.length; i++) {
-            this._controllers[i].update(time);
-        }
-
-        for (var i = 0; i < this._entities.length; i++) {
             for (var ii = 0; ii < this._entities.length; ii++) {
-                if (this._entities[i] === this._entities[ii]) {
+                if (!this._entities[i].collision || this._entities[i] === this._entities[ii]) {
                     continue;
                 }
                 if (this._entities[i].isBoundingBoxWith(this._entities[ii])) {
                     this._entities[i].touching = true;
                     this._entities[ii].touching = true;
+                    this._entities[i].pos.copy(this._entities[i].lastPos);
                 }
             }
         }

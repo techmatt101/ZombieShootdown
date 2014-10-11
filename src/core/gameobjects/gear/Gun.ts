@@ -7,6 +7,7 @@ class Gun extends Entity implements IWeapon {
     nextBullet = 0;
     coolDown = 2;
     activeCoolDown = -1;
+    collision = false;
 
 
     constructor(position, width, height, img, bullets) {
@@ -15,6 +16,7 @@ class Gun extends Entity implements IWeapon {
     }
 
     update (dt : number) {
+        super.update(dt);
         if(this.activeCoolDown > 0) {
             this.activeCoolDown -= dt;
         } else {

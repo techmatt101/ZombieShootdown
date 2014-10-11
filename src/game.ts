@@ -71,10 +71,9 @@ function gameSetup() {
             var zombie = new Zombie(new Vector(0, 0), 20, 60, null);
 
             var zombieAI = new ZombieAI(zombie, player);
-            var playerControler = new PlayerController(player, input, camera);
-
-            level.addControllers(zombieAI);
-            level.addControllers(playerControler);
+            var playerController = new PlayerController(player, input, camera);
+            zombie.controller = zombieAI;
+            player.controller = playerController;
 
             level.addEntity(player);
             level.addEntity(gun);

@@ -9,6 +9,9 @@ class Entity implements IUpdate {
     height : number;
     img : HTMLImageElement;
     touching = false;
+    collision = true;
+    controller : IEntityController = null;
+    lastPos = new Vector(0,0);
 
 
     constructor (position, width, height, img) {
@@ -18,7 +21,6 @@ class Entity implements IUpdate {
         this.img = img;
     }
 
-
     isBoundingBoxWith (box : Entity) {
         return this.pos.x - this.width / 2 < box.pos.x + box.width / 2 &&
             this.pos.x + this.width / 2 > box.pos.x - box.width / 2 &&
@@ -27,7 +29,10 @@ class Entity implements IUpdate {
     }
 
     update (dt : number) {
-
+        this.lastPos.copy(this.pos);
+        if(this.controller !== null) {
+            this.controller.update(dt);
+        }
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

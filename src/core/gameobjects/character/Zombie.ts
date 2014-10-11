@@ -2,9 +2,4 @@
 
 class Zombie extends Entity {
     public speed = 5;
-
-
-    constructor(position, width, height, img) {
-        super(position, width, height, img);
-    }
 }
