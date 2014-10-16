@@ -7,7 +7,6 @@ class Player extends Entity implements ICharacter{
     speed = 24;
     health = 100;
     weapon : Gun;
-    gunPlacementOffset = new Vector(38, 0); //TODO: hmmm..
 
 
     constructor(position, width, height, img, gun : Gun) {
@@ -17,7 +16,7 @@ class Player extends Entity implements ICharacter{
 
     update(dt : number) {
         super.update(dt);
-        this.weapon.pos.copy(this.pos).offset(this.gunPlacementOffset);
+        this.weapon.pos.copy(this.pos).offset(this.weapon.gunPlacementOffset);
         this.weapon.pos.rotate(this.pos);
 
         //this.weapon.update(dt);

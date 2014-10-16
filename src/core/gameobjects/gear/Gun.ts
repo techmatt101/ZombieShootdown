@@ -8,6 +8,7 @@ class Gun extends Entity implements IWeapon {
     coolDown = 2;
     activeCoolDown = -1;
     collision = false;
+    gunPlacementOffset = new Vector(38, 0); //TODO: hmmm..
 
 
     constructor(position, width, height, img, bullets) {

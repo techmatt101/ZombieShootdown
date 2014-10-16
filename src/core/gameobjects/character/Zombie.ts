@@ -2,7 +2,7 @@
 
 class Zombie extends Entity implements ICharacter{
     speed = 5;
-    health = 5;
+    health = 20;
     isDead = false;
 
     update (dt : number) {
@@ -13,9 +13,8 @@ class Zombie extends Entity implements ICharacter{
     }
 
     onCollision(colliedEntity : Entity) {
-        console.log(colliedEntity)
         if(!this.isDead && colliedEntity instanceof Bullet) {
-            this.health--;
+            this.health -= (<Bullet>colliedEntity).damage;
             if(this.health < 0) {
                 this.isDead = true;
                 this.pos.x = 100;

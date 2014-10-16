@@ -13,7 +13,7 @@ class PlayerController implements IEntityController {
     }
 
     update(dt : number) {
-        this._player.pos.rotateDirection(new Vector(0,0).copy(this._camera.view).reverse().offset(this._input.getPointerPos())); //TODO: optimize
+        this._player.pos.rotateDirection(this._camera.view.clone().reverse().offset(this._input.getPointerPos())); //TODO: optimize
 
         var movement = new Vector(0,0);
 

@@ -2,7 +2,9 @@
 
 class Bullet extends Entity {
     speed = 80;
+    damage = 5;
     active = false;
+    isDeadly = true;
 
     onCollision() {
         this.active = !this.active;

@@ -5,7 +5,7 @@ class ZombieSpawner {
             room.pos.y * tileSize + (Math.random() * room.height) * tileSize
         ), 20, 60,  null);
 
-        zombie.controller = new ZombieAI(zombie, player);;
+        zombie.controller = new ZombieAI(zombie, player);
 
         return zombie;
     }
