@@ -55,10 +55,13 @@ class MapGenerator {
             this._rooms[0].pos.y + 8
         ));
 
-        //TODO: hmmm..
-        this._rooms[0].pos.multiply(this._tileSize);
-        this._rooms[0].width *= this._tileSize.x;
-        this._rooms[0].height *= this._tileSize.y;
+        //TODO: hmmm...
+        for (var i = 0; i < this._rooms.length; i++) {
+            this._rooms[i].pos.multiply(this._tileSize);
+            this._rooms[i].width *= this._tileSize.x;
+            this._rooms[i].height *= this._tileSize.y;
+        }
+
         //TODO: add some monsters, items, and gold in random areas of the map.
     }
 

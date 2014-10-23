@@ -7,7 +7,6 @@ enum TileType {
 
 class Tile {
     type : TileType;
-    explored = false;
 
     constructor(type : TileType) {
         this.type = type;
