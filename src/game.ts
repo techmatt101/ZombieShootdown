@@ -48,7 +48,9 @@ function gameSetup() {
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.setObjectToFollow(player);
 
-            loop.update = level.update; //TODO: remove hack
+            loop.update = (dt) => {  //TODO: remove hack
+                level.update(dt)
+            };
             loop.start();
 
             startGame(ui);
