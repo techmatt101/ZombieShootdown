@@ -44,15 +44,5 @@ class MapManager implements IBox, IUpdate {
     }
 
     drawDebug(ctx:CanvasRenderingContext2D) {
-        ctx.fillStyle = '#aaa';
-        //TODO: only start from viable
-        var grid = this.mapGenerator.getGird();
-        for (var x = 0; x < grid.length; x++) {
-            for (var y = 0; y < grid[x].length; y++) {
-                if (grid[x][y].type === TileType.WALL) {
-                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                }
-            }
-        }
     }
 }

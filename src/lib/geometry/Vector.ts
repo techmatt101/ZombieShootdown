@@ -99,29 +99,29 @@ class Vector {
     //
 
     //
-    //add(other : Vector) {
-    //    this.x += other.x;
-    //    this.y += other.y;
-    //    return this;
-    //}
-    //
-    //sub(other : Vector) {
-    //    this.x -= other.x;
-    //    this.y -= other.y;
-    //    return this;
-    //}
-    //
-    //multiply(other : Vector) {
-    //    this.x *= other.x;
-    //    this.y *= other.y;
-    //    return this;
-    //}
-    //
-    //divide(other : Vector) {
-    //    this.x /= other.x;
-    //    this.y /= other.y;
-    //    return this;
-    //}
+    add(other : Vector) {
+        this.x += other.x;
+        this.y += other.y;
+        return this;
+    }
+
+    sub(other : Vector) {
+        this.x -= other.x;
+        this.y -= other.y;
+        return this;
+    }
+
+    multiply(other : Vector) {
+        this.x *= other.x;
+        this.y *= other.y;
+        return this;
+    }
+
+    divide(other : Vector) {
+        this.x /= other.x;
+        this.y /= other.y;
+        return this;
+    }
     //
     //scale(x, y) {
     //    this.x *= x;

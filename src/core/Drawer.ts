@@ -31,13 +31,14 @@ class Drawer { //TODO: better name
         this._ctx.translate(camera.view.x, camera.view.y);
 
         for (var i = 0; i < entity.length; i++) {
-            this._ctx.save();
             this._ctx.translate(entity[i].pos.x, entity[i].pos.y);
             this._ctx.rotate(entity[i].pos.angle);
+
             this._ctx.fillRect(-entity[i].width / 2, -entity[i].height / 2, entity[i].width, entity[i].height);
             //this._ctx.drawImage(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
 
-            this._ctx.restore();
+            this._ctx.rotate(-entity[i].pos.angle);
+            this._ctx.translate(-entity[i].pos.x, -entity[i].pos.y);
         }
 
         if(Config.debug){
