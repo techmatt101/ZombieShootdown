@@ -1,4 +1,4 @@
-class ZombieSpawner {
+class EnemyFactory {
     static spawnZombie(room : Room, player : Player) {
         var zombie = new Zombie(new Vector(
             room.pos.x + Math.random() * room.width,

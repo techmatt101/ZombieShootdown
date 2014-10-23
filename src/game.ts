@@ -14,7 +14,8 @@
 /// <reference path="lib/ResourceManager.ts" />
 /// <reference path="lib/TaskCollection.ts" />
 /// <reference path="core/tilemap/MapGenerator.ts" />
-/// <reference path="core/factory/ZombieSpawner.ts" />
+/// <reference path="core/factories/EnemyFactory.ts" />
+/// <reference path="core/factories/PlayerFactory.ts" />
 
 function gameSetup() {
     console.time("Load_Setup");
@@ -63,17 +64,14 @@ function gameSetup() {
                 level.addEntity(bullets[i]);
             }
             var gun = new Gun(new Vector(5, 5), 14, 5, null, bullets);
-            var player = new Player(new Vector(
-                mg.getMainRoom().pos.x + mg.getMainRoom().width / 2,
-                mg.getMainRoom().pos.y + mg.getMainRoom().height / 2
-            ), 30, 50, null, gun);
+            var player = PlayerFactory.spawnPlayer(mg.getMainRoom(), gun);
             player.controller = new PlayerController(player, input, camera);
 
             level.addEntity(player);
             level.addEntity(gun);
-            level.addEntity(ZombieSpawner.spawnZombie(mg.getMainRoom(), player));
-            level.addEntity(ZombieSpawner.spawnZombie(mg.getMainRoom(), player));
-            level.addEntity(ZombieSpawner.spawnZombie(mg.getMainRoom(), player));
+            level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
+            level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
+            level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.setObjectToFollow(player);
 //          viewport.update(1);
             loop.update = function (dt) { //TODO: remove hack
