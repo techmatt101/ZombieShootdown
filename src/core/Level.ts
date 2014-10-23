@@ -21,16 +21,12 @@ class Level {
         this._drawer = drawer;
         //this._sectionsHelper = new SectionsHelper(this._camera);
 
-
-        var g = this._map.mapGenerator.getGird();
-        for (var x = 0; x < g.length; x++) {
-            for (var y = 0; y < g[x].length; y++) {
-                if (g[x][y].type === TileType.WALL) {
-                    this.addEntity(new Entity(new Vector(x * tileSize, y * tileSize), tileSize, tileSize, null))
-                }
+        var self = this;
+        this._map.mapGenerator.loopThroughGrid(function(tile : Tile, pos : Vector, tileSize : Vector) {
+            if(tile.type === TileType.WALL) {
+                self.addEntity(new Entity(pos, tileSize.x, tileSize.y, null));
             }
-
-        }
+        });
     }
 
     addEntity (entity : Entity) {

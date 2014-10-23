@@ -13,6 +13,7 @@
 class MapGenerator {
     private _grid : Array<Tile[]> = [];
     private _rooms : Room[] = [];
+    private _tileSize : Vector;
 
     getGird() {
         return this._grid;
@@ -22,7 +23,22 @@ class MapGenerator {
         return this._rooms[0];
     }
 
-    generate (gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
+    getTileSize() {
+        return this._tileSize;
+    }
+
+    loopThroughGrid(loopCycle : (tile : Tile, pos : Vector, tileSize : Vector) => void) {
+        for (var x = 0; x < this._grid.length; x++) {
+            for (var y = 0; y < this._grid[x].length; y++) {
+                loopCycle(this._grid[x][y],  new Vector(x, y).multiply(this._tileSize), this._tileSize);
+            }
+        }
+    }
+
+    generate (tileSize : Vector, gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
+        this._tileSize = tileSize;
+        gridSize.divide(tileSize);
+
         this._grid = this.createEmptyGrid(gridSize, TileType.EMPTY);
         this._rooms = [];
 
@@ -39,6 +55,10 @@ class MapGenerator {
             this._rooms[0].pos.y + 8
         ));
 
+        //TODO: hmmm..
+        this._rooms[0].pos.multiply(this._tileSize);
+        this._rooms[0].width *= this._tileSize.x;
+        this._rooms[0].height *= this._tileSize.y;
         //TODO: add some monsters, items, and gold in random areas of the map.
     }
 

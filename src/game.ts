@@ -16,7 +16,6 @@
 /// <reference path="core/tilemap/MapGenerator.ts" />
 /// <reference path="core/factory/ZombieSpawner.ts" />
 
-var tileSize = 32;
 function gameSetup() {
     console.time("Load_Setup");
 
@@ -26,7 +25,7 @@ function gameSetup() {
     canvas.context = canvas.element.getContext('2d');
 
     var mg = new MapGenerator();
-    mg.generate(new Vector(canvas.width / tileSize, canvas.height / tileSize), 14, 24);
+    mg.generate(new Vector(32, 32), new Vector(canvas.width, canvas.height), 14, 24);
 
     var map = new MapManager(new Vector(0,0), 0, 0, mg);
 
@@ -65,8 +64,9 @@ function gameSetup() {
             }
             var gun = new Gun(new Vector(5, 5), 14, 5, null, bullets);
             var player = new Player(new Vector(
-                (mg.getMainRoom().pos.x * tileSize) + (mg.getMainRoom().width * tileSize / 2),
-                (mg.getMainRoom().pos.y * tileSize) + (mg.getMainRoom().height * tileSize / 2)), 30, 50, null, gun);
+                mg.getMainRoom().pos.x + mg.getMainRoom().width / 2,
+                mg.getMainRoom().pos.y + mg.getMainRoom().height / 2
+            ), 30, 50, null, gun);
             player.controller = new PlayerController(player, input, camera);
 
             level.addEntity(player);
