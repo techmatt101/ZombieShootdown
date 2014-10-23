@@ -1,21 +1,5 @@
-/// <reference path="config.ts" />
-/// <reference path="lib/controllers/SoundController.ts" />
-/// <reference path="lib/controllers/InputController.ts" />
-/// <reference path="lib/Canvas.ts" />
-/// <reference path="lib/GameLoop.ts" />
-/// <reference path="core/Level.ts" />
-/// <reference path="core/Drawer.ts" />
-/// <reference path="core/InterfaceController.ts" />
-/// <reference path="core/level/MapManager.ts" />
-/// <reference path="core/gameobjects/character/Player.ts" />
-/// <reference path="core/gameobjects/character/Zombie.ts" />
-/// <reference path="core/gamerules/PlayerController.ts" />
-/// <reference path="core/ai/ZombieAI.ts" />
-/// <reference path="lib/ResourceManager.ts" />
-/// <reference path="lib/TaskCollection.ts" />
-/// <reference path="core/tilemap/MapGenerator.ts" />
-/// <reference path="core/factories/EnemyFactory.ts" />
-/// <reference path="core/factories/PlayerFactory.ts" />
+/// <reference path="ref" />
+/// <reference path="config" />
 
 function gameSetup() {
     console.time("Load_Setup");
@@ -45,40 +29,28 @@ function gameSetup() {
     document.getElementById('debug').hidden = true;
 
     new TaskCollection([
-            function loadMap(callback) {
-                        callback();
+        function loadMap(callback) {
+                    callback();
 
-            }
-        //function loadMap(callback) {
-        //    Resources.retrieveJson('testMap', (json) => {
-        //        map.loadMap(json, function() {
-        //            callback();
-        //        });
-        //    });
-        //}
+        }
     ],
         function complete() {
-            var bullets = [];
-            for (var i = 0; i < 10; i++) {
-                bullets.push(new Bullet(new Vector(0,0), 8, 3, null));
-                level.addEntity(bullets[i]);
-            }
-            var gun = new Gun(new Vector(5, 5), 14, 5, null, bullets);
+            var bullets = WeaponFactory.spawnBullets(10);
+            var gun = WeaponFactory.spawnGun(bullets);
             var player = PlayerFactory.spawnPlayer(mg.getMainRoom(), gun);
             player.controller = new PlayerController(player, input, camera);
 
+            level.addEntities(bullets);
             level.addEntity(player);
             level.addEntity(gun);
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.setObjectToFollow(player);
-//          viewport.update(1);
-            loop.update = function (dt) { //TODO: remove hack
-                level.update(dt);
-            };
 
+            loop.update = level.update; //TODO: remove hack
             loop.start();
+
             startGame(ui);
         }
     ).run("Loading Resources");
@@ -86,9 +58,7 @@ function gameSetup() {
 
 
 function startGame(ui) {
-
     ui.loaded();
-
     console.timeEnd("Load_Setup");
     console.log('GAME OVER MAN!');
 }
