@@ -1,8 +1,3 @@
-/// <reference path="../../Entity.ts" />
-/// <reference path="../gear/Gun.ts" />
-/// <reference path="ICharacter.ts" />
-/// <reference path="../../../lib/controllers/InputController.ts" />
-
 class Player extends Entity implements ICharacter{
     speed = 24;
     health = 100;

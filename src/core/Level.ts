@@ -1,11 +1,3 @@
-/// <reference path="../lib/geometry/Vector.ts" />
-/// <reference path="../lib/geometry/Box.ts" />
-/// <reference path="../lib/Canvas.ts" />
-/// <reference path="view/Camera.ts" />
-/// <reference path="Entity.ts" />
-/// <reference path="level/MapManager.ts" />
-/// <reference path="Drawer.ts" />
-
 class Level {
     private _camera : Camera;
     private _map : MapManager;
@@ -31,6 +23,12 @@ class Level {
 
     addEntity (entity : Entity) {
         this._entities.push(entity);
+    }
+
+    addEntities (entities : Entity[]) {
+        for (var i = 0; i < entities.length; i++) {
+            this._entities.push(entities[i]);
+        }
     }
 
     setObjectToFollow (obj : Entity) {

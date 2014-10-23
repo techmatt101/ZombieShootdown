@@ -1,8 +1,3 @@
-/// <reference path="Entity.ts" />
-/// <reference path="view/Camera.ts" />
-/// <reference path="../config.ts" />
-/// <reference path="../lib/Canvas.ts" />
-
 class Drawer { //TODO: better name
     private _canvas : Canvas;
     private _ctx : CanvasRenderingContext2D;

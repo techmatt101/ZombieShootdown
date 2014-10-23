@@ -1,8 +1,3 @@
-/// <reference path="../../lib/geometry/Vector.ts" />
-/// <reference path="../../lib/geometry/IBox.ts" />
-/// <reference path="../../lib/Canvas.ts" />
-/// <reference path="../Entity.ts" />
-
 class Camera {
     public view : Vector;
     public boundary : IBox;

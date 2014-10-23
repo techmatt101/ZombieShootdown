@@ -1,6 +1,3 @@
-/// <reference path="Direction.ts" />
-/// <reference path="Tile.ts" />
-
 class Wall {
     pos : Vector;
     tile : Tile;

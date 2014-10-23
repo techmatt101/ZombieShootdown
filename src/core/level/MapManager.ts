@@ -1,7 +1,3 @@
-/// <reference path="../../lib/ResourceManager.ts" />
-/// <reference path="../Entity.ts" />
-/// <reference path="../tilemap/MapGenerator.ts" />
-
 class MapManager implements IBox, IUpdate {
     //metaData;
     //objects : Entity[] = [];

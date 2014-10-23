@@ -1,5 +1,3 @@
-/// <reference path="../../Entity.ts" />
-
 class Zombie extends Entity implements ICharacter{
     speed = 5;
     health = 20;

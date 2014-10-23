@@ -1,6 +1,3 @@
-/// <reference path="Tile.ts" />
-/// <reference path="../../lib/geometry/Vector.ts" />
-
 class Room {
     pos : Vector;
     width : number;

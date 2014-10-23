@@ -1,15 +1,3 @@
-// Based on: http://breinygames.blogspot.com/2011/07/random-map-generation.html
-
-// Needs improvment:
-// - It is possible with small rooms for it to not be closed (i.e. a wall tile missing)
-// - Walls often double up (more room spacing?)
-
-/// <reference path="Room.ts" />
-/// <reference path="Tile.ts" />
-/// <reference path="Wall.ts" />
-/// <reference path="Direction.ts" />
-
-
 class MapGenerator {
     private _grid : Array<Tile[]> = [];
     private _rooms : Room[] = [];
@@ -35,6 +23,7 @@ class MapGenerator {
         }
     }
 
+    // Based on: http://breinygames.blogspot.com/2011/07/random-map-generation.html
     generate (tileSize : Vector, gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
         this._tileSize = tileSize;
         gridSize.divide(tileSize);

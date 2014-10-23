@@ -1,5 +1,3 @@
-/// <reference path="IEntityController.ts" />
-
 class PlayerController implements IEntityController {
     private _player : Player;
     private _input : InputController;

@@ -1,7 +1,3 @@
-/// <reference path="../../Entity.ts" />
-/// <reference path="Bullet.ts" />
-/// <reference path="IWeapon.ts" />
-
 class Gun extends Entity implements IWeapon {
     bullets : Bullet[] = [];
     nextBullet = 0;

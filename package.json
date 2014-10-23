@@ -8,7 +8,7 @@
     "url": "https://github.com/techmatt101/ZombieShootout.git"
   },
   "scripts": {
-    "build": "tsc src/game.ts --out src/build/game.js --sourcemap --target ES5",
+	"prepublish": "tsc src/game.ts --out src/build/game.js --sourcemap --target ES5",
     "test": "jasmine-node test"
   },
   "dependencies": {

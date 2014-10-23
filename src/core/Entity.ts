@@ -1,8 +1,3 @@
-/// <reference path="../lib/geometry/Polygon.ts" />
-/// <reference path="../lib/geometry/IBox.ts" />
-/// <reference path="../lib/IUpdate.ts" />
-
-
 class Entity implements IUpdate {
     pos : Vector;
     width : number;
