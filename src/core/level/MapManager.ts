@@ -1,21 +1,19 @@
-class MapManager implements IBox, IUpdate {
+class MapManager extends Box implements IUpdate {
     //metaData;
-    //objects : Entity[] = [];
+    //objects : EntityOld[] = [];
     //graphics = [];
     //audio = [];
-    width:number;
-    height:number;
-    pos:Vector;
-    x:number;
-    y:number;
-    mapGenerator:MapGenerator;
+    width : number;
+    height : number;
+    pos : Vector;
+    x : number;
+    y : number;
+    mapGenerator : MapGenerator;
     //angle : number;
 
 
-    constructor(pos:Vector, width, height, mapGenerator:MapGenerator) {
-        this.pos = pos;
-        this.width = width;
-        this.height = height;
+    constructor (pos : Vector, width, height, mapGenerator : MapGenerator) {
+        super(width, height, pos);
         this.mapGenerator = mapGenerator;
     }
 
@@ -36,9 +34,9 @@ class MapManager implements IBox, IUpdate {
     //    });
     //}
 
-    update(dt:number):void {
+    update (dt : number) : void {
     }
 
-    drawDebug(ctx:CanvasRenderingContext2D) {
+    drawDebug (ctx : CanvasRenderingContext2D) {
     }
 }

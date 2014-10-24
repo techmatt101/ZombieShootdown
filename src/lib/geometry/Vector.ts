@@ -1,20 +1,13 @@
-/// <reference path="_helpers.ts" />
+/// <reference path="_helpers" />
 
 class Vector {
-    x : number;
-    y : number;
-    angle : number = 0;
-
-
-    constructor(x : number, y : number) {
-        this.x = x;
-        this.y = y;
+    constructor(public x : number = 0,
+                public y : number = 0,
+                public angle : number = 0) {
     }
 
     clone() {
-        var out = new Vector(this.x, this.y);
-        out.angle = this.angle;
-        return out;
+        return new Vector(this.x, this.y, this.angle);
     }
 
     copy(other : Vector) {
@@ -74,6 +67,12 @@ class Vector {
         this.y = ~~this.y;
     }
 
+    reset () {
+        this.x = 0;
+        this.y = 0;
+        this.angle = 0;
+    }
+
     //    static calcLine (x, y) { //todo: look at
 //        var a = new Vector(this.y - y, this.x - x).atan2();
 //        return new Vector(
@@ -122,12 +121,13 @@ class Vector {
         this.y /= other.y;
         return this;
     }
-    //
-    //scale(x, y) {
-    //    this.x *= x;
-    //    this.y *= y;
-    //    return this;
-    //}
+
+    scale(n) { //TODO: hmmm...
+        this.x *= n;
+        this.y *= n;
+        return this;
+    }
+
     //
     //
     dot(other : Vector) {

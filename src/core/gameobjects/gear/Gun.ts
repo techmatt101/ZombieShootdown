@@ -1,4 +1,4 @@
-class Gun extends Entity implements IWeapon {
+class Gun extends EntityOld implements IWeapon {
     bullets : Bullet[] = [];
     nextBullet = 0;
     coolDown = 2;

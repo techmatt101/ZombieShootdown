@@ -12,7 +12,7 @@ function gameSetup() {
     var mg = new MapGenerator();
     mg.generate(new Vector(32, 32), new Vector(canvas.width, canvas.height), 14, 24);
 
-    var map = new MapManager(new Vector(0,0), 0, 0, mg);
+    var map = new MapManager(new Vector(), 1500, 1000, mg);
 
     var drawer = new Drawer(canvas);
     var loop = new GameLoop();
@@ -35,14 +35,14 @@ function gameSetup() {
         }
     ],
         function complete() {
-            var bullets = WeaponFactory.spawnBullets(10);
-            var gun = WeaponFactory.spawnGun(bullets);
-            var player = PlayerFactory.spawnPlayer(mg.getMainRoom(), gun);
-            player.controller = new PlayerController(player, input, camera);
+            //var bullets = WeaponFactory.spawnBullets(10);
+            //var gun = WeaponFactory.spawnGun(bullets);
+            var player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera);
+            //player.controller = new PlayerController(player, input, camera);
 
-            level.addEntities(bullets);
+            //level.addEntities(bullets);
             level.addEntity(player);
-            level.addEntity(gun);
+            //level.addEntity(gun);
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));

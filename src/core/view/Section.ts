@@ -1,3 +1,3 @@
 class Section extends Box {
-    entities : Entity[] = [];
+    entities : EntityOld[] = [];
 }

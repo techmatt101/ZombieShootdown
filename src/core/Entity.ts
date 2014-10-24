@@ -1,39 +1,40 @@
 class Entity implements IUpdate {
+    id : string;
     pos : Vector;
-    width : number;
-    height : number;
-    img : HTMLImageElement;
-    touching = false;
-    collision = true;
-    controller : IEntityController = null;
-    lastPos = new Vector(0,0);
+    geometry : IShape;
+    texture : Texture;
+    attr = new Attributes();
+
+    private _attrs : IAttr[] = [];
 
 
-    constructor (position, width, height, img) {
-        this.pos = position;
-        this.width = width;
-        this.height = height;
-        this.img = img;
-    }
+    constructor (id : string, geometry : IShape, texture : Texture) {
+        this.id = id;
+        this.geometry = geometry;
+        this.texture = texture;
+        this.pos = this.geometry.pos;
 
-    isBoundingBoxWith (box : Entity) {
-        return this.pos.x - this.width / 2 < box.pos.x + box.width / 2 &&
-            this.pos.x + this.width / 2 > box.pos.x - box.width / 2 &&
-            this.pos.y - this.height / 2 < box.pos.y + box.height / 2 &&
-            this.pos.y + this.height / 2 > box.pos.y - box.height / 2;
-    }
-
-    onCollision (colliedEntity : Entity) {
-
-    }
-
-    update (dt : number) {
-        this.lastPos.copy(this.pos);
-        if(this.controller !== null) {
-            this.controller.update(dt);
+        if (geometry instanceof Box) { //TODO: temporary hack
+            this.texture = new Texture();
+            this.texture.width = (<Box> geometry).width;
+            this.texture.height = (<Box> geometry).height;
         }
     }
 
-    drawDebug(ctx : CanvasRenderingContext2D) : void {
+    addAttr (attr : IAttr) {
+        this._attrs.push(attr);
+        attr.create(this);
+    }
+
+    update (dt : number) {
+        for (var i = 0; i < this._attrs.length; i++) {
+            this._attrs[i].update(dt);
+        }
+    }
+
+    drawDebug (ctx : CanvasRenderingContext2D) {
+        for (var i = 0; i < this._attrs.length; i++) {
+            this._attrs[i].drawDebug(ctx);
+        }
     }
 }

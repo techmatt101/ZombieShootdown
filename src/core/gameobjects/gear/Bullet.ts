@@ -1,4 +1,4 @@
-class Bullet extends Entity {
+class Bullet extends EntityOld {
     speed = 80;
     damage = 5;
     active = false;

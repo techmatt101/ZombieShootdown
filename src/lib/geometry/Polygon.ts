@@ -1,11 +1,7 @@
-/// <reference path="Vector.ts" />
+/// <reference path="Vector" />
 
-class Polygon extends Vector {
-    points : Vector[] = [];
-
-
-    constructor (x, y, points) {
-        super(x, y);
-        this.points = points;
+class Polygon implements IShape {
+    constructor (public pos : Vector,
+                 public points : Vector[]) {
     }
 }

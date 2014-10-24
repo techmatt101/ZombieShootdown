@@ -1,11 +1,7 @@
-/// <reference path="Vector.ts" />
+/// <reference path="Vector" />
 
-class Circle extends Vector {
-    radius : number;
-
-
-    constructor (x, y, radius) {
-        super(x, y);
-        this.radius = radius;
+class Circle implements IShape {
+    constructor (public radius : number,
+                 public pos : Vector = new Vector()) {
     }
 }

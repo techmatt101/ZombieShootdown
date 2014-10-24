@@ -1,14 +1,16 @@
-/// <reference path="geometry/Box.ts" />
-/// <reference path="geometry/Vector.ts" />
+/// <reference path="geometry/Vector" />
 
-class Canvas extends Box {
+class Canvas {
     element : HTMLCanvasElement;
     center : Vector;
+    width : number;
+    height : number;
     context;
 
     constructor(canvas : HTMLCanvasElement) {
-        super(0, 0, canvas.width, canvas.height);
+        this.width = canvas.width;
+        this.height = canvas.height;
         this.element = canvas;
-        this.center = new Vector(canvas.width / 2, canvas.height / 2);
+        this.center = new Vector(this.width / 2, this.height / 2);
     }
 }
