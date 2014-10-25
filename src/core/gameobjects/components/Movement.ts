@@ -1,15 +1,16 @@
-class Movement implements IAttr{
-    private _entity : Entity;
+class Movement implements IComponent{
     speed : number;
 
+    private _pos : Vector;
 
-    constructor(speed = 5) {
+
+    constructor(pos : Vector, speed = 5) {
+        this._pos = pos;
         this.speed = speed;
     }
 
-    create (entity : Entity) {
-        this._entity = entity;
-        this._entity.attr.movement = this;
+    bind (components : Components) {
+        components.movement = this;
     }
 
     update (dt : number) : void {
@@ -21,10 +22,10 @@ class Movement implements IAttr{
     direct (direction : Vector, dt : number) {
         direction.normalize();
         direction.scale(this.speed * dt);
-        this._entity.pos.add(direction);
+        this._pos.add(direction);
     }
 
     traject (dt : number) {
-        this._entity.pos.traject(this.speed * dt);
+        this._pos.traject(this.speed * dt);
     }
 }

@@ -1,11 +1,9 @@
-class Entity implements IUpdate {
+class Entity {
     id : string;
     pos : Vector;
     geometry : IShape;
     texture : Texture;
-    attr = new Attributes();
-
-    private _attrs : IAttr[] = [];
+    components = new Components();
 
 
     constructor (id : string, geometry : IShape, texture : Texture) {
@@ -18,23 +16,6 @@ class Entity implements IUpdate {
             this.texture = new Texture();
             this.texture.width = (<Box> geometry).width;
             this.texture.height = (<Box> geometry).height;
-        }
-    }
-
-    addAttr (attr : IAttr) {
-        this._attrs.push(attr);
-        attr.create(this);
-    }
-
-    update (dt : number) {
-        for (var i = 0; i < this._attrs.length; i++) {
-            this._attrs[i].update(dt);
-        }
-    }
-
-    drawDebug (ctx : CanvasRenderingContext2D) {
-        for (var i = 0; i < this._attrs.length; i++) {
-            this._attrs[i].drawDebug(ctx);
         }
     }
 }

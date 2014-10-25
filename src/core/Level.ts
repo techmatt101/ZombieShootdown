@@ -41,7 +41,7 @@ class Level {
         this._map.update(dt);
 
         for (var i = 0; i < this._entities.length; i++) {
-            this._entities[i].update(dt);
+            this._entities[i].components.update(dt);
             //this._entities[i].touching = false;
             //
             //for (var ii = 0; ii < this._entities.length; ii++) {

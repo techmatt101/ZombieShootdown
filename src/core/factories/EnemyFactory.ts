@@ -6,9 +6,9 @@ class EnemyFactory {
                 room.pos.y + Math.random() * room.height
             )), null);
 
-        zombie.addAttr(new ZombieAI2(player));
-        zombie.addAttr(new Movement(5));
-        zombie.addAttr(new Health(200));
+        zombie.components.add(new AI(new ZombieAI(zombie, player)));
+        zombie.components.add(new Movement(player.pos, 5));
+        zombie.components.add(new Health(200));
 
         return zombie;
     }

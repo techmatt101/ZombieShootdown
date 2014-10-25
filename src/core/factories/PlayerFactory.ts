@@ -6,10 +6,10 @@ class PlayerFactory {
             room.pos.y + room.height / 2
         )), null);
 
-        player.addAttr(new InputControl(input, camera));
-        player.addAttr(new Movement(20));
-        player.addAttr(new Health(200));
-        //player.addAttr(new WeaponHolder(gun));
+        player.components.add(new Movement(player.pos, 20));
+        //player.addComponent(new WeaponHolder(gun));
+        player.components.add(new Health(200));
+        player.components.add(new InputControl(player, input, camera));
 
         return player;
     }

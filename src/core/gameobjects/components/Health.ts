@@ -1,12 +1,12 @@
-class Health implements IAttr {
+class Health implements IComponent {
     health : number;
 
     constructor(health : number = 100) {
         this.health = health;
     }
 
-    create (entity : Entity) {
-        entity.attr.health = this;
+    bind(components : Components) {
+        components.health = this;
     }
 
     update (dt : number) : void {

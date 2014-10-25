@@ -1,12 +1,12 @@
-class WeaponHolder implements IAttr {
+class WeaponHolder implements IComponent {
     weapon : Gun;
 
     constructor(weapon : Gun) {
         this.weapon = weapon;
     }
 
-    create (entity : Entity) {
-        entity.attr.weapon = this;
+    bind(attrs : Components) {
+        attrs.weapon = this;
     }
 
     update (dt : number) : void {
