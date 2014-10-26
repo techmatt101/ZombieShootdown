@@ -1,10 +1,7 @@
 class Components implements IUpdate {
-    private _list : IComponent[] = [];
-
 
     add (attr : IComponent) {
         this[this.getName(attr)] = attr;
-        this._list.push(attr);
     }
 
     private getName (obj) : string {
@@ -28,14 +25,28 @@ class Components implements IUpdate {
     }
 
     update (dt : number) {
-        for (var i = 0; i < this._list.length; i++) {
-            this._list[i].update(dt);
-        }
+        this.updateComponents(this, dt);
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) {
-        for (var i = 0; i < this._list.length; i++) {
-            this._list[i].drawDebug(ctx);
-        }
+        this.debugComponents(this, ctx);
     }
+
+    build () {
+        var updateCode = [];
+        var debugCode = [];
+        for (var key in this) {
+            if (typeof this[key] === 'object') {
+                updateCode.push('self.' + key + '.update(dt);');
+                debugCode.push('self.' + key + '.drawDebug(ctx);');
+            }
+        }
+        this.updateComponents = new Function('self, dt', updateCode.join(''));
+        this.debugComponents = new Function('self, ctx', debugCode.join(''));
+    }
+
+    updateComponents : Function = function (self, dt) {
+    };
+    debugComponents : Function = function (self, ctx) {
+    };
 }

@@ -10,6 +10,7 @@ class EnemyFactory {
         zombie.components.add(new Movement(player.pos, 5));
         zombie.components.add(new Health(200));
         zombie.components.add(new AI(new ZombieAI(zombie, player)));
+        zombie.components.build();
 
         return zombie;
     }

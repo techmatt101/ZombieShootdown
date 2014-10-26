@@ -11,6 +11,7 @@ class PlayerFactory {
         //player.addComponent(new WeaponHolder(gun));
         player.components.add(new Health(200));
         player.components.add(new InputControl(player, input, camera));
+        player.components.build();
 
         return player;
     }
