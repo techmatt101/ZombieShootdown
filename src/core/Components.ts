@@ -3,8 +3,20 @@ class Components implements IUpdate {
 
 
     add (attr : IComponent) {
-        this[(<any> attr).constructor.name] = attr;
+        this[this.getName(attr)] = attr;
         this._list.push(attr);
+    }
+
+    private getName (obj) : string {
+        if(typeof obj.constructor.name !== 'undefined') {
+            return obj.constructor.name;
+        }
+        //ECMA script < 6 polyfill
+        name = /(\w+)\(/.exec(obj.constructor.toString())[1];
+        obj.name = name;
+        window[name].name = name;
+
+        return name;
     }
 
     get (obj) : IComponent {
