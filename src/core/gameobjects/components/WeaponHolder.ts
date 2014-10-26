@@ -5,10 +5,6 @@ class WeaponHolder implements IComponent {
         this.weapon = weapon;
     }
 
-    bind(attrs : Components) {
-        attrs.weapon = this;
-    }
-
     update (dt : number) : void {
         this.weapon.update(dt);
     }

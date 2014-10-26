@@ -1,15 +1,18 @@
 class Components implements IUpdate {
-    health :  Health;
-    movement :  Movement;
-    weapon :  WeaponHolder;
-    controller;
-
     private _list : IComponent[] = [];
 
 
     add (attr : IComponent) {
+        this[(<any> attr).constructor.name] = attr;
         this._list.push(attr);
-        attr.bind(this);
+    }
+
+    get (obj) : IComponent {
+        return this[obj.name];
+    }
+
+    has (obj) {
+        return typeof this[obj.name] !== 'undefined';
     }
 
     update (dt : number) {

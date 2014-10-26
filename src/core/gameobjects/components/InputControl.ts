@@ -11,20 +11,20 @@ class InputControl implements IComponent {
         this._camera = camera;
     }
 
-    bind(components : Components) {
-        components.controller = this;
-    }
-
     update (dt : number) {
         this._entity.pos.rotateDirection(this._camera.view.clone().reverse().offset(this._input.getPointerPos())); //TODO: optimize
 
-        this._movement.reset();
-        if (this._input.isDown(InputAction.LEFT)) this._movement.x -= 1;
-        if (this._input.isDown(InputAction.RIGHT)) this._movement.x += 1;
-        if (this._input.isDown(InputAction.UP)) this._movement.y -= 1;
-        if (this._input.isDown(InputAction.DOWN)) this._movement.y += 1;
+        if(this._entity.components.has(Movement)) {
+            var movement = <Movement> this._entity.components.get(Movement);
 
-        this._entity.components.movement.direct(this._movement, dt);
+            this._movement.reset();
+            if (this._input.isDown(InputAction.LEFT)) this._movement.x -= 1;
+            if (this._input.isDown(InputAction.RIGHT)) this._movement.x += 1;
+            if (this._input.isDown(InputAction.UP)) this._movement.y -= 1;
+            if (this._input.isDown(InputAction.DOWN)) this._movement.y += 1;
+
+            movement.direct(this._movement, dt);
+        }
 
         //if (this._input.isDown(InputAction.ACTION_1)) {
         //    this._entity.weapon.attack();

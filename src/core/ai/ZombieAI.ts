@@ -10,6 +10,10 @@ class ZombieAI implements IAI {
 
     update(dt : number) {
         this._entity.pos.rotateDirection(this._player.pos);
-        this._entity.pos.traject(this._entity.components.movement.speed * dt);
+
+        if(this._entity.components.has(Movement)) {
+            var movement = <Movement> this._entity.components.get(Movement);
+            this._entity.pos.traject(movement.speed * dt);
+        }
     }
 }

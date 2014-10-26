@@ -5,10 +5,6 @@ class Health implements IComponent {
         this.health = health;
     }
 
-    bind(components : Components) {
-        components.health = this;
-    }
-
     update (dt : number) : void {
     }
 

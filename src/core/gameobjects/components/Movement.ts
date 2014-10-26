@@ -1,4 +1,4 @@
-class Movement implements IComponent{
+class Movement implements IComponent {
     speed : number;
 
     private _pos : Vector;
@@ -7,10 +7,6 @@ class Movement implements IComponent{
     constructor(pos : Vector, speed = 5) {
         this._pos = pos;
         this.speed = speed;
-    }
-
-    bind (components : Components) {
-        components.movement = this;
     }
 
     update (dt : number) : void {

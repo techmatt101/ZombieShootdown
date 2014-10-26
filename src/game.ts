@@ -1,6 +1,8 @@
 /// <reference path="ref" />
 /// <reference path="config" />
 
+var player;
+
 function gameSetup() {
     console.time("Load_Setup");
 
@@ -37,7 +39,7 @@ function gameSetup() {
         function complete() {
             //var bullets = WeaponFactory.spawnBullets(10);
             //var gun = WeaponFactory.spawnGun(bullets);
-            var player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera);
+            player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera);
             //player.controller = new PlayerController(player, input, camera);
 
             //level.addEntities(bullets);

@@ -42,19 +42,6 @@ class Level {
 
         for (var i = 0; i < this._entities.length; i++) {
             this._entities[i].components.update(dt);
-            //this._entities[i].touching = false;
-            //
-            //for (var ii = 0; ii < this._entities.length; ii++) {
-            //    if (!this._entities[i].collision || this._entities[i] === this._entities[ii]) {
-            //        continue;
-            //    }
-            //    if (this._entities[i].isBoundingBoxWith(this._entities[ii])) {
-            //        this._entities[i].touching = true;
-            //        this._entities[ii].touching = true;
-            //        this._entities[i].pos.copy(this._entities[i].lastPos);
-            //        this._entities[i].onCollision(this._entities[ii]);
-            //    }
-            //}
         }
 
         this._drawer.render(this._entities, this._camera);

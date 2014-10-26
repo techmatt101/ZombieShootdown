@@ -6,10 +6,6 @@ class AI implements IComponent {
         this._ai = ai;
     }
 
-    bind(components : Components) {
-        components.controller = this;
-    }
-
     update(dt : number) {
         this._ai.update(dt);
     }
