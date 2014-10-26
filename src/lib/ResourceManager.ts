@@ -15,15 +15,15 @@ class ResourceManager {
             callback(img);
         };
         img.src = 'content/img/error_image.png';
-        return;
-
-        this.request(name, (response) => {
-            var img = new Image(); // http://stackoverflow.com/questions/9292133/receiving-image-through-websocket
-            img.id = name;
-            img.src = 'data:image/png;base64,' + response;
-            callback(img);
-        });
-        console.log("Loaded: " + name);
+        //return;
+        //
+        //this.request(name, (response) => {
+        //    var img = new Image(); // http://stackoverflow.com/questions/9292133/receiving-image-through-websocket
+        //    img.id = name;
+        //    img.src = 'data:image/png;base64,' + response;
+        //    callback(img);
+        //});
+        //console.log("Loaded: " + name);
     }
 
     retrieveSound(name, callback : (audio : HTMLAudioElement) => void) {
