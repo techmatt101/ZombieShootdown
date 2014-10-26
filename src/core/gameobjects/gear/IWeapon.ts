@@ -1,4 +1,3 @@
-//interface IWeapon extends Entity {
-interface IWeapon {
+interface IWeapon extends Entity {
     attack() : void
 }

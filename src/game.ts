@@ -39,7 +39,7 @@ function gameSetup() {
         function complete() {
             //var bullets = WeaponFactory.spawnBullets(10);
             //var gun = WeaponFactory.spawnGun(bullets);
-            player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera);
+            player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera, null);
             //player.controller = new PlayerController(player, input, camera);
 
             //level.addEntities(bullets);

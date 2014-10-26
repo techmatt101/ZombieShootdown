@@ -21,6 +21,7 @@
 /// <reference path="core\ai\ZombieAI.ts" />
 /// <reference path="core\factories\EnemyFactory.ts" />
 /// <reference path="core\factories\PlayerFactory.ts" />
+/// <reference path="core\factories\TileFactory.ts" />
 /// <reference path="core\factories\WeaponFactory.ts" />
 /// <reference path="core\gameobjects\components\AI.ts" />
 /// <reference path="core\gameobjects\components\Collision.ts" />

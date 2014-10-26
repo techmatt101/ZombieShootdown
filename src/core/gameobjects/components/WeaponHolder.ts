@@ -1,12 +1,16 @@
 class WeaponHolder implements IComponent {
-    weapon : Gun;
+    private _weapon : IWeapon;
 
-    constructor(weapon : Gun) {
-        this.weapon = weapon;
+
+    constructor(weapon : IWeapon) {
+        this._weapon = weapon;
+    }
+
+    attack() {
+        this._weapon.attack();
     }
 
     update (dt : number) : void {
-        this.weapon.update(dt);
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) : void {

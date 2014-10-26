@@ -1,15 +1,27 @@
 class WeaponFactory {
 
+    static spawnBullet() {
+        var bullet = new Entity('Bullet', new Box(5, 8), null);
+
+        bullet.components.add(new Collision(<Box> bullet.geometry));
+        bullet.components.add(new Movement(bullet.pos));
+        bullet.components.build();
+
+        return bullet;
+    }
+
     static spawnBullets(n) {
         var bullets = [];
         for (var i = 0; i < n; i++) {
-            bullets.push(new Bullet(new Vector(), 8, 3, null));
+            bullets.push(WeaponFactory.spawnBullet());
         }
 
         return bullets;
     }
 
     static spawnGun(bullets : Bullet[]) {
-        return new Gun(new Vector(5, 5), 14, 5, null, bullets);
+        var gun = new Entity('Gun', new Box(14, 5), null);
+
+        return gun;
     }
 }
