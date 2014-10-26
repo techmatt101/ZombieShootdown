@@ -6,6 +6,7 @@ class PlayerFactory {
             room.pos.y + room.height / 2
         )), null);
 
+        player.components.add(new Collision(<Box> player.geometry));
         player.components.add(new Movement(player.pos, 20));
         //player.addComponent(new WeaponHolder(gun));
         player.components.add(new Health(200));

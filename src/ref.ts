@@ -23,6 +23,7 @@
 /// <reference path="core\factories\PlayerFactory.ts" />
 /// <reference path="core\factories\WeaponFactory.ts" />
 /// <reference path="core\gameobjects\components\AI.ts" />
+/// <reference path="core\gameobjects\components\Collision.ts" />
 /// <reference path="core\gameobjects\components\Health.ts" />
 /// <reference path="core\gameobjects\components\IComponent.ts" />
 /// <reference path="core\gameobjects\components\InputControl.ts" />
