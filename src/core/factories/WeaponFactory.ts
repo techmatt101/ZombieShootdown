@@ -20,7 +20,7 @@ class WeaponFactory {
     }
 
     static spawnGun(bullets : Bullet[]) {
-        var gun = new Entity('Gun', new Box(14, 5), null);
+        var gun = new Gun('Gun', new Box(14, 5), null, bullets);
 
         return gun;
     }

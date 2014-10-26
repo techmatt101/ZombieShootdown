@@ -3,7 +3,7 @@ class Gun extends Entity implements IWeapon {
     nextBullet = 0;
     coolDown = 2;
     activeCoolDown = -1;
-    gunPlacementOffset = new Vector(38, 0); //TODO: hmmm..
+    placementOffset = new Vector(38, 0);
 
 
     constructor(id : string, geometry : IShape, texture : Texture, bullets) {

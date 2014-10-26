@@ -38,13 +38,13 @@ function gameSetup() {
     ],
         function complete() {
             //var bullets = WeaponFactory.spawnBullets(10);
-            //var gun = WeaponFactory.spawnGun(bullets);
-            player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera, null);
+            var gun = WeaponFactory.spawnGun([]);
+            player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera, gun);
             //player.controller = new PlayerController(player, input, camera);
 
             //level.addEntities(bullets);
             level.addEntity(player);
-            //level.addEntity(gun);
+            level.addEntity(gun);
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
             level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
