@@ -13,17 +13,12 @@ class Drawer { //TODO: better name
     }
 
     render (entity : Entity[], camera : Camera) {
-        //Clear fix
+        // Clear Canvas
         this._ctx.fillStyle = "#000";
         this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
-        //this._ctx.fillStyle = '#444';
-        //for (var i = 0; i < entity.length; i++) {
-        //    this._ctx.fillRect(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
-        //}
-
         this._ctx.fillStyle = '#fff';
-        this._ctx.translate(camera.view.x, camera.view.y);
+        this._ctx.translate(~~camera.view.x, ~~camera.view.y);
 
         for (var i = 0; i < entity.length; i++) {
             this._ctx.save();
@@ -37,20 +32,13 @@ class Drawer { //TODO: better name
         }
 
         if(Config.debug){
-            this._ctx.strokeStyle = '#f00';
             for (var i = 0; i < entity.length; i++) {
                 this._ctx.save();
                 entity[i].components.drawDebug(this._ctx);
-
-                //if(entity[i].touching) {
-                //    this._ctx.strokeStyle = '#FFFF00';
-                //}
-
-                this._ctx.strokeRect(entity[i].pos.x - (<Box> entity[i].geometry).width / 2, entity[i].pos.y - (<Box> entity[i].geometry).height / 2, (<Box> entity[i].geometry).width, (<Box> entity[i].geometry).height);
                 this._ctx.restore();
             }
         }
 
-        this._ctx.translate(-camera.view.x, -camera.view.y);
+        this._ctx.translate(~~-camera.view.x, ~~-camera.view.y);
     }
 }
