@@ -16,7 +16,7 @@ class Level {
         var self = this;
         this._map.mapGenerator.loopThroughGrid(function(tile : Tile, pos : Vector, tileSize : Vector) {
             if(tile.type === TileType.WALL) {
-                self.addEntity(new Entity('Tile', new Box(tileSize.x, tileSize.y, pos), null));
+                self.addEntity(TileFactory.spawnTile(pos, tileSize));
             }
         });
     }
