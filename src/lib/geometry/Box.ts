@@ -7,9 +7,9 @@ class Box implements IShape {
     }
 
     isBoundingBoxWith (box : Box) {
-        return  this.pos.x < box.pos.x + box.width &&
-            this.pos.x + this.width > box.pos.x &&
-            this.pos.y < box.pos.y + box.height &&
-            this.pos.y + this.height > box.pos.y;
+        return  this.pos.x - this.width / 2 < box.pos.x + box.width / 2 &&
+                this.pos.x + this.width / 2 > box.pos.x - box.width / 2 &&
+                this.pos.y - this.height / 2 < box.pos.y + box.height / 2 &&
+                this.pos.y + this.height / 2 > box.pos.y - box.height / 2;
     }
 }
