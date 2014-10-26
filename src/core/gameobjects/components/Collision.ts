@@ -1,13 +1,12 @@
 class Collision implements IComponent {
-    isTouching = false;
-    lastPos : Vector;
-
     private _box : Box;
+    private _lastPos : Vector;
+    private _isTouching = false;
 
 
     constructor(box : Box) {
         this._box = box;
-        this.lastPos = this._box.pos.clone();
+        this._lastPos = this._box.pos.clone();
     }
 
     getBoundary() {
@@ -16,9 +15,9 @@ class Collision implements IComponent {
 
     test (collision : Collision) {
         if(this._box.isBoundingBoxWith(collision.getBoundary())) {
-            this.isTouching = true;
-            collision.isTouching = true;
-            this._box.pos.copy(this.lastPos);
+            this._isTouching = true;
+            collision._isTouching = true;
+            this._box.pos.copy(this._lastPos);
 
             return true;
         }
@@ -26,12 +25,12 @@ class Collision implements IComponent {
     }
 
     update (dt : number) : void {
-        this.isTouching = false;
-        this.lastPos.copy(this._box.pos);
+        this._isTouching = false;
+        this._lastPos.copy(this._box.pos);
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) : void {
-        ctx.strokeStyle = (this.isTouching) ? '#FFFF00' : '#F00';
+        ctx.strokeStyle = (this._isTouching) ? '#FFFF00' : '#F00';
         ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
     }
 }

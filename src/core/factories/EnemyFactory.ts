@@ -1,4 +1,5 @@
 class EnemyFactory {
+
     static spawnZombie(room : Room, player: Entity) {
         var zombie = new Entity('Zombie', new Box(20, 60,
             new Vector(
