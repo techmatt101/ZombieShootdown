@@ -1,4 +1,4 @@
-class Entity {
+class Entity implements IUpdate {
     id : string;
     pos : Vector;
     geometry : IShape;
@@ -17,5 +17,13 @@ class Entity {
             this.texture.width = (<Box> geometry).width;
             this.texture.height = (<Box> geometry).height;
         }
+    }
+
+    update (dt : number) {
+        this.components.update(dt);
+    }
+
+    drawDebug(ctx : CanvasRenderingContext2D) : void {
+        this.components.drawDebug(ctx);
     }
 }

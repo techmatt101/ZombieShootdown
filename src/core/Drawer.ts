@@ -34,7 +34,7 @@ class Drawer { //TODO: better name
         if(Config.debug){
             for (var i = 0; i < entity.length; i++) {
                 this._ctx.save();
-                entity[i].components.drawDebug(this._ctx);
+                entity[i].drawDebug(this._ctx);
                 this._ctx.restore();
             }
         }

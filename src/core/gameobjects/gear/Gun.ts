@@ -12,7 +12,7 @@ class Gun extends Entity implements IWeapon {
     }
 
     update (dt : number) {
-        //super.update(dt);
+        super.update(dt);
         if(this.activeCoolDown > 0) {
             this.activeCoolDown -= dt;
         } else {
