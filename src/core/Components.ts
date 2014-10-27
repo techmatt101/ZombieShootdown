@@ -10,8 +10,9 @@ class Components implements IUpdate {
         }
         //ECMA script < 6 polyfill
         name = /(\w+)\(/.exec(obj.constructor.toString())[1];
-        obj.name = name;
+        obj.constructor.name = name;
         window[name].name = name;
+        console.log(name)
 
         return name;
     }
