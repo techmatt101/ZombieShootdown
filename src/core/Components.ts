@@ -12,7 +12,6 @@ class Components implements IUpdate {
         name = /(\w+)\(/.exec(obj.constructor.toString())[1];
         obj.constructor.name = name;
         window[name].name = name;
-        console.log(name)
 
         return name;
     }
