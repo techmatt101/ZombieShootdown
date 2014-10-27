@@ -8,7 +8,7 @@ class PlayerFactory {
         )), null);
 
         player.components.add(new Collision(<Box> player.geometry));
-        player.components.add(new Movement(player.pos, 20));
+        player.components.add(new Movement(player.pos, 20, 1));
         player.components.add(new WeaponHolder(player.pos, weapon));
         player.components.add(new Health(200));
         player.components.add(new InputControl(player, input, camera));

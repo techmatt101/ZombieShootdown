@@ -26,9 +26,9 @@ class InputControl implements IComponent {
             movement.direct(this._movement, dt);
         }
 
-        //if (this._input.isDown(InputAction.ACTION_1)) {
-        //    this._entity.weapon.attack();
-        //}
+        if(this._input.isDown(InputAction.ACTION_1) && this._entity.components.has(WeaponHolder)) {
+            (<WeaponHolder> this._entity.components.get(WeaponHolder)).attack();
+        }
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) : void {

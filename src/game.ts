@@ -37,17 +37,15 @@ function gameSetup() {
         }
     ],
         function complete() {
-            //var bullets = WeaponFactory.spawnBullets(10);
-            var gun = WeaponFactory.spawnGun([]);
+            var bullets = WeaponFactory.spawnBullets(10);
+            var gun = WeaponFactory.spawnGun(bullets);
             player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera, gun);
             //player.controller = new PlayerController(player, input, camera);
 
-            //level.addEntities(bullets);
+            level.addEntities(bullets);
             level.addEntity(player);
             level.addEntity(gun);
-            level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
-            level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
-            level.addEntity(EnemyFactory.spawnZombie(mg.getMainRoom(), player));
+            level.addEntities(EnemyFactory.spawnZombies(3, mg.getMainRoom(), player));
             level.setObjectToFollow(player);
 
             loop.update = (dt) => {  //TODO: remove hack
