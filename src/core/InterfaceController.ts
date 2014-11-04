@@ -1,10 +1,11 @@
 class InterfaceController {
 
     paused = false;
-    overlayElement = document.getElementById("overlay");
+    overlayElement;
 //    fpsCounter = new Box(10, 10 , 50, 20);
 
     constructor() {
+        this.overlayElement = document.getElementById("overlay");
         var play = document.getElementById('play');
         var menu = document.getElementById('interface');
         var about = document.getElementById('about');
@@ -26,10 +27,18 @@ class InterfaceController {
             launchIntoFullscreen(view);
         });
 
-        play.addEventListener('click', function() {
+        function playGame () {
             menu.hidden = true;
             gameSetup();
-        });
+        }
+
+        play.addEventListener('click', playGame);
+
+        if(Config.skipMenu) {
+            setTimeout(function() {
+                playGame();
+            }, 100);
+        }
     }
 
     loaded(loop : GameLoop) {

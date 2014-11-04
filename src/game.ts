@@ -2,10 +2,11 @@
 /// <reference path="config" />
 
 var player;
-var ui : InterfaceController;
+var ui : InterfaceController = null;
 
 window.onload = () => {
     ui = new InterfaceController();
+
 };
 
 function gameSetup() {
@@ -61,13 +62,13 @@ function gameSetup() {
             };
             loop.start();
 
-            startGame(ui, loop);
+            startGame(loop);
         }
     ).run("Loading Resources");
 }
 
 
-function startGame(ui, loop) {
+function startGame(loop) {
     ui.loaded(loop);
     console.timeEnd("Load_Setup");
     console.log('GAME OVER MAN!');

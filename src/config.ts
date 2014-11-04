@@ -1,6 +1,6 @@
 var Config = {
-    dev: true,
     debug: true,
+    skipMenu: true,
 
     keyMappings: {
         32: 'UP', //Space Key
