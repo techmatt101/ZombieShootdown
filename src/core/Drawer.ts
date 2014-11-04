@@ -5,6 +5,14 @@ class Drawer { //TODO: better name
 
     constructor (canvas : Canvas) {
         this._canvas = canvas;
+
+        canvas.context = canvas.element.getContext('2d');
+        // disable pixel smoothing
+        canvas.context.imageSmoothingEnabled = false;
+        canvas.context.mozImageSmoothingEnabled = false;
+        canvas.context.oImageSmoothingEnabled = false;
+        canvas.context.webkitImageSmoothingEnabled = false;
+
         this._ctx = canvas.context;
     }
 

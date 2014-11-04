@@ -1,75 +1,57 @@
-/// <reference path="ref" />
-/// <reference path="config" />
+class Game {
+    loop : GameLoop;
+    canvas : Canvas;
+    input : InputController;
+    //sound : SoundController;
+    renderer : Drawer;
 
-var player;
-var ui : InterfaceController = null;
-
-window.onload = () => {
-    ui = new InterfaceController();
-
-};
-
-function gameSetup() {
-    console.time("Load_Setup");
-
-    var canvas;
-    //canvas = new Canvas<WebGLRenderingContext>(<HTMLCanvasElement> document.getElementById('game'));
-    canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
-    canvas.context = canvas.element.getContext('2d');
-
-    // disable pixel smoothing
-    canvas.context.imageSmoothingEnabled = false;
-    //canvas.context.mozImageSmoothingEnabled = false;
-    //canvas.context.oImageSmoothingEnabled = false;
-    //canvas.context.webkitImageSmoothingEnabled = false;
-
-    var mg = new MapGenerator();
-    mg.generate(new Vector(32, 32), new Vector(canvas.width, canvas.height), 14, 24);
-
-    var map = new MapManager(new Vector(), 1500, 1000, mg);
-
-    var drawer = new Drawer(canvas);
-    var loop = new GameLoop();
-    var camera = new Camera(canvas, map);
-    var level = new Level(drawer, map, camera);
-
-    //Does it belong here?
-    var sound = new SoundController();
-    var input = new InputController(canvas.element);
-    Resources = new ResourceManager();
-    input.loadKeyMappings(Config.keyMappings);
-
-    new TaskCollection([
-        function loadMap(callback) {
-                    callback();
-
-        }
-    ],
-        function complete() {
-            var bullets = WeaponFactory.spawnBullets(10);
-            var gun = WeaponFactory.spawnGun(bullets);
-            player = PlayerFactory.spawnPlayer(mg.getMainRoom(), input, camera, gun);
-            //player.controller = new PlayerController(player, input, camera);
-
-            level.addEntities(bullets);
-            level.addEntity(player);
-            level.addEntity(gun);
-            level.addEntities(EnemyFactory.spawnZombies(3, mg.getMainRoom(), player));
-            level.setObjectToFollow(player);
-
-            loop.update = (dt) => {  //TODO: remove hack
-                level.update(dt)
-            };
-            loop.start();
-
-            startGame(loop);
-        }
-    ).run("Loading Resources");
-}
+    map : MapManager;
+    camera : Camera;
+    level : Level;
 
 
-function startGame(loop) {
-    ui.loaded(loop);
-    console.timeEnd("Load_Setup");
-    console.log('GAME OVER MAN!');
+    constructor() {
+        this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
+        this.input = new InputController(this.canvas.element);
+        this.renderer = new Drawer(this.canvas);
+
+        this.map = new MapManager(new Vector(), 1500, 1000, this.canvas);
+        this.camera = new Camera(this.canvas, this.map);
+        this.level = new Level(this.renderer, this.map, this.camera);
+
+        this.loop = new GameLoop(this.level.update.bind(this.level));
+    }
+
+    load () {
+        console.time("Load_Setup");
+        this.input.loadKeyMappings(Config.keyMappings);
+        this.map.loadMap(this.level);
+
+        var bullets = WeaponFactory.spawnBullets(10);
+        var gun = WeaponFactory.spawnGun(bullets);
+        var player = PlayerFactory.spawnPlayer(this.map.mapGenerator.getMainRoom(), this.input, this.camera, gun);
+        //player.controller = new PlayerController(player, input, camera);
+
+        this.level.addEntities(bullets);
+        this.level.addEntity(player);
+        this.level.addEntity(gun);
+        this.level.addEntities(EnemyFactory.spawnZombies(3, this.map.mapGenerator.getMainRoom(), player));
+        this.level.setObjectToFollow(player);
+
+        ui.loaded(this.loop);
+        this.loop.start();
+        console.timeEnd("Load_Setup");
+        console.log('GAME OVER MAN!');
+
+        //new TaskCollection([
+        //        function loadMap(callback) {
+        //            callback();
+        //
+        //        }
+        //    ],
+        //    function complete() {
+        //
+        //    }
+        //).run("Loading Resources");
+    }
 }

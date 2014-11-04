@@ -1,6 +1,12 @@
 class GameLoop {
     private _lastGameLoopFrame = 0;
     private _requestedAnimationFrame = 0;
+    private _update : (dt : number) => void;
+
+
+    constructor(update  : (dt : number) => void) {
+        this._update = update;
+    }
 
     start() {
         this._lastGameLoopFrame = new Date().getTime();
@@ -13,13 +19,9 @@ class GameLoop {
         if (dt > 1) {// Prevent fast-forwarding by limiting the length of a single frame. //todo: needed?
             dt = 1;
         }
-        this.update(dt);
+        this._update(dt);
         this._lastGameLoopFrame = now;
         this._requestedAnimationFrame = window.requestAnimationFrame(this.loop.bind(this));
-    }
-
-    update (dt : number) { //TODO: hmmm...
-
     }
 
     pause() {

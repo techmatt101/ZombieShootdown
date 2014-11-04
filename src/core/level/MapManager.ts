@@ -9,30 +9,26 @@ class MapManager extends Box implements IUpdate {
     x : number;
     y : number;
     mapGenerator : MapGenerator;
+    private _canvas : Canvas;
     //angle : number;
 
 
-    constructor (pos : Vector, width, height, mapGenerator : MapGenerator) {
+    constructor (pos : Vector, width, height, canvas : Canvas) {
         super(width, height, pos);
-        this.mapGenerator = mapGenerator;
+        this._canvas = canvas;
     }
 
-    //loadMap (mapData, callback) {
-    //    this.layoutMap(mapData.objects, callback);
-    //}
-    //
-    //layoutMap (objects, callback) {
-    //    console.log("%cLaying Out MapManager", "color: #23cf9c");
-    //
-    //    var self = this;
-    //    Resources.retrieveImage('platform', function (image) {
-    //        for (var i = 0; i < objects.length; i++) {
-    //            var obj = new Platform(objects[i].x, objects[i].y, objects[i].width, objects[i].height, null, image);
-    //            self.objects.push(obj);
-    //        }
-    //        callback();
-    //    });
-    //}
+    loadMap (level) {
+        var mg = new MapGenerator();
+        mg.generate(new Vector(32, 32), new Vector(this._canvas.width, this._canvas.height), 14, 24);
+        this.mapGenerator = mg;
+
+        this.mapGenerator.loopThroughGrid(function(tile : Tile, pos : Vector, tileSize : Vector) {
+            if(tile.type === TileType.WALL) {
+                level.addEntity(TileFactory.spawnTile(pos, tileSize));
+            }
+        });
+    }
 
     update (dt : number) : void {
     }

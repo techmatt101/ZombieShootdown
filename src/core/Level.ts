@@ -2,8 +2,6 @@ class Level {
     private _camera : Camera;
     private _map : MapManager;
     private _drawer : Drawer;
-    //private _sectionsHelper : SectionsHelper;
-
     private _entities : Entity[] = [];
 
 
@@ -11,14 +9,6 @@ class Level {
         this._camera = camera;
         this._map = map;
         this._drawer = drawer;
-        //this._sectionsHelper = new SectionsHelper(this._camera);
-
-        var self = this;
-        this._map.mapGenerator.loopThroughGrid(function(tile : Tile, pos : Vector, tileSize : Vector) {
-            if(tile.type === TileType.WALL) {
-                self.addEntity(TileFactory.spawnTile(pos, tileSize));
-            }
-        });
     }
 
     addEntity (entity : Entity) {
