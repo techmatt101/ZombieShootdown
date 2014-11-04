@@ -2,6 +2,11 @@
 /// <reference path="config" />
 
 var player;
+var ui : InterfaceController;
+
+window.onload = () => {
+    ui = new InterfaceController();
+};
 
 function gameSetup() {
     console.time("Load_Setup");
@@ -10,6 +15,12 @@ function gameSetup() {
     //canvas = new Canvas<WebGLRenderingContext>(<HTMLCanvasElement> document.getElementById('game'));
     canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
     canvas.context = canvas.element.getContext('2d');
+
+    // disable pixel smoothing
+    canvas.context.imageSmoothingEnabled = false;
+    //canvas.context.mozImageSmoothingEnabled = false;
+    //canvas.context.oImageSmoothingEnabled = false;
+    //canvas.context.webkitImageSmoothingEnabled = false;
 
     var mg = new MapGenerator();
     mg.generate(new Vector(32, 32), new Vector(canvas.width, canvas.height), 14, 24);
@@ -23,12 +34,9 @@ function gameSetup() {
 
     //Does it belong here?
     var sound = new SoundController();
-    var ui = new InterfaceController(loop); //TODO: hmmm...
     var input = new InputController(canvas.element);
     Resources = new ResourceManager();
     input.loadKeyMappings(Config.keyMappings);
-
-    document.getElementById('debug').hidden = true;
 
     new TaskCollection([
         function loadMap(callback) {
@@ -53,14 +61,14 @@ function gameSetup() {
             };
             loop.start();
 
-            startGame(ui);
+            startGame(ui, loop);
         }
     ).run("Loading Resources");
 }
 
 
-function startGame(ui) {
-    ui.loaded();
+function startGame(ui, loop) {
+    ui.loaded(loop);
     console.timeEnd("Load_Setup");
     console.log('GAME OVER MAN!');
 }

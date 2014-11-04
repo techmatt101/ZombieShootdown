@@ -1,32 +1,74 @@
-html {
-    background: url("../img/bg.png") #222;
-    font-family: Arial, sans-serif;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+@font-face {
+  font-family: 'visitor';
+  src: url('../font/visitor.eot');
+  src: url('../font/visitor.eot?#iefix') format('embedded-opentype'), url('../font/visitor.woff') format('woff'), url('../font/visitor.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
-
+body {
+  background: url("../img/bg.png") #222222;
+  font-family: Arial, sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#game-container {
+  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #460000;
+}
 #game {
-    /*background: transparent;*/
-    background: #fff;
-    cursor: url('assets/img/crosshair.cur'), crosshair; /* IE Fix */
-    cursor: url('../img/crosshair.png') 16 16, crosshair;
+  background: #000;
+  cursor: url('assets/img/crosshair.cur'), crosshair;
+  /* IE Fix */
+  cursor: url('../img/crosshair.png') 16 16, crosshair;
 }
-
 #overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 20px;
-    padding:20px;
-    border-radius: 3px;
-    color: #fff;
-    background: #333;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 3px;
+  color: #fff;
+  background: #333;
 }
-
-#interface {
-    background: #091122;
-    color: #fff;
-    padding: 5px 15px;
+#interface .menu {
+  background: #000;
+  color: #fff;
+  position: absolute;
+  text-align: center;
+  width: 1200px;
+  height: 650px;
+}
+.btn {
+  border: 3px solid #e73827;
+  border-bottom-color: #7c1e15;
+  border-right-color: #7c1e15;
+  background: #222;
+  color: #e73827;
+  padding: 8px 20px;
+  font-size: 32px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "visitor", sans-serif;
+  text-shadow: 0 3px #7c1e15;
+  transition: transform 0.2s, background 0.4s, border-color 0.2s, color 0.2s, text-shadow 0.2s;
+  outline-color: #fff;
+  margin: 5px 3px;
+}
+.btn[disabled] {
+  border-color: #333;
+  color: #aaa;
+  cursor: default;
+}
+.btn:hover:enabled {
+  border-color: #e73827;
+  text-shadow: 0 3px #e73827;
+  background: #7c1e15;
+  color: #fff;
+  transform: translateY(-1px);
 }

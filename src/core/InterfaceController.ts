@@ -4,8 +4,38 @@ class InterfaceController {
     overlayElement = document.getElementById("overlay");
 //    fpsCounter = new Box(10, 10 , 50, 20);
 
-    constructor(loop : GameLoop) {
+    constructor() {
+        var play = document.getElementById('play');
+        var menu = document.getElementById('interface');
+        var about = document.getElementById('about');
+
+        about.addEventListener('click', function() {
+            function launchIntoFullscreen(element) {
+                if(element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if(element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if(element.webkitRequestFullscreen) {
+                    element.webkitRequestFullscreen();
+                } else if(element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                }
+            }
+
+            var view = document.getElementById('game-container');
+            launchIntoFullscreen(view);
+        });
+
+        play.addEventListener('click', function() {
+            menu.hidden = true;
+            gameSetup();
+        });
+    }
+
+    loaded(loop : GameLoop) {
         var self = this;
+
+        this.overlayElement.hidden = true;
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
             if (e.keyCode === 27) {
@@ -20,10 +50,7 @@ class InterfaceController {
                 }
             }
         });
-    }
 
-    loaded() {
-        this.overlayElement.hidden = true;
 //        var scene = new StaticLayer();
 //
 //        this.fpsCounter.fps = 0;
