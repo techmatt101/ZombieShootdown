@@ -1,14 +1,13 @@
 class Gun extends Entity implements IWeapon {
     placementOffset = new Vector(38, 0);
-    private _bullets : Entity[];
-    private _nextBullet = 0;
+    private _bulletPool : Pool<Bullet>;
     private _coolDown = 2;
     private _activeCoolDown = 0;
 
 
-    constructor(id : string, geometry : IShape, texture : Texture, bullets : Entity[]) {
+    constructor(id : string, geometry : IShape, texture : Texture, bulletPool : Pool<Bullet>) {
         super(id, geometry, texture);
-        this._bullets = bullets;
+        this._bulletPool = bulletPool;
     }
 
     update (dt : number) {
@@ -22,12 +21,7 @@ class Gun extends Entity implements IWeapon {
 
     attack () {
         if(this._activeCoolDown === 0) {
-            if(this._nextBullet >= this._bullets.length) {
-                this._nextBullet = 0;
-            }
-            //this._bullets[this._nextBullet].active = true;
-            this._bullets[this._nextBullet].pos.copy(this.pos);
-            this._nextBullet++;
+            this._bulletPool.acquire().pos.copy(this.pos);
             this._activeCoolDown = this._coolDown;
         }
     }
