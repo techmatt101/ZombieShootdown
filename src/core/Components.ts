@@ -25,11 +25,9 @@ class Components implements IUpdate {
     }
 
     update (dt : number) {
-        this.updateComponents(this, dt);
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) {
-        this.debugComponents(this, ctx);
     }
 
     build () {
@@ -37,16 +35,11 @@ class Components implements IUpdate {
         var debugCode = [];
         for (var key in this) {
             if (typeof this[key] === 'object') {
-                updateCode.push('self.' + key + '.update(dt);');
-                debugCode.push('self.' + key + '.drawDebug(ctx);');
+                updateCode.push('this.' + key + '.update(dt);');
+                debugCode.push('this.' + key + '.drawDebug(ctx);');
             }
         }
-        this.updateComponents = new Function('self, dt', updateCode.join(''));
-        this.debugComponents = new Function('self, ctx', debugCode.join(''));
+        this.update = new Function('dt', updateCode.join('')).bind(this);
+        this.drawDebug = new Function('ctx', debugCode.join('')).bind(this);
     }
-
-    updateComponents : Function = function (self, dt) {
-    };
-    debugComponents : Function = function (self, ctx) {
-    };
 }
