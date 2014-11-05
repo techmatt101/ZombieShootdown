@@ -4,7 +4,7 @@ class WeaponFactory {
         var bullet = new Bullet('Bullet', new Box(8, 5), null);
 
         bullet.components.add(new Collision(<Box> bullet.geometry));
-        bullet.components.add(new Movement(bullet.pos, 10));
+        bullet.components.add(new Movement(bullet.pos, 60));
         bullet.components.build();
 
         return bullet;

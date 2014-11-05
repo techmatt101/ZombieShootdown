@@ -13,9 +13,7 @@ class Entity implements IUpdate {
         this.pos = this.geometry.pos;
 
         if (geometry instanceof Box) { //TODO: temporary hack
-            this.texture = new Texture();
-            this.texture.width = (<Box> geometry).width;
-            this.texture.height = (<Box> geometry).height;
+            this.texture = new Texture(null, (<Box> geometry).width, (<Box> geometry).height, new Vector(0 ,0));
         }
     }
 

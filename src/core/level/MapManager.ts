@@ -1,16 +1,6 @@
 class MapManager extends Box implements IUpdate {
-    //metaData;
-    //objects : EntityOld[] = [];
-    //graphics = [];
-    //audio = [];
-    width : number;
-    height : number;
-    pos : Vector;
-    x : number;
-    y : number;
     mapGenerator : MapGenerator;
     private _canvas : Canvas;
-    //angle : number;
 
 
     constructor (pos : Vector, width, height, canvas : Canvas) {

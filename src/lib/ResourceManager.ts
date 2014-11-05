@@ -52,10 +52,4 @@ class ResourceManager {
         request.open('GET', 'http://127.0.0.1:8000/server/' + file, true);//todo: create default locations for file types
         request.send();
     }
-
-    private getBuildVersion () {//to solve caching issues  //todo; link this up with version control
-        return ~~((Math.random() * 1000) + 1);
-    }
 }
-
-var Resources : ResourceManager; //TODO: really?

@@ -23,8 +23,8 @@ class Game {
     }
 
     load () {
-        var self = this;
         console.time("Load_Setup");
+        var self = this;
 
         this.input.loadKeyMappings(Config.keyMappings);
         this.map.loadMap(this.level);
@@ -43,11 +43,14 @@ class Game {
         this.level.addEntities(EnemyFactory.spawnZombies(3, this.map.mapGenerator.getMainRoom(), player));
         this.level.setObjectToFollow(player);
 
+
         ui.loaded(this.loop);
         this.loop.start();
+
         console.timeEnd("Load_Setup");
         console.log('GAME OVER MAN!');
 
+        //var resources = new ResourceManager();
         //new TaskCollection([
         //        function loadMap(callback) {
         //            callback();
