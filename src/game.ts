@@ -37,7 +37,6 @@ class Game {
 
         var gun = WeaponFactory.spawnGun(bulletPool);
         var player = PlayerFactory.spawnPlayer(this.map.mapGenerator.getMainRoom(), this.input, this.camera, gun);
-        //player.controller = new PlayerController(player, input, camera);
 
         this.level.addEntity(player);
         this.level.addEntity(gun);

@@ -1,4 +1,4 @@
-class Room {
+class Room extends Box{
     pos : Vector;
     width : number;
     height : number;
@@ -6,12 +6,6 @@ class Room {
     walls : Wall[] = [];
     solidWalls : Wall[] = [];
 
-
-    constructor(position : Vector, width : number, height : number) {
-        this.pos = position;
-        this.width = width;
-        this.height = height;
-    }
 
     addWall(wall : Wall) {
         this.walls.push(wall);

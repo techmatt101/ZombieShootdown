@@ -94,9 +94,9 @@ class MapGenerator {
 
     private generateRoom (minSize : number, maxSize : number) {
         var room = new Room(
-            new Vector(0, 0),
             this.randInt(minSize, maxSize),
-            this.randInt(minSize, maxSize)
+            this.randInt(minSize, maxSize),
+            new Vector(0, 0)
         );
 
         room.tiles = this.createEmptyGrid(new Vector(room.width, room.height), TileType.FLOOR);
