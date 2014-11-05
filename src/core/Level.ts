@@ -11,6 +11,10 @@ class Level {
         this._drawer = drawer;
     }
 
+    getEntities() {
+        return this._entities;
+    }
+
     addEntity (entity : Entity) {
         this._entities.push(entity);
     }

@@ -12,4 +12,8 @@ class Box implements IShape {
                 this.pos.y - this.height / 2 < box.pos.y + box.height / 2 &&
                 this.pos.y + this.height / 2 > box.pos.y - box.height / 2;
     }
+
+    toString() {
+        return 'Box: {width: ' + this.width + ', height: ' + this.height + '}';
+    }
 }

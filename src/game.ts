@@ -9,6 +9,8 @@ class Game {
     camera : Camera;
     level : Level;
 
+    player : Entity;
+
 
     constructor() {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
@@ -19,7 +21,16 @@ class Game {
         this.camera = new Camera(this.canvas, this.map);
         this.level = new Level(this.renderer, this.map, this.camera);
 
-        this.loop = new GameLoop(this.level.update.bind(this.level));
+        this.loop = new GameLoop(this.update.bind(this));
+    }
+
+    update(dt : number) {
+        this.level.update(dt);
+        ui.update(dt);
+        ui.draw(this.renderer.getCTX());
+        if(Config.debug) {
+            ui.drawDebug(this.renderer.getCTX()); //TODO: hmm...
+        }
     }
 
     load () {
@@ -36,15 +47,15 @@ class Game {
         });
 
         var gun = WeaponFactory.spawnGun(bulletPool);
-        var player = PlayerFactory.spawnPlayer(this.map.mapGenerator.getMainRoom(), this.input, this.camera, gun);
+        this.player = PlayerFactory.spawnPlayer(this.map.mapGenerator.getMainRoom(), this.input, this.camera, gun);
 
-        this.level.addEntity(player);
+        this.level.addEntity(this.player);
         this.level.addEntity(gun);
-        this.level.addEntities(EnemyFactory.spawnZombies(3, this.map.mapGenerator.getMainRoom(), player));
-        this.level.setObjectToFollow(player);
+        this.level.addEntities(EnemyFactory.spawnZombies(3, this.map.mapGenerator.getMainRoom(), this.player));
+        this.level.setObjectToFollow(this.player);
 
 
-        ui.loaded(this.loop);
+        ui.loaded(this);
         this.loop.start();
 
         console.timeEnd("Load_Setup");

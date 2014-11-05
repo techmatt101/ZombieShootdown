@@ -1,24 +1,27 @@
-class InterfaceController {
-
+class InterfaceController implements IUpdate {
     paused = false;
     overlayElement;
+    selectedEntity : Entity = null;
+    game : Game;
 //    fpsCounter = new Box(10, 10 , 50, 20);
+    //        this.fpsCounter.fps = 0;
+//        this.fpsCounter.fpsBuffer = [];
 
-    constructor() {
+    constructor () {
         this.overlayElement = document.getElementById("overlay");
         var play = document.getElementById('play');
         var menu = document.getElementById('interface');
         var about = document.getElementById('about');
 
-        about.addEventListener('click', function() {
-            function launchIntoFullscreen(element) {
-                if(element.requestFullscreen) {
+        about.addEventListener('click', function () {
+            function launchIntoFullscreen (element) {
+                if (element.requestFullscreen) {
                     element.requestFullscreen();
-                } else if(element.mozRequestFullScreen) {
+                } else if (element.mozRequestFullScreen) {
                     element.mozRequestFullScreen();
-                } else if(element.webkitRequestFullscreen) {
+                } else if (element.webkitRequestFullscreen) {
                     element.webkitRequestFullscreen();
-                } else if(element.msRequestFullscreen) {
+                } else if (element.msRequestFullscreen) {
                     element.msRequestFullscreen();
                 }
             }
@@ -34,14 +37,15 @@ class InterfaceController {
 
         play.addEventListener('click', playGame);
 
-        if(Config.skipMenu) {
-            setTimeout(function() {
+        if (Config.skipMenu) {
+            setTimeout(function () {
                 playGame();
             }, 100);
         }
     }
 
-    loaded(loop : GameLoop) {
+    loaded (game : Game) {
+        this.game = game;
         var self = this;
 
         this.overlayElement.hidden = true;
@@ -50,22 +54,34 @@ class InterfaceController {
             if (e.keyCode === 27) {
                 if (self.paused) {
                     self.hide();
-                    loop.start();
+                    self.game.loop.start();
                     self.paused = false;
                 } else {
                     self.pause();
-                    loop.pause();
+                    self.game.loop.pause();
                     self.paused = true;
                 }
             }
         });
 
-//        var scene = new StaticLayer();
-//
-//        this.fpsCounter.fps = 0;
-//        this.fpsCounter.fpsBuffer = [];
-//
-//        this.fpsCounter.update = function (time) {
+        this.game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
+            if(e.ctrlKey) {
+                var clickBox = new Box(3,3, new Vector(e.offsetX - self.game.camera.view.x, e.offsetY - self.game.camera.view.y));
+                var length = self.game.level.getEntities().length;
+                for (var i = 0; i < length; i++) {
+                    var entity = self.game.level.getEntities()[i];
+                    if((<Box>entity.geometry).isBoundingBoxWith(clickBox)) {
+                        this.selectedEntity = entity;
+                        console.log(entity);
+                        return;
+                    }
+                }
+                this.selectedEntity = null;
+            }
+        });
+    }
+
+    update (dt : number) {
 //            if(this.fpsBuffer.length > 15){
 //                var sum = 0;
 //                for(var i = 0; i < this.fpsBuffer.length; i++){
@@ -75,24 +91,33 @@ class InterfaceController {
 //                this.fpsBuffer = [];
 //            }
 //            this.fpsBuffer.push(60 / (time * 6));
-//        };
-//
-//        this.fpsCounter.draw = function (ctx) {
-//            ctx.fillStyle = "#fff";
+    }
+
+    draw (ctx : CanvasRenderingContext2D) {
+        ctx.fillText('Score: ' + 0, 5, this.game.canvas.height - 10);
+        ctx.fillText('Health: ' + (<Health> this.game.player.components.get(Health)).health, 5, this.game.canvas.height - 20);
+    }
+
+    drawDebug (ctx : CanvasRenderingContext2D) {
+        if (this.selectedEntity !== null) {
+            ctx.fillStyle = "#fff";
+            ctx.fillText('ID: ' + this.selectedEntity.id + ' Type: ' + (<any>this.selectedEntity).constructor.name, 5, 10);
+            ctx.fillText('Position: ' + this.selectedEntity.pos.toString(), 5, 20);
+            ctx.fillText('Geometry: ' + this.selectedEntity.geometry.toString(), 5, 30);
+        }
+
+        //            ctx.fillStyle = "#fff";
 //            ctx.fillText(this.fps + " fps", this.x+1, this.y+1);
 //            ctx.fillStyle = "#f00";
 //            ctx.fillText(this.fps + " fps", this.x, this.y);
-//        };
-//
-//        scene.add(this.fpsCounter);
     }
 
-    pause() {
+    pause () {
         this.overlayElement.hidden = false;
         this.overlayElement.innerHTML = 'Paused';
     }
 
-    hide() {
+    hide () {
         this.overlayElement.hidden = true;
     }
 }

@@ -1,36 +1,36 @@
 /// <reference path="_helpers" />
 
 class Vector {
-    constructor(public x : number = 0,
-                public y : number = 0,
-                public angle : number = 0) {
+    constructor (public x : number = 0,
+                 public y : number = 0,
+                 public angle : number = 0) {
     }
 
-    clone() {
+    clone () {
         return new Vector(this.x, this.y, this.angle);
     }
 
-    copy(other : Vector) {
+    copy (other : Vector) {
         this.x = other.x;
         this.y = other.y;
         this.angle = other.angle;
         return this;
     }
 
-    offset(offset : Vector) {
+    offset (offset : Vector) {
         this.x += offset.x;
         this.y += offset.y;
         this.angle += offset.angle;
         return this;
     }
 
-    reverse() {
+    reverse () {
         this.x = -this.x;
         this.y = -this.y;
         return this;
     }
 
-    normalize() {
+    normalize () {
         var d = this.len();
         if (d > 0) {
             this.x = this.x / d;
@@ -39,7 +39,7 @@ class Vector {
         return this;
     }
 
-    rotateDirection(other : Vector) {
+    rotateDirection (other : Vector) {
         this.angle = fastAtan2(
             other.x - this.x,
             other.y - this.y
@@ -47,7 +47,7 @@ class Vector {
         return this;
     }
 
-    rotate(other : Vector) {
+    rotate (other : Vector) {
         var x = this.x - other.x,
             y = this.y - other.y,
             cos = Math.cos(this.angle),
@@ -98,31 +98,31 @@ class Vector {
     //
 
     //
-    add(other : Vector) {
+    add (other : Vector) {
         this.x += other.x;
         this.y += other.y;
         return this;
     }
 
-    sub(other : Vector) {
+    sub (other : Vector) {
         this.x -= other.x;
         this.y -= other.y;
         return this;
     }
 
-    multiply(other : Vector) {
+    multiply (other : Vector) {
         this.x *= other.x;
         this.y *= other.y;
         return this;
     }
 
-    divide(other : Vector) {
+    divide (other : Vector) {
         this.x /= other.x;
         this.y /= other.y;
         return this;
     }
 
-    scale(n) { //TODO: hmmm...
+    scale (n) { //TODO: hmmm...
         this.x *= n;
         this.y *= n;
         return this;
@@ -130,17 +130,19 @@ class Vector {
 
     //
     //
-    dot(other : Vector) {
+    dot (other : Vector) {
         return this.x * other.x + this.y * other.y;
     }
+
     //
     //len2() {
     //    return this.dot(this);
     //}
     //
-    len() {
+    len () {
         return Math.sqrt(this.dot(this));
     }
+
     //
     //atan2() {
     //    if (this.x == 0 && this.y == 0) {
@@ -153,7 +155,9 @@ class Vector {
     //    return radian;
     //}
 
-
+    toString () {
+        return 'Vector {x: ' + ~~this.x + ', y: ' + ~~this.y + ', angle: ' + ~~this.angle + '}';
+    }
 
     //project(other : Vector) {
     //    var amt = this.dot(other) / other.len2();
