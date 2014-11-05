@@ -7,7 +7,6 @@ class Bullet extends Entity implements IPool {
     update (dt : number) {
         if(!this.available && (<Collision>this.components.get(Collision)).isTouching) { //TODO: fix bug were it is still touching from last use
             this.available = true;
-            console.log("YAY")
         }
 
         super.update(dt);

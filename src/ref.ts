@@ -40,4 +40,4 @@
 /// <reference path="core\tilemap\Room.ts" />
 /// <reference path="core\tilemap\Tile.ts" />
 /// <reference path="core\tilemap\Wall.ts" />
-/// <reference path="core\view\Camera.ts" />
+/// <reference path="lib/Camera.ts" />
