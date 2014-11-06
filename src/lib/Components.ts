@@ -1,27 +1,15 @@
 class Components implements IUpdate {
 
-    add (attr : IComponent) {
-        this[this.getName(attr)] = attr;
-    }
-
-    private getName (obj) : string {
-        if(typeof obj.constructor.name !== 'undefined') {
-            return obj.constructor.name;
-        }
-        //ECMA script < 6 polyfill
-        name = /(\w+)\(/.exec(obj.constructor.toString())[1];
-        obj.constructor.name = name;
-        window[name].name = name;
-
-        return name;
-    }
-
     get (obj) : IComponent {
         return this[obj.name];
     }
 
     has (obj) {
         return typeof this[obj.name] !== 'undefined';
+    }
+
+    add (attr : IComponent) {
+        this[this.getName(attr)] = attr;
     }
 
     update (dt : number) {
@@ -41,5 +29,17 @@ class Components implements IUpdate {
         }
         this.update = new Function('dt', updateCode.join('')).bind(this);
         this.drawDebug = new Function('ctx', debugCode.join('')).bind(this);
+    }
+
+    private getName (obj) : string {
+        if(typeof obj.constructor.name !== 'undefined') {
+            return obj.constructor.name;
+        }
+        //ECMA script < 6 polyfill
+        name = /(\w+)\(/.exec(obj.constructor.toString())[1];
+        obj.constructor.name = name;
+        window[name].name = name;
+
+        return name;
     }
 }

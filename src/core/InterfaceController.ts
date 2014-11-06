@@ -102,11 +102,29 @@ class InterfaceController implements IUpdate {
         if (this.selectedEntity !== null) {
             ctx.fillStyle = "#fff";
             ctx.fillText('ID: ' + this.selectedEntity.id + ' Type: ' + (<any>this.selectedEntity).constructor.name, 5, 10);
-            ctx.fillText('Position: ' + this.selectedEntity.pos.toString(), 5, 20);
-            ctx.fillText('Geometry: ' + this.selectedEntity.geometry.toString(), 5, 30);
+            var space = 5;
+            var spaceGap = 5;
+            var line = 20;
+            var lineGap = 10;
+            loop(this.selectedEntity);
+            function loop(obj) {
+                for(var key in obj) {
+                    if (key[0] !== '_' && typeof obj[key] !== 'function') {
+                        if(typeof obj[key] === 'object') {
+                            ctx.fillText(key + ':', space, line);
+                            line += lineGap;
+                            space += spaceGap;
+                            loop(obj[key]);
+                            space -= spaceGap;
+                        } else {
+                            ctx.fillText(key + ': ' + obj[key], space, line);
+                            line += lineGap;
+                        }
+                    }
+                }
+            }
         }
-
-        //            ctx.fillStyle = "#fff";
+//            ctx.fillStyle = "#fff";
 //            ctx.fillText(this.fps + " fps", this.x+1, this.y+1);
 //            ctx.fillStyle = "#f00";
 //            ctx.fillText(this.fps + " fps", this.x, this.y);
