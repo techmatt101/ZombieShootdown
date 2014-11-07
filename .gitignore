@@ -24,3 +24,4 @@ build/
 bin/
 
 node_modules
+src/ref.ts
