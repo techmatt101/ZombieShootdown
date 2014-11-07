@@ -1,10 +1,9 @@
 class MapGenerator {
-    private _grid : Array<Tile[]> = [];
+    private _grid  = new Grid();
     private _rooms : Room[] = [];
-    private _tileSize : Vector;
 
     getGird() {
-        return this._grid;
+        return this._grid.getGird();
     }
 
     getMainRoom() {
@@ -12,23 +11,19 @@ class MapGenerator {
     }
 
     getTileSize() {
-        return this._tileSize;
+        return this._grid.tileSize;
     }
 
     loopThroughGrid(loopCycle : (tile : Tile, pos : Vector, tileSize : Vector) => void) {
-        for (var x = 0; x < this._grid.length; x++) {
-            for (var y = 0; y < this._grid[x].length; y++) {
-                loopCycle(this._grid[x][y],  new Vector(x, y).multiply(this._tileSize), this._tileSize);
-            }
-        }
+        this._grid.loopThroughGrid(loopCycle);
     }
 
     // Based on: http://breinygames.blogspot.com/2011/07/random-map-generation.html
     generate (tileSize : Vector, gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
-        this._tileSize = tileSize;
+        this._grid.tileSize = tileSize;
         gridSize.divide(tileSize);
 
-        this._grid = this.createEmptyGrid(gridSize, TileType.EMPTY);
+        this._grid.createEmptyGrid(gridSize, TileType.EMPTY);
         this._rooms = [];
 
         //place first room in the middle of the map
@@ -46,42 +41,15 @@ class MapGenerator {
 
         //TODO: hmmm...
         for (var i = 0; i < this._rooms.length; i++) {
-            this._rooms[i].pos.multiply(this._tileSize);
-            this._rooms[i].width *= this._tileSize.x;
-            this._rooms[i].height *= this._tileSize.y;
+            this._rooms[i].pos.multiply(this._grid.tileSize);
+            this._rooms[i].width *= this._grid.tileSize.x;
+            this._rooms[i].height *= this._grid.tileSize.y;
         }
 
         //TODO: add some monsters, items, and gold in random areas of the map.
     }
 
-    toString () {
-        for (var x = 0; x < this._grid.length; x++) {
-            var out = x + 100 + '';
-            for (var y = 0; y < this._grid[x].length; y++) {
-                if (typeof this._grid[x][y] === 'undefined') {
-                    out += '?';
-                    continue;
-                }
-                switch (this._grid[x][y].type) {
-                    default:
-                    case TileType.EMPTY :
-                        out += '.';
-                        break;
-
-                    case TileType.WALL :
-                        out += '#';
-                        break;
-
-                    case TileType.FLOOR :
-                        out += 'x';
-                        break;
-                }
-            }
-            console.log(out);
-        }
-    }
-
-    private createEmptyGrid (gridSize : Vector, fillType : TileType) { //TODO: hmmm... Vector? box maybe?
+    private createEmptyGrid (gridSize : Vector, fillType : TileType) {
         var grid = [];
         for (var x = 0; x < gridSize.x; ++x) {
             grid[x] = [];
@@ -159,12 +127,11 @@ class MapGenerator {
 
     private placeRoom (room : Room, position : Vector) {
         room.pos.copy(position).floor();
-
         var tx = 0, ty = 0;
         //copy the tiles from the room onto the grid
         for (var x = room.pos.x; x < (room.pos.x + room.width); ++x) {
             for (var y = room.pos.y; y < (room.pos.y + room.height); ++y) {
-                this._grid[x][y] = room.tiles[tx][ty];
+                this._grid.getGird()[x][y] = room.tiles[tx][ty];
                 ty++;
             }
             tx++;
