@@ -21,8 +21,7 @@ class Movement implements IComponent {
     }
 
     direct (direction : Vector, dt : number) {
-        direction.normalize();
-        direction.scale(this.speed * dt);
+        direction.normalize().scale(this.speed * dt);
         this._pos.add(direction);
     }
 

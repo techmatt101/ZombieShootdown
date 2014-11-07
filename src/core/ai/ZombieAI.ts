@@ -1,19 +1,19 @@
 class ZombieAI implements IAI {
+    private _zombie : Entity;
     private _player : Entity;
-    private _entity : Entity;
 
 
     constructor(entity : Entity, player : Entity) {
-        this._entity = entity;
+        this._zombie = entity;
         this._player = player;
     }
 
     update(dt : number) {
-        this._entity.pos.rotateDirection(this._player.pos);
+        this._zombie.pos.rotateDirection(this._player.pos);
 
-        if(this._entity.components.has(Movement)) {
-            var movement = <Movement> this._entity.components.get(Movement);
-            this._entity.pos.traject(movement.speed * dt);
+        if(this._zombie.components.has(Movement)) {
+            var movement = <Movement> this._zombie.components.get(Movement);
+            movement.direct(this._player.pos.clone().sub(this._zombie.pos), dt);  //TODO: optimize
         }
     }
 }
