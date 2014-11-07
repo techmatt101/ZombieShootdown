@@ -18,3 +18,7 @@ function fastAtan2 (x, y) {
     }
     return atan;
 }
+
+function randInt (high : number, low : number) {
+    return ~~((Math.random() * (high + 1 - low)) + low);
+}

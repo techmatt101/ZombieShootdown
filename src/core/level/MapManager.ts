@@ -10,10 +10,10 @@ class MapManager extends Box implements IUpdate {
 
     loadMap (level) {
         var mg = new MapGenerator();
-        mg.generate(new Vector(32, 32), new Vector(this._canvas.width, this._canvas.height), 14, 24);
+        mg.generate(new Vector(32, 32), new Vector(this._canvas.width, this._canvas.height), 24, 14);
         this.mapGenerator = mg;
 
-        this.mapGenerator.loopThroughGrid(function(tile : Tile, pos : Vector, tileSize : Vector) {
+        this.mapGenerator.getGird().loopThrough(function(tile : Tile, pos : Vector, tileSize : Vector) {
             if(tile.type === TileType.WALL) {
                 level.addEntity(TileFactory.spawnTile(pos, tileSize));
             }

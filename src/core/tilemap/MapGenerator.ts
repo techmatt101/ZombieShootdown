@@ -3,7 +3,7 @@ class MapGenerator {
     private _rooms : Room[] = [];
 
     getGird() {
-        return this._grid.getGird();
+        return this._grid;
     }
 
     getMainRoom() {
@@ -14,12 +14,8 @@ class MapGenerator {
         return this._grid.tileSize;
     }
 
-    loopThroughGrid(loopCycle : (tile : Tile, pos : Vector, tileSize : Vector) => void) {
-        this._grid.loopThroughGrid(loopCycle);
-    }
-
     // Based on: http://breinygames.blogspot.com/2011/07/random-map-generation.html
-    generate (tileSize : Vector, gridSize : Vector, minRoomSize : number, maxRoomSize : number) {
+    generate (tileSize : Vector, gridSize : Vector, maxRoomSize : number, minRoomSize : number) {
         this._grid.tileSize = tileSize;
         gridSize.divide(tileSize);
 
@@ -27,7 +23,7 @@ class MapGenerator {
         this._rooms = [];
 
         //place first room in the middle of the map
-        this._rooms.push(this.generateRoom(minRoomSize, maxRoomSize));
+        this._rooms.push(this.generateRoom(maxRoomSize, minRoomSize));
         this.placeRoom(this._rooms[0], new Vector(
             (gridSize.x / 2) - (this._rooms[0].width / 2),
             (gridSize.y / 2) - (this._rooms[0].height / 2)
@@ -49,10 +45,10 @@ class MapGenerator {
         //TODO: add some monsters, items, and gold in random areas of the map.
     }
 
-    private generateRoom (minSize : number, maxSize : number) {
+    private generateRoom (maxSize : number, minSize : number) {
         var room = new Room(
-            this.randInt(minSize, maxSize),
-            this.randInt(minSize, maxSize),
+            randInt(maxSize, minSize),
+            randInt(maxSize, minSize),
             new Vector(0, 0)
         );
 
@@ -74,9 +70,5 @@ class MapGenerator {
             tx++;
             ty = 0;
         }
-    }
-
-    randInt (low, high) {
-        return ~~(Math.random() * (high - low)) + low;
     }
 }

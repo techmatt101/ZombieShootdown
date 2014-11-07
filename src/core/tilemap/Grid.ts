@@ -7,7 +7,7 @@ class Grid {
         return this._grid;
     }
 
-    loopThroughGrid(loopCycle : (tile : Tile, pos : Vector, tileSize : Vector) => void) {
+    loopThrough(loopCycle : (tile : Tile, pos : Vector, tileSize : Vector) => void) {
         for (var x = 0; x < this._grid.length; x++) {
             for (var y = 0; y < this._grid[x].length; y++) {
                 loopCycle(this._grid[x][y],  new Vector(x, y).multiply(this.tileSize), this.tileSize);
