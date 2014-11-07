@@ -49,17 +49,6 @@ class MapGenerator {
         //TODO: add some monsters, items, and gold in random areas of the map.
     }
 
-    private createEmptyGrid (gridSize : Vector, fillType : TileType) {
-        var grid = [];
-        for (var x = 0; x < gridSize.x; ++x) {
-            grid[x] = [];
-            for (var y = 0; y < gridSize.y; ++y) {
-                grid[x][y] = new Tile(fillType);
-            }
-        }
-        return grid;
-    }
-
     private generateRoom (minSize : number, maxSize : number) {
         var room = new Room(
             this.randInt(minSize, maxSize),
@@ -67,60 +56,8 @@ class MapGenerator {
             new Vector(0, 0)
         );
 
-        room.tiles = this.createEmptyGrid(new Vector(room.width, room.height), TileType.FLOOR);
-
-        //create walls round edge of room tiles
-        for (var x = 1; x < room.width - 1; ++x) {
-            room.addSolidWall(new Wall(
-                new Vector(x, 0),
-                room.tiles[x][0],
-                Direction.WEST
-            ));
-            room.addSolidWall(new Wall(
-                    new Vector(x, room.height - 1),
-                    room.tiles[x][room.height - 1],
-                    Direction.EAST)
-            );
-        }
-
-        for (var y = 1; y < room.height - 1; ++y) {
-            room.addSolidWall(new Wall(
-                new Vector(0, y),
-                room.tiles[0][y],
-                Direction.NORTH
-            ));
-            room.addSolidWall(new Wall(
-                new Vector(room.width - 1, y),
-                room.tiles[room.width - 1][y],
-                Direction.SOUTH
-            ));
-        }
-
-        //create corner walls
-        room.addWall(new Wall(
-            new Vector(0, 0),
-            room.tiles[0][0],
-            Direction.NORTH_WEST,
-            true
-        ));
-        room.addWall(new Wall(
-            new Vector(room.width - 1, 0),
-            room.tiles[room.width - 1][0],
-            Direction.NORTH_EAST,
-            true
-        ));
-        room.addWall(new Wall(
-            new Vector(0, room.height - 1),
-            room.tiles[0][room.height - 1],
-            Direction.SOUTH_WEST,
-            true
-        ));
-        room.addWall(new Wall(
-            new Vector(room.width - 1, room.height - 1),
-            room.tiles[room.width - 1][room.height - 1],
-            Direction.SOUTH_EAST,
-            true
-        ));
+        room.tiles = this._grid.fill(new Vector(room.width, room.height), TileType.FLOOR);
+        room.build();
 
         return room;
     }
@@ -139,30 +76,7 @@ class MapGenerator {
         }
     }
 
-    //=========================================//
-
-
     randInt (low, high) {
         return ~~(Math.random() * (high - low)) + low;
-    }
-
-    randElm (array, start = undefined, end = undefined) {
-        //ensure we have an array, and there are elements to check
-        if (!array || !array.length)
-            return null;
-
-        //special case for 1 element
-        if (array.length === 1)
-            return array[0];
-
-        //default for start
-        if (!start || start < 0)
-            start = start || 0;
-
-        //default for end
-        if (!end || end < 0)
-            end = array.length - 1;
-
-        return array[this.randInt(start, end)];
     }
 }

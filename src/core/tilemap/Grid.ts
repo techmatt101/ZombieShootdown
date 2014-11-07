@@ -16,7 +16,14 @@ class Grid {
     }
 
     fill (gridSize : Vector, fillType : TileType) {
-        //TODO: implement
+        var grid = [];
+        for (var x = 0; x < gridSize.x; ++x) {
+            grid[x] = [];
+            for (var y = 0; y < gridSize.y; ++y) {
+                grid[x][y] = new Tile(fillType);
+            }
+        }
+        return grid;
     }
 
     createEmptyGrid (gridSize : Vector, fillType : TileType) {
