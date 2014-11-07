@@ -1,7 +1,6 @@
 /// <reference path="ref" />
 /// <reference path="Game" />
-/// <reference path="config" />
-
+declare var Config : any;
 var ui : InterfaceController = null;
 var game : Game = null;
 
