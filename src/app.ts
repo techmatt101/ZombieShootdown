@@ -10,6 +10,8 @@ window.onload = () => {
 };
 
 function gameSetup () {
+    console.time("GameSetup");
     game = new Game();
+    console.timeEnd("GameSetup");
     game.load();
 }

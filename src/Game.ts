@@ -12,7 +12,7 @@ class Game {
     player : Entity;
 
 
-    constructor() {
+    constructor () {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
         this.input = new InputController(this.canvas.element);
         this.renderer = new Drawer(this.canvas);
@@ -24,53 +24,46 @@ class Game {
         this.loop = new GameLoop(this.update.bind(this));
     }
 
-    update(dt : number) {
+    update (dt : number) {
         this.level.update(dt);
         ui.update(dt);
-        ui.draw(this.renderer.getCTX());
-        if(Config.debug) {
-            ui.drawDebug(this.renderer.getCTX()); //TODO: hmm...
+        ui.draw(this.renderer.getCtx());
+        if (Config.debug) {
+            ui.drawDebug(this.renderer.getCtx());
         }
     }
 
     load () {
-        console.time("Load_Setup");
-        var self = this;
+        var game = this;
 
-        this.input.loadKeyMappings(Config.keyMappings);
-        this.map.loadMap(this.level);
+        new TaskCollection('Level Setup', function () {
+            ui.loaded(game);
+            game.loop.start();
+            console.log('GAME OVER MAN!');
+        })
+            .add(function Controllers() {
+                game.input.loadKeyMappings(Config.keyMappings);
+            })
+            .add(function Map () {
+                game.map.loadMap(game.level);
+            })
+            .add(function LevelEntities () {
+                var bulletPool = new Pool<Bullet>(() => {
+                    var bullet = WeaponFactory.spawnBullet();
+                    game.level.addEntity(bullet);
+                    return bullet;
+                });
 
-        var bulletPool = new Pool<Bullet>(() => {
-            var bullet = WeaponFactory.spawnBullet();
-            self.level.addEntity(bullet);
-            return bullet;
-        });
+                var gun = WeaponFactory.spawnGun(bulletPool);
+                game.player = PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun);
 
-        var gun = WeaponFactory.spawnGun(bulletPool);
-        this.player = PlayerFactory.spawnPlayer(this.map.mapGenerator.getMainRoom(), this.input, this.camera, gun);
-
-        this.level.addEntity(this.player);
-        this.level.addEntity(gun);
-        this.level.addEntities(EnemyFactory.spawnZombies(3, this.map.mapGenerator.getMainRoom(), this.player));
-        this.level.setObjectToFollow(this.player);
-
-
-        ui.loaded(this);
-        this.loop.start();
-
-        console.timeEnd("Load_Setup");
-        console.log('GAME OVER MAN!');
-
-        //var resources = new ResourceManager();
-        //new TaskCollection([
-        //        function loadMap(callback) {
-        //            callback();
-        //
-        //        }
-        //    ],
-        //    function complete() {
-        //
-        //    }
-        //).run("Loading Resources");
+                game.level.addEntity(game.player);
+                game.level.addEntity(gun);
+                game.level.addEntities(EnemyFactory.spawnZombies(3, game.map.mapGenerator.getMainRoom(), game.player));
+            })
+            .add(function LevelTweaks () {
+                game.level.setObjectToFollow(game.player);
+            })
+            .run();
     }
 }
