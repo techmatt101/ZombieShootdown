@@ -16,7 +16,7 @@ class Drawer { //TODO: better name
         this._ctx = canvas.context;
     }
 
-    getCTX() {
+    getCtx() {
         return this._ctx;
     }
 

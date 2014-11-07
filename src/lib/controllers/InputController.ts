@@ -55,7 +55,6 @@ class InputController {
         for(var mapper in this._keyMapper) {
             this._keyMapper[mapper] = InputAction[this._keyMapper[mapper]];
         }
-        console.info('Key Mappings Loaded', this);
     }
 
     private onDown (e) {
