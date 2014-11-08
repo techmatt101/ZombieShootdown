@@ -12,6 +12,10 @@ class Components implements IUpdate {
         this[this.getName(attr)] = attr;
     }
 
+    remove (obj) {
+        this[obj.name] = undefined;
+    }
+
     update (dt : number) {
     }
 
