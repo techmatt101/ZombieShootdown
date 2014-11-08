@@ -96,7 +96,12 @@ class Vector {
     //
 
     //
+    clamp (min : Vector, max : Vector) {
+        this.x = Math.min(Math.max(this.x, min.x), max.x);
+        this.y = Math.min(Math.max(this.y, min.y), max.y);
 
+        return this;
+    }
     //
     add (other : Vector) {
         this.x += other.x;
@@ -191,15 +196,15 @@ class Vector {
     //    return this;
     //}
     //
-    //min(other : Vector) {
-    //    this.x = Math.min(this.x, other.x);
-    //    this.y = Math.min(this.y, other.y);
-    //    return this;
-    //}
-    //
-    //max(other : Vector) {
-    //    this.x = Math.max(this.x, other.x);
-    //    this.y = Math.max(this.y, other.y);
-    //    return this;
-    //}
+    min(other : Vector) {
+        this.x = Math.min(this.x, other.x);
+        this.y = Math.min(this.y, other.y);
+        return this;
+    }
+
+    max(other : Vector) {
+        this.x = Math.max(this.x, other.x);
+        this.y = Math.max(this.y, other.y);
+        return this;
+    }
 }
