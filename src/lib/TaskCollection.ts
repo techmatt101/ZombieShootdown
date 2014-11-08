@@ -46,7 +46,7 @@ class TaskCollection { //TODO: better name?
 
     run(){
         var self = this;
-        console.groupCollapsed(this.name);
+        console.group(this.name);
         console.time('Total Time');
 
         this.active = this._tasksAsync.length + this._tasks.length;
