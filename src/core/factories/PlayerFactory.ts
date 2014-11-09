@@ -5,7 +5,7 @@ class PlayerFactory {
             new Vector(
             room.pos.x + room.width / 2,
             room.pos.y + room.height / 2
-        )), null);
+        )));
 
         player.components.add(new Collision(<Box> player.geometry));
         player.components.add(new Movement(player.pos, 20, 1));

@@ -5,7 +5,7 @@ class EnemyFactory {
             new Vector(
                 room.pos.x + Math.random() * room.width,
                 room.pos.y + Math.random() * room.height
-            )), null);
+            )));
 
         zombie.components.add(new Collision(<Box> zombie.geometry));
         zombie.components.add(new Movement(zombie.pos, 5, 1));

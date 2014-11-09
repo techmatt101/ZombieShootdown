@@ -6,15 +6,18 @@ class Entity implements IUpdate {
     components = new Components();
 
 
-    constructor (id : string, geometry : IShape, texture : Texture) {
+    constructor (id : string, geometry : IShape) {
         this.id = id;
         this.geometry = geometry;
-        this.texture = texture;
         this.pos = this.geometry.pos;
 
         if (geometry instanceof Box) { //TODO: temporary hack
             this.texture = new Texture(null, (<Box> geometry).width, (<Box> geometry).height, new Vector(0 ,0));
         }
+    }
+
+    setTexture (texture : Texture) {
+        this.texture = texture;
     }
 
     update (dt : number) {

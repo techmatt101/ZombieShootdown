@@ -37,7 +37,7 @@ class Level {
         for (var i = 0; i < this._entities.length; i++) {
             this._entities[i].update(dt);
 
-            if(this._entities[i].components.has(Collision)) {
+            if(this._entities[i].components.has(Collision) && (this._entities[i].id === 'Player' || this._entities[i].id === 'Zombie')) {
                 var collision = <Collision> this._entities[i].components.get(Collision);
                 for (var ii = 0; ii < this._entities.length; ii++) {
                     if (this._entities[i] !== this._entities[ii] && this._entities[ii].components.has(Collision)) {
