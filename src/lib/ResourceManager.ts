@@ -1,32 +1,41 @@
 class ResourceManager {
     private _pending_resource = 0;
+    private static _path = 'assets/';
+    private static _cache = {};
 
 
-    retrieveJson(name, callback : (jsonResponse : Object) => void) {
+    static retrieveJson(name, callback : (jsonResponse : Object) => void) {
         this.request('data/' + name + '.json', (response) => {
             callback(JSON.parse(response));
         });
         console.log("Loaded: " + name);
     }
 
-    retrieveImage(name, callback : (image : HTMLImageElement) => void) {
+    static retrieveImage(name, callback : (image : HTMLImageElement) => void) {
+        var cache = this._cache[name + '_img'];
+        if(typeof cache !== 'undefined') {
+            callback(cache);
+            return;
+        }
+
         var img = new Image();
-        img.onload = function() {
+        img.onload = () => {
             callback(img);
         };
-        img.src = 'content/img/error_image.png';
-        //return;
-        //
+        img.src = this._path + 'img/' + name + '.png';
+        this._cache[name + '_img'] = img;
+
+        console.info("Loaded Image: " + name);
+
         //this.request(name, (response) => {
         //    var img = new Image(); // http://stackoverflow.com/questions/9292133/receiving-image-through-websocket
         //    img.id = name;
         //    img.src = 'data:image/png;base64,' + response;
         //    callback(img);
         //});
-        //console.log("Loaded: " + name);
     }
 
-    retrieveSound(name, callback : (audio : HTMLAudioElement) => void) {
+    static retrieveSound(name, callback : (audio : HTMLAudioElement) => void) {
         this.request(name, (response) => {
             var audio = new Audio();
             audio.id = name;
@@ -36,8 +45,7 @@ class ResourceManager {
         console.log("Loaded: " + name);
     }
 
-    private request(file, callback : (response : string) => void) {
-        var self = this;
+    static request(file, callback : (response : string) => void) {
         var request = new XMLHttpRequest();
 
         request.onreadystatechange = function () {
