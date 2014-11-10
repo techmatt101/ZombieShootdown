@@ -32,7 +32,9 @@ class InterfaceController implements IUpdate {
 
         function playGame () {
             menu.hidden = true;
-            gameSetup();
+            setTimeout(() => {
+                gameSetup();
+            }, 0);
         }
 
         play.addEventListener('click', playGame);

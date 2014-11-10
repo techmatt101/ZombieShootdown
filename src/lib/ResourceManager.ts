@@ -1,18 +1,45 @@
 class ResourceManager {
-    private _pending_resource = 0;
+    private static _pending_resource = 0;
     private static _path = 'assets/';
     private static _cache = {};
+    private static _callback : () => void = null;
 
+
+    private static _startRequest (name) {
+        console.info("Loading " + name);
+        ResourceManager._pending_resource++;
+    }
+
+    private static _endRequest () {
+        ResourceManager._pending_resource--;
+        if(ResourceManager._callback !== null && ResourceManager._pending_resource <= 0) {
+            ResourceManager._runCallback();
+        }
+    }
+
+    private static _runCallback() {
+        setTimeout(() => {
+            if(ResourceManager._pending_resource <= 0) {
+                ResourceManager._callback();
+                ResourceManager._callback = null;
+            }
+        }, 0);
+    }
+
+    static waitForPendingResources(callback) {
+        ResourceManager._callback = callback;
+        ResourceManager._runCallback()
+    }
 
     static retrieveJson(name, callback : (jsonResponse : Object) => void) {
-        this.request('data/' + name + '.json', (response) => {
+        ResourceManager.request('data/' + name + '.json', (response) => {
             callback(JSON.parse(response));
         });
         console.log("Loaded: " + name);
     }
 
     static retrieveImage(name, callback : (image : HTMLImageElement) => void) {
-        var cache = this._cache[name + '_img'];
+        var cache = ResourceManager._cache[name + '_img'];
         if(typeof cache !== 'undefined') {
             callback(cache);
             return;
@@ -20,14 +47,14 @@ class ResourceManager {
 
         var img = new Image();
         img.onload = () => {
+            ResourceManager._endRequest();
             callback(img);
         };
-        img.src = this._path + 'img/' + name + '.png';
-        this._cache[name + '_img'] = img;
+        img.src = ResourceManager._path + 'img/' + name + '.png';
+        ResourceManager._cache[name + '_img'] = img;
+        ResourceManager._startRequest(name + ' Image');
 
-        console.info("Loaded Image: " + name);
-
-        //this.request(name, (response) => {
+        //ResourceManager.request(name, (response) => {
         //    var img = new Image(); // http://stackoverflow.com/questions/9292133/receiving-image-through-websocket
         //    img.id = name;
         //    img.src = 'data:image/png;base64,' + response;
@@ -36,7 +63,7 @@ class ResourceManager {
     }
 
     static retrieveSound(name, callback : (audio : HTMLAudioElement) => void) {
-        this.request(name, (response) => {
+        ResourceManager.request(name, (response) => {
             var audio = new Audio();
             audio.id = name;
             audio.src = 'data:audio/wav;base64,' + response;

@@ -64,6 +64,9 @@ class Game {
             .add(function LevelTweaks () {
                 game.level.setObjectToFollow(game.player);
             })
+            .addAsync(function LoadingResources (callback) {
+                ResourceManager.waitForPendingResources(callback)
+            })
             .run();
     }
 }
