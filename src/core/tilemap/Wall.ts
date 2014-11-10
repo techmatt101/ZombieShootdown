@@ -11,5 +11,6 @@ class Wall {
         this.corner = corner;
 
         tile.type = TileType.WALL;
+        tile.data = this;
     }
 }

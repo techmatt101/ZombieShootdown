@@ -1,43 +1,44 @@
-class Room extends Box{
+class Room extends Box {
     tiles : Array<Tile[]> = [];
     walls : Wall[] = [];
     solidWalls : Wall[] = [];
+    connectingRooms : Room[] = [];
 
 
-    addWall(wall : Wall) {
+    addWall (wall : Wall) {
         this.walls.push(wall);
     }
 
-    addSolidWall(wall : Wall) {
+    addSolidWall (wall : Wall) {
         this.walls.push(wall);
         this.solidWalls.push(wall);
     }
 
-    build() {
+    build () {
         //create walls round edge of room tiles
-        for (var x = 1; x < this.width - 1; ++x) {
+        for (var x = 1; x < this.width - 1; x++) {
             this.addSolidWall(new Wall(
                 new Vector(x, 0),
                 this.tiles[x][0],
-                Direction.WEST
+                Direction.NORTH
             ));
             this.addSolidWall(new Wall(
-                    new Vector(x, this.height - 1),
-                    this.tiles[x][this.height - 1],
-                    Direction.EAST)
+                new Vector(x, this.height - 1),
+                this.tiles[x][this.height - 1],
+                Direction.SOUTH)
             );
         }
 
-        for (var y = 1; y < this.height - 1; ++y) {
+        for (var y = 1; y < this.height - 1; y++) {
             this.addSolidWall(new Wall(
                 new Vector(0, y),
                 this.tiles[0][y],
-                Direction.NORTH
+                Direction.WEST
             ));
             this.addSolidWall(new Wall(
                 new Vector(this.width - 1, y),
                 this.tiles[this.width - 1][y],
-                Direction.SOUTH
+                Direction.EAST
             ));
         }
 
