@@ -70,7 +70,7 @@ class InterfaceController implements IUpdate {
                 var length = self.game.level.getEntities().length;
                 for (var i = 0; i < length; i++) {
                     var entity = self.game.level.getEntities()[i];
-                    if((<Box>entity.geometry).isBoundingBoxWith(clickBox)) {
+                    if((entity.geometry).isBoundingBoxWith(clickBox)) {
                         this.selectedEntity = entity;
                         console.log(entity);
                         return;
@@ -94,8 +94,9 @@ class InterfaceController implements IUpdate {
     }
 
     draw (ctx : CanvasRenderingContext2D) {
-        ctx.fillText('Score: ' + 0, 5, this.game.canvas.height - 10);
+        ctx.fillText('Wave: ' + 1, 5, this.game.canvas.height - 30);
         ctx.fillText('Health: ' + (<Health> this.game.player.components.get(Health)).health, 5, this.game.canvas.height - 20);
+        ctx.fillText('Score: ' + 0, 5, this.game.canvas.height - 10);
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) {
@@ -109,7 +110,7 @@ class InterfaceController implements IUpdate {
             loop(this.selectedEntity);
             function loop(obj) {
                 for(var key in obj) {
-                    if (key[0] !== '_' && typeof obj[key] !== 'function') {
+                    if (key[0] !== '_' && typeof obj[key] !== 'function' && !(obj[key] instanceof Image)) {
                         if(typeof obj[key] === 'object') {
                             ctx.fillText(key + ':', space, line);
                             line += lineGap;

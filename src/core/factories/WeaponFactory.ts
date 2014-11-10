@@ -3,7 +3,7 @@ class WeaponFactory {
     static spawnBullet() : Bullet {
         var bullet = new Bullet('Bullet', new Box(8, 5));
 
-        bullet.components.add(new Collision(<Box> bullet.geometry));
+        bullet.components.add(new Collision(bullet.geometry));
         bullet.components.add(new Movement(bullet.pos, 60));
         bullet.components.build();
 

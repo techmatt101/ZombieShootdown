@@ -36,12 +36,22 @@ class Drawer { //TODO: better name
             rx = Math.cos(-entity[i].pos.angle);
             ry = Math.sin(-entity[i].pos.angle);
 
-            this._ctx.fillRect(
-                (entity[i].pos.x * rx - entity[i].pos.y * ry) - entity[i].texture.width / 2,
-                (entity[i].pos.y * rx + entity[i].pos.x * ry) - entity[i].texture.height / 2,
-                entity[i].texture.width,entity[i].texture.height
-            );
-            //this._ctx.drawImage(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
+            if(entity[i].texture == null) {
+                this._ctx.fillRect(
+                    (entity[i].pos.x * rx - entity[i].pos.y * ry) - entity[i].geometry.width / 2,
+                    (entity[i].pos.y * rx + entity[i].pos.x * ry) - entity[i].geometry.height / 2,
+                    entity[i].geometry.width, entity[i].geometry.height
+                );
+            } else {
+                this._ctx.drawImage(
+                    entity[i].texture.img,
+                    entity[i].texture.pos.x, entity[i].texture.pos.y,
+                    entity[i].texture.width, entity[i].texture.height,
+                    (entity[i].pos.x * rx - entity[i].pos.y * ry) - entity[i].geometry.width / 2,
+                    (entity[i].pos.y * rx + entity[i].pos.x * ry) - entity[i].geometry.height / 2,
+                    entity[i].geometry.width, entity[i].geometry.height
+                );
+            }
 
             this._ctx.restore();
         }

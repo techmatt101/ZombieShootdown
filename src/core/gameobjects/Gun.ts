@@ -5,7 +5,7 @@ class Gun extends Entity implements IWeapon {
     private _activeCoolDown = 0;
 
 
-    constructor(id : string, geometry : IShape, bulletPool : Pool<Bullet>) {
+    constructor(id : string, geometry : Box, bulletPool : Pool<Bullet>) {
         super(id, geometry);
         this._bulletPool = bulletPool;
     }
