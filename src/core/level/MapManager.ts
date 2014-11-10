@@ -14,7 +14,7 @@ class MapManager extends Box implements IUpdate {
         this.mapGenerator = mg;
 
         this.mapGenerator.getGird().loopThrough(function(tile : Tile, pos : Vector, tileSize : Vector) {
-            if(tile.type === TileType.WALL) {
+            if(tile.type !== TileType.EMPTY) {
                 level.addEntity(TileFactory.spawnTile(pos, tileSize, tile));
             }
         });
