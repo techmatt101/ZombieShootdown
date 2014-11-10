@@ -1,5 +1,7 @@
 class Grid {
     private _grid : Array<Tile[]> = [];
+    width : number;
+    height : number;
     tileSize : Vector;
 
 
@@ -28,9 +30,9 @@ class Grid {
 
     createEmptyGrid (gridSize : Vector, fillType : TileType) {
         var grid = [];
-        for (var x = 0; x < gridSize.x; ++x) {
+        for (var x = 0; x < gridSize.x; x++) {
             grid[x] = [];
-            for (var y = 0; y < gridSize.y; ++y) {
+            for (var y = 0; y < gridSize.y; y++) {
                 grid[x][y] = new Tile(fillType);
             }
         }
@@ -38,9 +40,10 @@ class Grid {
     }
 
     toString () {
-        for (var x = 0; x < this._grid.length; x++) {
-            var out = x + 100 + '';
-            for (var y = 0; y < this._grid[x].length; y++) {
+        var yLength = this._grid[0].length;
+        for (var y = 0; y < yLength; y++) {
+            var out = y + 100 + ' ';
+            for (var x = 0; x < this._grid.length; x++) {
                 if (typeof this._grid[x][y] === 'undefined') {
                     out += '?';
                     continue;
