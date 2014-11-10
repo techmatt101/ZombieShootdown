@@ -28,12 +28,19 @@ class Drawer { //TODO: better name
         this._ctx.fillStyle = '#fff';
         this._ctx.translate(~~camera.view.x, ~~camera.view.y);
 
+        var rx, ry;
         for (var i = 0; i < entity.length; i++) {
             this._ctx.save();
-            this._ctx.translate(entity[i].pos.x, entity[i].pos.y);
             this._ctx.rotate(entity[i].pos.angle);
 
-            this._ctx.fillRect(-entity[i].texture.width / 2, -entity[i].texture.height / 2, entity[i].texture.width, entity[i].texture.height);
+            rx = Math.cos(-entity[i].pos.angle);
+            ry = Math.sin(-entity[i].pos.angle);
+
+            this._ctx.fillRect(
+                (entity[i].pos.x * rx - entity[i].pos.y * ry) - entity[i].texture.width / 2,
+                (entity[i].pos.y * rx + entity[i].pos.x * ry) - entity[i].texture.height / 2,
+                entity[i].texture.width,entity[i].texture.height
+            );
             //this._ctx.drawImage(entity[i].pos.x, entity[i].pos.y, entity[i].width, entity[i].height);
 
             this._ctx.restore();
