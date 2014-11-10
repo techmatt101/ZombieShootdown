@@ -73,6 +73,13 @@ class Vector {
         this.angle = 0;
     }
 
+    set (x : number, y : number, angle : number) {
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
+    }
+
+
     //    static calcLine (x, y) { //todo: look at
 //        var a = new Vector(this.y - y, this.x - x).atan2();
 //        return new Vector(
