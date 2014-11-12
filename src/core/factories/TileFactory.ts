@@ -3,24 +3,19 @@ class TileFactory {
     static spawnTile(pos : Vector, tileSize : Vector, tileData : Tile) {
         var tile = new Entity(TileType[tileData.type] + ' Tile', new Box(tileSize.x, tileSize.y, pos));
 
+        tile.components.add(new Material());
+
+        var texturePos : Vector;
+
         switch(tileData.type) {
             case TileType.WALL:
-                var pos = new Vector((<Wall>tileData.data).direction, 0);
-                pos.scale(4);
-                ResourceManager.retrieveImage('tiles', (img : HTMLImageElement) => {
-                    tile.setTexture(new Texture(img, 4, 4, pos));
-                });
-
+                texturePos = new Vector((<Wall>tileData.data).direction, 0);
                 tile.components.add(new Collision(tile.geometry));
 
                 break;
 
             case TileType.FLOOR:
-                var pos = new Vector(5, 1);
-                pos.scale(4);
-                ResourceManager.retrieveImage('tiles', (img : HTMLImageElement) => {
-                    tile.setTexture(new Texture(img, 4, 4, pos));
-                });
+                texturePos = new Vector(5, 1);
 
                 break;
 
@@ -28,6 +23,10 @@ class TileFactory {
                 console.warn('Unknown Tile Type');
         }
 
+        texturePos.scale(4);
+        ResourceManager.retrieveImage('tiles', (img : HTMLImageElement) => {
+            tile.components.material.setTexture(new Texture(img, 4, 4, texturePos));
+        });
 
         tile.components.build();
 

@@ -2,7 +2,6 @@ class Entity implements IUpdate, IPool {
     id : string;
     pos : Vector;
     geometry : Box;
-    texture : Texture = null;
     components : Components;
     available = false;
     active = true;
@@ -14,10 +13,6 @@ class Entity implements IUpdate, IPool {
         this.geometry = geometry;
         this.pos = this.geometry.pos;
         this.components = new Components(this);
-    }
-
-    setTexture (texture : Texture) {
-        this.texture = texture;
     }
 
     reset () { ///TODO: hmmm...

@@ -32,14 +32,15 @@ class Drawer { //TODO: better name
 
         var rx, ry;
         for (var i = 0; i < entities.length; i++) {
-            if(!entities[i].active) { continue; }  //TODO: hmmm...
+            if(!entities[i].components.hasActive(Material)) { continue; }  //TODO: hmmm...
+            var texture = entities[i].components.material.texture;
             this._ctx.save();
             this._ctx.rotate(entities[i].pos.angle);
 
             rx = Math.cos(-entities[i].pos.angle);
             ry = Math.sin(-entities[i].pos.angle);
 
-            if(entities[i].texture == null) {
+            if(texture == null) {
                 this._ctx.fillRect(
                     (entities[i].pos.x * rx - entities[i].pos.y * ry) - entities[i].geometry.width / 2,
                     (entities[i].pos.y * rx + entities[i].pos.x * ry) - entities[i].geometry.height / 2,
@@ -47,9 +48,9 @@ class Drawer { //TODO: better name
                 );
             } else {
                 this._ctx.drawImage(
-                    entities[i].texture.img,
-                    entities[i].texture.pos.x, entities[i].texture.pos.y,
-                    entities[i].texture.width, entities[i].texture.height,
+                    texture.img,
+                    texture.pos.x, texture.pos.y,
+                    texture.width, texture.height,
                     (entities[i].pos.x * rx - entities[i].pos.y * ry) - entities[i].geometry.width / 2,
                     (entities[i].pos.y * rx + entities[i].pos.x * ry) - entities[i].geometry.height / 2,
                     entities[i].geometry.width, entities[i].geometry.height

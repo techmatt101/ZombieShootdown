@@ -1,6 +1,7 @@
 class Components implements IUpdate {
     controller : IEntityController;
     collision : Collision;
+    material : Material;
     movement : Movement;
     health : Health;
     weaponHolder : WeaponHolder;
