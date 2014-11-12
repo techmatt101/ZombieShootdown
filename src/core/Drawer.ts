@@ -1,10 +1,12 @@
 class Drawer { //TODO: better name
     private _canvas : Canvas;
+    private _camera : Camera;
     private _ctx : CanvasRenderingContext2D;
 
 
-    constructor (canvas : Canvas) {
+    constructor (canvas : Canvas, camera : Camera) {
         this._canvas = canvas;
+        this._camera = camera;
 
         canvas.context = canvas.element.getContext('2d');
         // disable pixel smoothing
@@ -20,13 +22,13 @@ class Drawer { //TODO: better name
         return this._ctx;
     }
 
-    render (entity : Entity[], camera : Camera) {
+    render (entity : Entity[]) {
         // Clear Canvas
         this._ctx.fillStyle = "#000";
         this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
         this._ctx.fillStyle = '#fff';
-        this._ctx.translate(~~camera.view.x, ~~camera.view.y);
+        this._ctx.translate(~~this._camera.view.x, ~~this._camera.view.y);
 
         var rx, ry;
         for (var i = 0; i < entity.length; i++) {
@@ -64,6 +66,6 @@ class Drawer { //TODO: better name
             }
         }
 
-        this._ctx.translate(~~-camera.view.x, ~~-camera.view.y);
+        this._ctx.translate(~~-this._camera.view.x, ~~-this._camera.view.y);
     }
 }

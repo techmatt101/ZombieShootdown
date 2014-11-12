@@ -4,6 +4,7 @@ class Game {
     input : InputController;
     //sound : SoundController;
     renderer : Drawer;
+    systems : SystemManager;
 
     map : MapManager;
     camera : Camera;
@@ -14,16 +15,20 @@ class Game {
 
 
     constructor () {
+        var self = this;
+        this.loop = new GameLoop((dt : number) => {
+            self.update(dt);
+        });
+
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
         this.input = new InputController(this.canvas.element);
-        this.renderer = new Drawer(this.canvas);
 
         this.map = new MapManager(new Vector(), 1500, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
-        this.level = new Level(this.renderer, this.map, this.camera);
+        this.renderer = new Drawer(this.canvas, this.camera);
+        this.systems = new SystemManager(this.renderer);
+        this.level = new Level(this.map, this.camera, this.systems);
         this.logic = new WaveLogic(this);
-
-        this.loop = new GameLoop(this.update.bind(this));
     }
 
     update (dt : number) {
@@ -38,7 +43,7 @@ class Game {
     load () {
         var game = this;
 
-        new TaskCollection('Level Setup', function () {
+        new TaskCollection('Level Setup', function onCompete () {
             ui.loaded(game);
             game.loop.start();
             game.logic.start();
@@ -62,7 +67,6 @@ class Game {
 
                 game.level.addEntity(game.player);
                 game.level.addEntity(gun);
-                game.level.addEntities(EnemyFactory.spawnZombies(3, game.map.mapGenerator.getMainRoom(), game.player));
             })
             .add(function LevelTweaks () {
                 game.level.setObjectToFollow(game.player);
