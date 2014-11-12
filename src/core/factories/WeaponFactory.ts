@@ -7,7 +7,7 @@ class WeaponFactory {
         bullet.components.add(new Movement(bullet.pos, 60));
         bullet.components.build();
 
-        (<Collision> bullet.components.get(Collision)).on(CollisionEvents.COLLIDE, () => {
+        bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
             bullet.available = true;
             bullet.active = false;
         });

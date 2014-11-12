@@ -61,7 +61,6 @@ class Drawer { //TODO: better name
 
         if(Config.debug){
             for (var i = 0; i < entities.length; i++) {
-                if(!entities[i].active) { continue; }  //TODO: hmmm...
                 this._ctx.save();
                 entities[i].drawDebug(this._ctx);
                 this._ctx.restore();

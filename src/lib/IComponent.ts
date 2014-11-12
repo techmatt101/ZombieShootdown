@@ -1,2 +1,0 @@
-interface IComponent extends IUpdate{
-}

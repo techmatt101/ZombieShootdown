@@ -1,15 +1,29 @@
 class Movement implements IComponent {
+    active = true;
     speed : number;
     friction : number;
 
     private _pos : Vector;
 
+    static reference(components : Components) {
+        return components.movement;
+    }
 
     constructor(pos : Vector, speed = 5, friction = 0) {
         this._pos = pos;
         this.speed = speed;
         this.friction = friction;
     }
+
+    direct (direction : Vector, dt : number) {
+        direction.normalize().scale(this.speed * dt);
+        this._pos.add(direction);
+    }
+
+    traject (dt : number) {
+        this._pos.traject(this.speed * dt);
+    }
+
 
     update (dt : number) : void {
         if(this.friction < 1) { //TODO: hmmm...
@@ -20,12 +34,10 @@ class Movement implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    direct (direction : Vector, dt : number) {
-        direction.normalize().scale(this.speed * dt);
-        this._pos.add(direction);
-    }
-
-    traject (dt : number) {
-        this._pos.traject(this.speed * dt);
+    load(components : Components) {
+        components.movement = this;
+        //var offset = this._box.getOffset(collision.getBoundary()).scale(0.5);
+        //this._pos.add(offset);
+        //collision.getBoundary().pos.sub(offset);
     }
 }

@@ -1,27 +1,26 @@
 class Collision implements IComponent, IObserver {
+    active = true;
+
     private _box : Box;
     private _isTouching = false;
     private _eventHandler = new EventHandler<CollisionEvents>();
 
 
+    static reference(components : Components) {
+        return components.collision;
+    }
+
     constructor(box : Box) {
         this._box = box;
     }
 
-    on (event_type : CollisionEvents, callback) {
-        this._eventHandler.add(event_type, callback);
+    getBoundary() {
+        return this._box;
     }
 
     setAsCollided() {
         this._isTouching = true;
         this._eventHandler.fire(CollisionEvents.COLLIDE);
-    }
-
-    off () {
-    }
-
-    getBoundary() {
-        return this._box;
     }
 
     test (collision : Collision) {
@@ -37,6 +36,7 @@ class Collision implements IComponent, IObserver {
         return false;
     }
 
+
     update (dt : number) : void {
         this._isTouching = false;
     }
@@ -44,6 +44,17 @@ class Collision implements IComponent, IObserver {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
         ctx.strokeStyle = (this._isTouching) ? '#FFFF00' : '#F00';
         ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
+    }
+
+    load(components : Components) {
+        components.collision = this;
+    }
+
+    on (event_type : CollisionEvents, callback) {
+        this._eventHandler.add(event_type, callback);
+    }
+
+    off () {
     }
 }
 

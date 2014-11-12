@@ -6,7 +6,6 @@ class DebugTool {
     }
 
     noClip () {
-        this._game.player.components.remove(Collision);
-        this._game.player.components.build();
+        this._game.player.components.collision.active = false;
     }
 }

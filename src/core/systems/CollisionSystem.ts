@@ -10,11 +10,12 @@ class CollisionSystem implements ISystem {
 
     update (dt : number) {
         for (var i = 0; i < this._entities.length; i++) {
-            if(!this._entities[i].active) { continue; }  //TODO: hmmm...
-            var collision = <Collision> (<any>this._entities[i].components).Collision; //TODO: hmmm...
+            if(!this._entities[i].components.hasActive(Collision)) { continue; }
+            var collision = this._entities[i].components.collision;
+
             for (var ii = i + 1; ii < this._entities.length; ii++) {
-                if(!this._entities[ii].active) { continue; }  //TODO: hmmm...
-                collision.test( <Collision> (<any>this._entities[ii].components).Collision); //TODO: hmmm...
+                if(!this._entities[ii].components.hasActive(Collision)) { continue; }
+                collision.test(this._entities[ii].components.collision);
             }
         }
     }

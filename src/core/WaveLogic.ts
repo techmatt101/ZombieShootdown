@@ -9,7 +9,7 @@ class WaveLogic {
     }
 
     start() {
-        (<Health>this._game.player.components.get(Health)).on(HealthEvents.DEATH, () => {
+        this._game.player.components.health.on(HealthEvents.DEATH, () => {
             console.log("GAME OVER MAN!");
         });
         this.spawnWave();
@@ -29,7 +29,7 @@ class WaveLogic {
             this._game.level.addEntity(zombies[i]);
 
             events.addAsync((callback) => {
-                (<Health> zombies[i].components.get(Health)).on(HealthEvents.DEATH, () => {
+                zombies[i].components.health.on(HealthEvents.DEATH, () => {
                     self.score += 10;
                     callback();
                 });

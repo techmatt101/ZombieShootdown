@@ -3,7 +3,7 @@ class Entity implements IUpdate, IPool {
     pos : Vector;
     geometry : Box;
     texture : Texture = null;
-    components = new Components();
+    components : Components;
     available = false;
     active = true;
     behaviors = [];
@@ -13,6 +13,7 @@ class Entity implements IUpdate, IPool {
         this.id = id;
         this.geometry = geometry;
         this.pos = this.geometry.pos;
+        this.components = new Components(this);
     }
 
     setTexture (texture : Texture) {
@@ -24,10 +25,14 @@ class Entity implements IUpdate, IPool {
     }
 
     update (dt : number) {
-        this.components.update(dt);
+        if (this.active) {
+            this.components.update(dt);
+        }
     }
 
-    drawDebug(ctx : CanvasRenderingContext2D) : void {
-        this.components.drawDebug(ctx);
+    drawDebug (ctx : CanvasRenderingContext2D) {
+        if (this.active) {
+            this.components.drawDebug(ctx);
+        }
     }
 }
