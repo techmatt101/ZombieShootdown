@@ -28,7 +28,9 @@ class Collision implements IComponent, IObserver {
         if(this._box.isBoundingBoxWith(collision.getBoundary())) {
             this.setAsCollided();
             collision.setAsCollided();
-            this._box.pos.add(this._box.getOffset(collision.getBoundary()));
+            var offset = this._box.getOffset(collision.getBoundary()).scale(0.5);
+            this._box.pos.add(offset);
+            collision.getBoundary().pos.sub(offset);
 
             return true;
         }

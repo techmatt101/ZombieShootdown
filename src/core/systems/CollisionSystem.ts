@@ -3,7 +3,7 @@ class CollisionSystem implements ISystem {
 
 
     add (entity : Entity) {
-        if(entity.components.has(Collision) && (entity.id === 'Player' || entity.id === 'Zombie') || entity.id === 'Bullet') {
+        if(entity.components.has(Collision)) {
             this._entities.push(entity);
         }
     }
