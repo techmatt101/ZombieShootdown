@@ -1,9 +1,12 @@
-class Entity implements IUpdate {
+class Entity implements IUpdate, IPool {
     id : string;
     pos : Vector;
     geometry : Box;
     texture : Texture = null;
     components = new Components();
+    available = false;
+    active = true;
+    behaviors = [];
 
 
     constructor (id : string, geometry : Box) {
@@ -14,6 +17,10 @@ class Entity implements IUpdate {
 
     setTexture (texture : Texture) {
         this.texture = texture;
+    }
+
+    reset () { ///TODO: hmmm...
+        this.active = true;
     }
 
     update (dt : number) {

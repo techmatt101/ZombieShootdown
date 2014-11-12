@@ -8,7 +8,9 @@ class LogicSystem implements ISystem {
 
     update (dt : number) {
         for (var i = 0; i < this._entities.length; i++) {
-            this._entities[i].update(dt);
+            if(this._entities[i].active) { //TODO: hmmm...
+                this._entities[i].update(dt);
+            }
         }
     }
 }

@@ -56,7 +56,7 @@ class Game {
                 game.map.loadMap(game.level);
             })
             .add(function LevelEntities () {
-                var bulletPool = new Pool<Bullet>(() => {
+                var bulletPool = new Pool<Entity>(() => {
                     var bullet = WeaponFactory.spawnBullet();
                     game.level.addEntity(bullet);
                     return bullet;

@@ -31,7 +31,7 @@ class Pool <T> {
             obj = this._available[this._nextAvailableId];
             this._nextAvailableId--;
         }
-
+        obj.reset();
         obj.available = false;
         return obj;
     }

@@ -1,11 +1,11 @@
 class Gun extends Entity implements IWeapon {
     placementOffset = new Vector(38, 0);
-    private _bulletPool : Pool<Bullet>;
+    private _bulletPool : Pool<Entity>;
     private _coolDown = 2;
     private _activeCoolDown = 0;
 
 
-    constructor(id : string, geometry : Box, bulletPool : Pool<Bullet>) {
+    constructor(id : string, geometry : Box, bulletPool : Pool<Entity>) {
         super(id, geometry);
         this._bulletPool = bulletPool;
     }
