@@ -36,8 +36,5 @@ class Movement implements IComponent {
 
     load(components : Components) {
         components.movement = this;
-        //var offset = this._box.getOffset(collision.getBoundary()).scale(0.5);
-        //this._pos.add(offset);
-        //collision.getBoundary().pos.sub(offset);
     }
 }
