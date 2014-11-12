@@ -19,6 +19,6 @@ function fastAtan2 (x, y) {
     return atan;
 }
 
-function randInt (max : number, min : number) {
-    return ~~(Math.random() * (max - min + 1)) + min;
+function randInt (min : number, max : number) {
+    return ~~(Math.random() * (max - min + 1) + min);
 }
