@@ -5,9 +5,9 @@ var ui : InterfaceController = null;
 var game : Game = null;
 var debug : DebugTool = null;
 
-window.onload = () => {
+window.addEventListener('load',() => {
     ui = new InterfaceController();
-};
+});
 
 function gameSetup () {
     console.time("GameSetup");

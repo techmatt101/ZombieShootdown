@@ -17,7 +17,7 @@ class EnemyFactory {
     }
 
     static spawnZombies(n : number, room : Room, target: Entity) {
-        var zombies = [];
+        var zombies : Entity[] = [];
         for (var i = 0; i < n; i++) {
             zombies.push(EnemyFactory.spawnZombie(room, target));
         }
