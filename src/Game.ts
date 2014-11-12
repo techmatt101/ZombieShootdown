@@ -8,6 +8,7 @@ class Game {
     map : MapManager;
     camera : Camera;
     level : Level;
+    logic : WaveLogic;
 
     player : Entity;
 
@@ -20,6 +21,7 @@ class Game {
         this.map = new MapManager(new Vector(), 1500, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
         this.level = new Level(this.renderer, this.map, this.camera);
+        this.logic = new WaveLogic(this);
 
         this.loop = new GameLoop(this.update.bind(this));
     }
@@ -39,6 +41,7 @@ class Game {
         new TaskCollection('Level Setup', function () {
             ui.loaded(game);
             game.loop.start();
+            game.logic.start();
             console.log('GAME OVER MAN!');
         })
             .add(function Controllers() {
