@@ -3,7 +3,6 @@ class Collision implements IComponent, IObserver {
 
     private _box : Box;
     private _isTouching = false;
-    private _components : Components;
     private _eventHandler = new EventHandler<CollisionEvents>();
 
 
@@ -19,37 +18,13 @@ class Collision implements IComponent, IObserver {
         return this._box;
     }
 
-    canMove() {
-        return this._components.hasActive(Movement);
-    }
-
     setAsCollided() {
         this._isTouching = true;
         this._eventHandler.fire(CollisionEvents.COLLIDE);
     }
 
     test (collision : Collision) {
-        if(this._box.isBoundingBoxWith(collision.getBoundary())) {
-            this.setAsCollided();
-            collision.setAsCollided();
-
-            var offset = this._box.getOffset(collision.getBoundary());
-
-            if(this.canMove() && collision.canMove()) {
-                offset.scale(0.5);
-            }
-
-            if(this.canMove()) {
-                this._box.pos.add(offset);
-            }
-
-            if(collision.canMove()) {
-                collision.getBoundary().pos.sub(offset);
-            }
-
-            return true;
-        }
-        return false;
+        return this._box.isBoundingBoxWith(collision.getBoundary());
     }
 
 
@@ -64,7 +39,6 @@ class Collision implements IComponent, IObserver {
 
     load(components : Components) {
         components.collision = this;
-        this._components = components;
     }
 
     on (event_type : CollisionEvents, callback) {
