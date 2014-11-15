@@ -6,6 +6,10 @@ class MapGenerator {
         return this._grid;
     }
 
+    getRandomRoom() {
+        return this._rooms[randInt(0, this._rooms.length - 1)];
+    }
+
     getMainRoom() {
         return this._rooms[0];
     }
