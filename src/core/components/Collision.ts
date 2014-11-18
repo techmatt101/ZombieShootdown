@@ -5,7 +5,6 @@ class Collision implements IComponent, IObserver {
     private _isTouching = false;
     private _eventHandler = new EventHandler<CollisionEvents>();
 
-
     static reference(components : Components) {
         return components.collision;
     }

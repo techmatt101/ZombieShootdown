@@ -16,11 +16,10 @@ class InputControl implements IComponent {
         this._camera = camera;
     }
 
-
     update (dt : number) {
         this._entity.pos.rotateDirection(this._camera.view.clone().reverse().offset(this._input.getPointerPos())); //TODO: optimize
 
-        if(this._entity.components.has(Movement)) {
+        if(this._entity.components.hasActive(Movement)) {
             this._movement.reset();
             if (this._input.isDown(InputAction.LEFT)) this._movement.x -= 1;
             if (this._input.isDown(InputAction.RIGHT)) this._movement.x += 1;
@@ -30,7 +29,7 @@ class InputControl implements IComponent {
             this._entity.components.movement.direct(this._movement, dt);
         }
 
-        if(this._input.isDown(InputAction.ACTION_1) && this._entity.components.has(WeaponHolder)) {
+        if(this._input.isDown(InputAction.ACTION_1) && this._entity.components.hasActive(WeaponHolder)) {
             this._entity.components.weaponHolder.attack();
         }
     }
