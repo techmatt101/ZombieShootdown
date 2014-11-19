@@ -7,13 +7,13 @@ class PlayerFactory {
             room.pos.y + room.height / 2
         )));
 
-        player.components.add(new Material());
-        player.components.add(new Collision(player.geometry));
-        player.components.add(new Movement(player.pos, 20, 1));
-        player.components.add(new WeaponHolder(player.pos, weapon));
-        player.components.add(new Health(200));
-        player.components.add(new InputControl(player, input, camera));
-        player.components.build();
+        player.addComponent(new Material());
+        player.addComponent(new Collision(player.geometry));
+        player.addComponent(new Movement(player.pos, 20, 1));
+        player.addComponent(new WeaponHolder(player.pos, weapon));
+        player.addComponent(new Health(200));
+        player.addComponent(new InputControl(player, input, camera));
+        player.buildComponents();
 
         return player;
     }

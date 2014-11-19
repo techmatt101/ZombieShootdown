@@ -8,7 +8,7 @@ class RenderSystem implements ISystem {
     }
 
     add (entity : Entity) {
-        if(entity.components.has(Material)) {
+        if(entity.hasComponent(Material)) {
             this._entities.push(entity);
         }
     }

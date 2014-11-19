@@ -2,7 +2,7 @@ class Material implements IComponent {
     active : boolean;
     texture : Texture = null;
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.material;
     }
 
@@ -18,7 +18,7 @@ class Material implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) {
     }
 
-    load (components : Components) {
+    load (components : ComponentList) {
         components.material = this;
     }
 }

@@ -1,25 +1,25 @@
 class Health implements IComponent, IObserver {
     active : boolean;
-    total : number;
+    value : number;
 
     private _eventHandler = new EventHandler<HealthEvents>();
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.health;
     }
 
     constructor(health : number = 100) {
-        this.total = health;
+        this.value = health;
     }
 
     give(n : number) {
-        this.total += n;
+        this.value += n;
     }
 
     take(n : number) {
-        this.total -= n;
+        this.value -= n;
 
-        if(this.total <= 0) {
+        if(this.value <= 0) {
             this._eventHandler.fire(HealthEvents.DEATH);
         }
     }
@@ -31,17 +31,8 @@ class Health implements IComponent, IObserver {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load (components : Components) {
+    load (components : ComponentList) {
         components.health = this;
-
-        if(components.has(Collision)) { //TODO: HACK!
-            var self = this;
-            components.collision.on(CollisionEvents.COLLIDE, () => {
-                if(self.total > 0) {
-                    self.take(30);
-                }
-            });
-        }
     }
 
     on (event_type : HealthEvents, callback) {

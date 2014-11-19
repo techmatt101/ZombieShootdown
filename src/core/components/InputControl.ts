@@ -6,7 +6,7 @@ class InputControl implements IComponent {
     private _camera : Camera;
     private _movement = new Vector(0, 0);
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.controller;
     }
 
@@ -19,7 +19,7 @@ class InputControl implements IComponent {
     update (dt : number) {
         this._entity.pos.rotateDirection(this._camera.view.clone().reverse().offset(this._input.getPointerPos())); //TODO: optimize
 
-        if(this._entity.components.hasActive(Movement)) {
+        if(this._entity.hasActiveComponent(Movement)) {
             this._movement.reset();
             if (this._input.isDown(InputAction.LEFT)) this._movement.x -= 1;
             if (this._input.isDown(InputAction.RIGHT)) this._movement.x += 1;
@@ -29,7 +29,7 @@ class InputControl implements IComponent {
             this._entity.components.movement.direct(this._movement, dt);
         }
 
-        if(this._input.isDown(InputAction.ACTION_1) && this._entity.components.hasActive(WeaponHolder)) {
+        if(this._input.isDown(InputAction.ACTION_1) && this._entity.hasActiveComponent(WeaponHolder)) {
             this._entity.components.weaponHolder.attack();
         }
     }
@@ -37,7 +37,7 @@ class InputControl implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : Components) {
+    load(components : ComponentList) {
         components.controller = this;
     }
 }

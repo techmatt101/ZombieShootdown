@@ -3,14 +3,14 @@ class TileFactory {
     static spawnTile(pos : Vector, tileSize : Vector, tileData : Tile) {
         var tile = new Entity(TileType[tileData.type] + ' Tile', new Box(tileSize.x, tileSize.y, pos));
 
-        tile.components.add(new Material());
+        tile.addComponent(new Material());
 
         var texturePos : Vector;
 
         switch(tileData.type) {
             case TileType.WALL:
                 texturePos = new Vector((<Wall>tileData.data).direction, 0);
-                tile.components.add(new Collision(tile.geometry));
+                tile.addComponent(new Collision(tile.geometry));
 
                 break;
 
@@ -28,7 +28,7 @@ class TileFactory {
             tile.components.material.setTexture(new Texture(img, 4, 4, texturePos));
         });
 
-        tile.components.build();
+        tile.buildComponents();
 
         return tile;
     }

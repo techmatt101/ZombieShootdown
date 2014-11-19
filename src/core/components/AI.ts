@@ -3,7 +3,7 @@ class AI implements IComponent, IEntityController {
 
     private _ai : IAI;
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.controller;
     }
 
@@ -19,7 +19,7 @@ class AI implements IComponent, IEntityController {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : Components) {
+    load(components : ComponentList) {
         components.controller = this;
     }
 }

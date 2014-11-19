@@ -32,7 +32,7 @@ class Drawer { //TODO: better name
 
         var rx, ry;
         for (var i = 0; i < entities.length; i++) {
-            if(!entities[i].components.hasActive(Material)) { continue; }  //TODO: hmmm...
+            if(!entities[i].hasActiveComponent(Material)) { continue; }  //TODO: hmmm...
             var texture = entities[i].components.material.texture;
             this._ctx.save();
             this._ctx.rotate(entities[i].pos.angle);

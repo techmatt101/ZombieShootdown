@@ -1,4 +1,4 @@
-interface IComponent extends IUpdate {
+interface IComponent<T> extends IUpdate {
     active : boolean
-    load(components : Components)
+    load(components : T)
 }

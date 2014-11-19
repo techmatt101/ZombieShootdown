@@ -4,7 +4,7 @@ class WeaponHolder implements IComponent {
     private _pos : Vector;
     private _weapon : IWeapon;
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.weaponHolder;
     }
 
@@ -26,7 +26,7 @@ class WeaponHolder implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : Components) {
+    load(components : ComponentList) {
         components.weaponHolder = this;
     }
 }

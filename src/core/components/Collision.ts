@@ -5,7 +5,7 @@ class Collision implements IComponent, IObserver {
     private _isTouching = false;
     private _eventHandler = new EventHandler<CollisionEvents>();
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.collision;
     }
 
@@ -36,7 +36,7 @@ class Collision implements IComponent, IObserver {
         ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
     }
 
-    load(components : Components) {
+    load(components : ComponentList) {
         components.collision = this;
     }
 

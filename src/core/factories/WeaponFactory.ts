@@ -3,10 +3,11 @@ class WeaponFactory {
     static spawnBullet() {
         var bullet = new Entity('Bullet', new Box(8, 5));
 
-        bullet.components.add(new Material());
-        bullet.components.add(new Collision(bullet.geometry));
-        bullet.components.add(new Movement(bullet.pos, 60));
-        bullet.components.build();
+        bullet.addComponent(new Material());
+        bullet.addComponent(new Collision(bullet.geometry));
+        bullet.addComponent(new Movement(bullet.pos, 60));
+        bullet.addComponent(new Damage(30));
+        bullet.buildComponents();
 
         bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
             bullet.available = true;
@@ -19,8 +20,8 @@ class WeaponFactory {
     static spawnGun(bulletPool : Pool<Entity>) {
         var gun = new Gun('Gun', new Box(14, 5), bulletPool);
         
-        gun.components.add(new Material());
-        gun.components.build();
+        gun.addComponent(new Material());
+        gun.buildComponents();
 
         return gun;
     }

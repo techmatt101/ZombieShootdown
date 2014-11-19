@@ -4,7 +4,7 @@ class SpriteAnimation implements IComponent {
     private _entity : Entity;
     private _textures : Texture[];
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.spriteAnimation;
     }
 
@@ -26,7 +26,7 @@ class SpriteAnimation implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : Components) {
+    load(components : ComponentList) {
         components.spriteAnimation = this;
     }
 }

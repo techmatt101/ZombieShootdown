@@ -11,7 +11,7 @@ class ZombieAI implements IAI {
     update(dt : number) {
         this._zombie.pos.rotateDirection(this._player.pos);
 
-        if(this._zombie.components.hasActive(Movement)) {
+        if(this._zombie.hasActiveComponent(Movement)) {
             this._zombie.components.movement.direct(this._player.pos.clone().sub(this._zombie.pos), dt);  //TODO: optimize
         }
     }

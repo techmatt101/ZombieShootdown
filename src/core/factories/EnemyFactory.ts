@@ -7,12 +7,12 @@ class EnemyFactory {
                 room.pos.y + Math.random() * room.height
             )));
 
-        zombie.components.add(new Material());
-        zombie.components.add(new Collision(zombie.geometry));
-        zombie.components.add(new Movement(zombie.pos, 5, 1));
-        zombie.components.add(new Health(200));
-        zombie.components.add(new AI(new ZombieAI(zombie, target)));
-        zombie.components.build();
+        zombie.addComponent(new Material());
+        zombie.addComponent(new Collision(zombie.geometry));
+        zombie.addComponent(new Movement(zombie.pos, 5, 1));
+        zombie.addComponent(new Health(200));
+        zombie.addComponent(new AI(new ZombieAI(zombie, target)));
+        zombie.buildComponents();
 
         return zombie;
     }

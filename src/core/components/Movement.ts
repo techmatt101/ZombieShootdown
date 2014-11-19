@@ -5,7 +5,7 @@ class Movement implements IComponent {
 
     private _pos : Vector;
 
-    static reference(components : Components) {
+    static reference(components : ComponentList) {
         return components.movement;
     }
 
@@ -34,7 +34,7 @@ class Movement implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : Components) {
+    load(components : ComponentList) {
         components.movement = this;
     }
 }
