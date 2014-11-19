@@ -1,6 +1,8 @@
 /// <reference path="Vector" />
 
 class Box implements IShape {
+    private _offset = new Vector(0, 0);
+
     constructor (public width : number,
                  public height : number,
                  public pos : Vector = new Vector(0, 0)) {
@@ -25,23 +27,14 @@ class Box implements IShape {
         return offset;
     }
 
-    getIntersectionDepth (rectB : Box) { //TODO: to optimize when not tired
-        // Calculate current and minimum-non-intersecting distances between centers.
-        var distanceX = this.pos.x - rectB.pos.x,
-            distanceY = this.pos.y - rectB.pos.y,
-            minDistanceX = (this.width + rectB.width) / 2,
-            minDistanceY = (this.height + rectB.height) / 2;
+    getIntersectionDepth (rectB : Box) {
+         this._offset.x = this.pos.x - rectB.pos.x;
+         this._offset.x = ((this._offset.x > 0) ? 1 : -1) * ((this.width + rectB.width) / 2) - this._offset.x;
 
-        // If we are not intersecting at all, return (0, 0).
-        if (Math.abs(distanceX) >= minDistanceX || Math.abs(distanceY) >= minDistanceY) {
-            return new Vector(0, 0);
-        }
+         this._offset.y = this.pos.y - rectB.pos.y;
+         this._offset.y = ((this._offset.y > 0) ? 1 : -1) * ((this.height + rectB.height) / 2) - this._offset.y;
 
-        // Calculate and return intersection depths.
-        return new Vector(
-            (distanceX > 0) ? minDistanceX - distanceX : -minDistanceX - distanceX,
-            (distanceY > 0) ? minDistanceY - distanceY : -minDistanceY - distanceY
-        );
+         return this._offset;
     }
 
     toString () {
