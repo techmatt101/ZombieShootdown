@@ -8,7 +8,7 @@ class Game {
 
     map : MapManager;
     camera : Camera;
-    level : Level;
+    level : TopDownLevel;
     logic : WaveLogic;
 
     player : Entity;
@@ -27,7 +27,7 @@ class Game {
         this.camera = new Camera(this.canvas, this.map);
         this.renderer = new Drawer(this.canvas, this.camera);
         this.systems = new SystemManager(this.renderer);
-        this.level = new Level(this.map, this.camera, this.systems);
+        this.level = new TopDownLevel(this.map, this.camera, this.systems);
         this.logic = new WaveLogic(this);
     }
 

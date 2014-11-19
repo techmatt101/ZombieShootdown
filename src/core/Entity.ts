@@ -10,7 +10,7 @@ class Entity implements IUpdate, IPool {
     constructor (id : string, geometry : Box) {
         this.id = id;
         this.geometry = geometry;
-        this.pos = this.geometry.pos;
+        this.pos = this.geometry.pos; //TODO: hmmmm...
         this.components = new Components(this);
     }
 

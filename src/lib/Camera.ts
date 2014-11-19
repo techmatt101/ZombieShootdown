@@ -6,7 +6,7 @@ class Camera {
     private _smoothing = new Vector(2, 2);
 
 
-    constructor(canvas : Canvas, boundary : Box) {
+    constructor(canvas : Canvas, boundary? : Box) {
         this._canvas = canvas;
         this.view = new Vector(0,0);
         this.boundary = boundary;

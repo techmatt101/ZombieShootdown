@@ -1,13 +1,9 @@
 class Level {
-    private _camera : Camera;
-    private _map : MapManager;
     private _entities : Entity[] = [];
     private _systems : SystemManager;
 
 
-    constructor (map : MapManager, camera : Camera, systems : SystemManager) {
-        this._camera = camera;
-        this._map = map;
+    constructor (systems : SystemManager) {
         this._systems = systems;
     }
 
@@ -26,12 +22,7 @@ class Level {
         }
     }
 
-    setObjectToFollow (obj : Entity) {
-        this._camera.setTarget(obj.pos);
-    }
-
     update (dt) {
-        this._camera.moveToTarget(dt);
         this._systems.update(dt);
     }
 }

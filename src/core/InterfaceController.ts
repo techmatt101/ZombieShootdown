@@ -12,6 +12,7 @@ class InterfaceController implements IUpdate {
         var play = document.getElementById('play');
         var menu = document.getElementById('interface');
         var about = document.getElementById('about');
+        var option = document.getElementById('option');
 
         about.addEventListener('click', function () {
             function launchIntoFullscreen (element) {
@@ -37,7 +38,15 @@ class InterfaceController implements IUpdate {
             }, 0);
         }
 
+        function bunnyTest () {
+            menu.hidden = true;
+            setTimeout(() => {
+                bunnyTestSetup();
+            }, 0);
+        }
+
         play.addEventListener('click', playGame);
+        option.addEventListener('click', bunnyTest);
 
         if (Config.skipMenu) {
             setTimeout(function () {
