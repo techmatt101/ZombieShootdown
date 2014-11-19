@@ -19,6 +19,9 @@ class EventCollection {
             if(typeof action !== 'undefined') {
                 action();
             }
+            if(typeof this._onEventComplete !== 'undefined') {
+                this._onEventComplete();
+            }
             self.testForComplete();
         };
     }
