@@ -65,7 +65,7 @@ class Vector {
         return (other.x === this.x && other.y === this.y);
     }
 
-    set (x : number, y : number, angle : number) {
+    set (x : number, y : number, angle : number = 0) {
         this.x = x;
         this.y = y;
         this.angle = angle;

@@ -28,10 +28,10 @@ class Collision implements IComponent<ComponentList>, IObserver {
         return this._box.isBoundingBoxWith(collision.getBoundary());
     }
 
-    testBehaviours(behavioursList : CollisionBehaviourList) {
+    testBehaviours(collision : Collision) {
         for (var i = 0; i < this._behaviourList.length; i++) {
-            var our = this._behaviourList[i](this.behaviours);
-            var their = this._behaviourList[i](behavioursList);
+            var our = this._behaviourList[i](this.behaviours),
+                their = this._behaviourList[i](collision.behaviours);
 
             if(typeof their !== 'undefined') {
                 if(our.dominant && their.passive) {
@@ -46,8 +46,8 @@ class Collision implements IComponent<ComponentList>, IObserver {
 
     buildBehaviours() {
         this._behaviourList = [];
-        for(var key in this) {
-            this._behaviourList.push(<(behaviours: any) => IBehavior> new Function('b', 'return b.' + key));
+        for(var key in this.behaviours) {
+            this._behaviourList.push(<(behaviours: any) => IBehavior> new Function('b', 'return b.' + key + ';'));
         }
     }
 

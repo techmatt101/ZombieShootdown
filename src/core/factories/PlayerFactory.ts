@@ -1,7 +1,7 @@
 class PlayerFactory {
 
     static spawnPlayer(room : Room, input : InputController, camera : Camera, weapon : IWeapon) {
-        var player = new Entity('Player', new Box(30, 50,
+        var player = new Entity('Player', new Box(54, 32,
             new Vector(
             room.pos.x + room.width / 2,
             room.pos.y + room.height / 2
@@ -17,7 +17,11 @@ class PlayerFactory {
         player.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
             .acceptDamage(player.components.health);
 
-        player.buildComponents();
+        ResourceManager.retrieveImage('player', (img : HTMLImageElement) => {
+            player.components.material.setTexture(new Texture(img, 30, 18, new Vector(0,0)));
+        });
+
+        player.build();
 
         return player;
     }

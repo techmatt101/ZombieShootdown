@@ -21,6 +21,8 @@ class CollisionSystem implements ISystem {
                     entity1Collision.setAsCollided();
                     entity2Collision.setAsCollided();
 
+                    entity1Collision.testBehaviours(entity2Collision);
+
                     var offset = entity1Collision.getBoundary().getOffset(entity2Collision.getBoundary());
 
                     if(this._entities[i].hasActiveComponent(Movement) && this._entities[ii].hasActiveComponent(Movement)) {

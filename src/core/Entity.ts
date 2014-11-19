@@ -30,7 +30,7 @@ class Entity implements IUpdate, IPool {
         return this.active && typeof obj.reference(this.components) !== 'undefined' && obj.reference(this.components).active;
     }
 
-    buildComponents () {
+    build () {
         for (var i = 0; i < this._componentListLength; i++) {
             this._componentList[i].active = true; //TODO: hmmmm....
             this._componentList[i].build(this.components);

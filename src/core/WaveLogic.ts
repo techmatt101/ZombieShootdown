@@ -17,8 +17,11 @@ class WaveLogic {
         });
 
         this._zombiePool = new Pool<Entity>(() => {
-            var zombie = EnemyFactory.spawnZombie(self._game.map.mapGenerator.getRandomRoom(), self._game.player);
-            zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen());
+            var zombie = EnemyFactory.spawnZombie(self._game.player);
+            zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen(() => {
+                zombie.active = false; //TODO: hack
+                zombie.available = true;
+            }));
             this._game.level.addEntity(zombie);
 
             return zombie;
@@ -37,11 +40,22 @@ class WaveLogic {
 
         var numberOfZombies = ~~(this.wave * 1.5 + 3);
         for (var i = 0; i < numberOfZombies; i++) {
-            this._zombiePool.acquire();
+            var zombie = this._zombiePool.acquire();
+            zombie.components.health.value = 100; //TODO: hack
+            this.placeInRoom(zombie.geometry, this._game.map.mapGenerator);
         }
 
         this._zombieEventCollection.reset(numberOfZombies);
 
         console.log("WAVE " + this.wave + " HAS BEGUN! SPAWNED " + numberOfZombies + " ZOMBIES");
+    }
+
+    placeInRoom( box : Box, map : MapGenerator) {
+        var t = map.getTileSize(), room = map.getRandomRoom();
+
+        box.pos.set(
+            randInt(room.pos.x + t.x + box.width / 2, room.pos.x + room.width - t.x - box.width / 2),
+            randInt(room.pos.y + t.y + box.height / 2, room.pos.y + room.height - t.y - box.height / 2)
+        );
     }
 }

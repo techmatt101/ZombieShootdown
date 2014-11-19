@@ -1,24 +1,26 @@
 class EnemyFactory {
 
-    static spawnZombie(room : Room, target: Entity) {
-        var zombie = new Entity('Zombie', new Box(20, 60,
-            new Vector(
-                room.pos.x + Math.random() * room.width,
-                room.pos.y + Math.random() * room.height
-            )));
+    static spawnZombie(target: Entity) {
+        var zombie = new Entity('Zombie', new Box(42, 30, new Vector(0,0)));
 
         zombie.addComponent(new Material());
         zombie.addComponent(new Collision(zombie.geometry));
         zombie.addComponent(new Movement(zombie.pos, 5, 1));
-        zombie.addComponent(new Health(200));
+        zombie.addComponent(new Health(100));
         zombie.addComponent(new Damage(5));
         zombie.addComponent(new AI(new ZombieAI(zombie, target)));
 
+        zombie.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
+            .inflictDamage(zombie.components.damage);
+
         zombie.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
-            .inflictDamage(zombie.components.damage)
             .acceptDamage(zombie.components.health);
 
-        zombie.buildComponents();
+        ResourceManager.retrieveImage('zombie', (img : HTMLImageElement) => {
+            zombie.components.material.setTexture(new Texture(img, 28, 20, new Vector(0,0)));
+        });
+
+        zombie.build();
 
         return zombie;
     }

@@ -28,7 +28,7 @@ class TileFactory {
             tile.components.material.setTexture(new Texture(img, 4, 4, texturePos));
         });
 
-        tile.buildComponents();
+        tile.build();
 
         return tile;
     }

@@ -79,7 +79,7 @@ class InterfaceController implements IUpdate {
             if(e.ctrlKey) {
                 var clickBox = new Box(3,3, new Vector(e.offsetX - self.game.camera.view.x, e.offsetY - self.game.camera.view.y));
                 var length = self.game.level.getEntities().length;
-                for (var i = 0; i < length; i++) {
+                for (var i = length - 1; i >= 0; i--) {
                     var entity = self.game.level.getEntities()[i];
                     if((entity.geometry).isBoundingBoxWith(clickBox)) {
                         this.selectedEntity = entity;

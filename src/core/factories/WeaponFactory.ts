@@ -6,16 +6,17 @@ class WeaponFactory {
         bullet.addComponent(new Material());
         bullet.addComponent(new Collision(bullet.geometry));
         bullet.addComponent(new Movement(bullet.pos, 60));
-        bullet.addComponent(new Damage(30));
-        bullet.buildComponents();
+        bullet.addComponent(new Damage(40));
 
-        bullet.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
+        bullet.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
             .inflictDamage(bullet.components.damage);
 
         bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
             bullet.available = true;
             bullet.active = false;
         });
+
+        bullet.build();
 
         return bullet;
     }
@@ -24,7 +25,7 @@ class WeaponFactory {
         var gun = new Gun('Gun', new Box(14, 5), bulletPool);
         
         gun.addComponent(new Material());
-        gun.buildComponents();
+        gun.build();
 
         return gun;
     }
