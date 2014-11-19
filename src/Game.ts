@@ -23,7 +23,7 @@ class Game {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
         this.input = new InputController(this.canvas.element);
 
-        this.map = new MapManager(new Vector(), 1500, 1000, this.canvas);
+        this.map = new MapManager(new Vector(0, 0), 1500, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
         this.renderer = new Drawer(this.canvas, this.camera);
         this.systems = new SystemManager(this.renderer);

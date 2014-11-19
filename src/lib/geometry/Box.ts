@@ -3,7 +3,7 @@
 class Box implements IShape {
     constructor (public width : number,
                  public height : number,
-                 public pos : Vector = new Vector()) {
+                 public pos : Vector = new Vector(0, 0)) {
     }
 
     isBoundingBoxWith (box : Box) {

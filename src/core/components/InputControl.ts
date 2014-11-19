@@ -4,7 +4,7 @@ class InputControl implements IComponent {
     private _entity : Entity;
     private _input : InputController;
     private _camera : Camera;
-    private _movement = new Vector();
+    private _movement = new Vector(0, 0);
 
     static reference(components : Components) {
         return components.controller;
