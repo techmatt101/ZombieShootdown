@@ -35,6 +35,7 @@ class Game {
         this.level.update(dt);
         ui.update(dt);
         ui.draw(this.renderer.getCtx());
+
         if (Config.debug) {
             ui.drawDebug(this.renderer.getCtx());
         }
@@ -54,6 +55,7 @@ class Game {
             })
             .add(function Map () {
                 game.map.loadMap(game.level);
+                setupSegments(game.canvas, game.level.getEntities());
             })
             .add(function LevelEntities () {
                 var bulletPool = new Pool<Entity>(() => {

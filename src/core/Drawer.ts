@@ -27,8 +27,12 @@ class Drawer { //TODO: better name
         this._ctx.fillStyle = '#000';
         this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
+        this._ctx.save();
+
+
         this._ctx.fillStyle = '#fff';
         this._ctx.translate(~~this._camera.view.x, ~~this._camera.view.y);
+        lightRayDraw(this._ctx, game.player.pos);
 
         var rx, ry;
         for (var i = 0; i < entities.length; i++) {
@@ -75,7 +79,7 @@ class Drawer { //TODO: better name
                 this._ctx.restore();
             }
         }
-
-        this._ctx.translate(~~-this._camera.view.x, ~~-this._camera.view.y);
+        this._ctx.restore();
+        //this._ctx.translate(~~-this._camera.view.x, ~~-this._camera.view.y);
     }
 }
