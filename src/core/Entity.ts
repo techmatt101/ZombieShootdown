@@ -23,11 +23,11 @@ class Entity implements IUpdate, IPool {
     }
 
     hasComponent (obj) {
-        return typeof obj.reference(this) !== 'undefined';
+        return typeof obj.reference(this.components) !== 'undefined';
     }
 
     hasActiveComponent (obj) {
-        return this.active && typeof obj.reference(this) !== 'undefined' && obj.reference(this).active;
+        return this.active && typeof obj.reference(this.components) !== 'undefined' && obj.reference(this.components).active;
     }
 
     buildComponents () {
