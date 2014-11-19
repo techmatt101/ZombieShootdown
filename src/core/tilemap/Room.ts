@@ -67,5 +67,10 @@ class Room extends Box {
             Direction.SOUTH_EAST,
             true
         ));
+
+        this.tiles[3][0].type = TileType.FLOOR;
+        this.tiles[4][0].type = TileType.FLOOR;
+        this.tiles[3][this.height - 1].type = TileType.FLOOR;
+        this.tiles[4][this.height - 1].type = TileType.FLOOR;
     }
 }
