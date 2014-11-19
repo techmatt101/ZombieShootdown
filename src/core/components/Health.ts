@@ -1,4 +1,4 @@
-class Health implements IComponent, IObserver {
+class Health implements IComponent<ComponentList>, IObserver {
     active : boolean;
     value : number;
 
@@ -31,7 +31,7 @@ class Health implements IComponent, IObserver {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load (components : ComponentList) {
+    build (components : ComponentList) {
         components.health = this;
     }
 

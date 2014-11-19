@@ -1,4 +1,4 @@
-class Material implements IComponent {
+class Material implements IComponent<ComponentList> {
     active : boolean;
     texture : Texture = null;
 
@@ -18,7 +18,7 @@ class Material implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) {
     }
 
-    load (components : ComponentList) {
+    build (components : ComponentList) {
         components.material = this;
     }
 }

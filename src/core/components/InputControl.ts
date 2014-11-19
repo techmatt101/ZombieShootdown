@@ -1,4 +1,4 @@
-class InputControl implements IComponent {
+class InputControl implements IComponent<ComponentList> {
     active = true;
 
     private _entity : Entity;
@@ -37,7 +37,7 @@ class InputControl implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : ComponentList) {
+    build(components : ComponentList) {
         components.controller = this;
     }
 }

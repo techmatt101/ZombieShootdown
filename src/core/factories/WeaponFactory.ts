@@ -9,6 +9,9 @@ class WeaponFactory {
         bullet.addComponent(new Damage(30));
         bullet.buildComponents();
 
+        bullet.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
+            .inflictDamage(bullet.components.damage);
+
         bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
             bullet.available = true;
             bullet.active = false;

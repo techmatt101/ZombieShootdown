@@ -1,4 +1,4 @@
-class WeaponHolder implements IComponent {
+class WeaponHolder implements IComponent<ComponentList> {
     active = true;
 
     private _pos : Vector;
@@ -26,7 +26,7 @@ class WeaponHolder implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : ComponentList) {
+    build(components : ComponentList) {
         components.weaponHolder = this;
     }
 }

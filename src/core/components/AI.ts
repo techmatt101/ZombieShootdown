@@ -1,4 +1,4 @@
-class AI implements IComponent, IEntityController {
+class AI implements IComponent<ComponentList>, IEntityController {
     active = true;
 
     private _ai : IAI;
@@ -19,7 +19,7 @@ class AI implements IComponent, IEntityController {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : ComponentList) {
+    build(components : ComponentList) {
         components.controller = this;
     }
 }

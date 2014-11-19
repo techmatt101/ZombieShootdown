@@ -1,9 +1,11 @@
-class Collision implements IComponent, IObserver {
+class Collision implements IComponent<ComponentList>, IObserver {
     active = true;
+    behaviours = new CollisionBehaviourList();
 
     private _box : Box;
     private _isTouching = false;
     private _eventHandler = new EventHandler<CollisionEvents>();
+    private _behaviourList : Array<(behaviours) => IBehavior> = [];
 
     static reference(components : ComponentList) {
         return components.collision;
@@ -26,6 +28,28 @@ class Collision implements IComponent, IObserver {
         return this._box.isBoundingBoxWith(collision.getBoundary());
     }
 
+    testBehaviours(behavioursList : CollisionBehaviourList) {
+        for (var i = 0; i < this._behaviourList.length; i++) {
+            var our = this._behaviourList[i](this.behaviours);
+            var their = this._behaviourList[i](behavioursList);
+
+            if(typeof their !== 'undefined') {
+                if(our.dominant && their.passive) {
+                    our.action(their);
+                }
+                if(their.dominant && our.passive) {
+                    their.action(our);
+                }
+            }
+        }
+    }
+
+    buildBehaviours() {
+        this._behaviourList = [];
+        for(var key in this) {
+            this._behaviourList.push(<(behaviours: any) => IBehavior> new Function('b', 'return b.' + key));
+        }
+    }
 
     update (dt : number) : void {
         this._isTouching = false;
@@ -36,8 +60,9 @@ class Collision implements IComponent, IObserver {
         ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
     }
 
-    load(components : ComponentList) {
+    build(components : ComponentList) {
         components.collision = this;
+        this.buildBehaviours();
     }
 
     on (event_type : CollisionEvents, callback) {

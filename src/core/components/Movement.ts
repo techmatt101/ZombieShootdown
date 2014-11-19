@@ -1,4 +1,4 @@
-class Movement implements IComponent {
+class Movement implements IComponent<ComponentList> {
     active = true;
     speed : number;
     friction : number;
@@ -34,7 +34,7 @@ class Movement implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : ComponentList) {
+    build(components : ComponentList) {
         components.movement = this;
     }
 }

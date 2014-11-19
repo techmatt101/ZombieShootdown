@@ -13,6 +13,10 @@ class PlayerFactory {
         player.addComponent(new WeaponHolder(player.pos, weapon));
         player.addComponent(new Health(200));
         player.addComponent(new InputControl(player, input, camera));
+
+        player.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
+            .acceptDamage(player.components.health);
+
         player.buildComponents();
 
         return player;

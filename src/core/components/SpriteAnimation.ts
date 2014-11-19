@@ -1,4 +1,4 @@
-class SpriteAnimation implements IComponent {
+class SpriteAnimation implements IComponent<ComponentList> {
     active = true;
 
     private _entity : Entity;
@@ -26,7 +26,7 @@ class SpriteAnimation implements IComponent {
     drawDebug (ctx : CanvasRenderingContext2D) : void {
     }
 
-    load(components : ComponentList) {
+    build(components : ComponentList) {
         components.spriteAnimation = this;
     }
 }

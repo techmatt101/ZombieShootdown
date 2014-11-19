@@ -19,7 +19,7 @@ class Entity implements IUpdate, IPool {
     addComponent (component : IComponent<ComponentList>) {
         this._componentList.push(component);
         this._componentListLength++;
-        component.load(this.components);
+        component.build(this.components);
     }
 
     hasComponent (obj) {
@@ -33,7 +33,7 @@ class Entity implements IUpdate, IPool {
     buildComponents () {
         for (var i = 0; i < this._componentListLength; i++) {
             this._componentList[i].active = true; //TODO: hmmmm....
-            this._componentList[i].load(this.components);
+            this._componentList[i].build(this.components);
         }
     }
 
