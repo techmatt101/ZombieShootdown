@@ -5,7 +5,6 @@ class Entity implements IUpdate, IPool {
     components : Components;
     available = false;
     active = true;
-    behaviors = [];
 
 
     constructor (id : string, geometry : Box) {

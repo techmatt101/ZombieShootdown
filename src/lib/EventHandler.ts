@@ -1,7 +1,7 @@
 class EventHandler<T> {
     private _listeners : any = {};
 
-    fire (key : T, data = null) {
+    fire (key : T, data?) {
         if (typeof this._listeners[key] !== 'undefined') {
             for (var i = 0; i < this._listeners[key].length; i++) {
                 this._listeners[key][i](data);

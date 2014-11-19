@@ -33,6 +33,15 @@ class Health implements IComponent, IObserver {
 
     load (components : Components) {
         components.health = this;
+
+        if(components.has(Collision)) { //TODO: HACK!
+            var self = this;
+            components.collision.on(CollisionEvents.COLLIDE, () => {
+                if(self.total > 0) {
+                    self.take(30);
+                }
+            });
+        }
     }
 
     on (event_type : HealthEvents, callback) {

@@ -6,11 +6,13 @@ class TaskCollection { //TODO: better name?
     private _tasksAsync : Array<(onComplete) => void> = [];
     private _activeAsync = 0;
     private _onComplete : () => void;
+    private _onTaskComplete : () => void;
 
 
-    constructor(name : string, onComplete : () => void){
+    constructor(name : string, onComplete : () => void, onTaskComplete? : () => void){
         this.name = name;
         this._onComplete = onComplete;
+        this._onTaskComplete = onTaskComplete;
     }
 
     add(task) {
@@ -29,10 +31,17 @@ class TaskCollection { //TODO: better name?
         this.active = 0;
     }
 
+    private taskComplete() {
+        this.active--;
+        if(typeof this._onTaskComplete !== 'undefined') {
+            this._onTaskComplete();
+        }
+    }
+
     private asyncTaskComplete(task) {
         console.timeEnd(task.name  + ' (async)');
         this._activeAsync--;
-        this.active--;
+        this.taskComplete();
         this.testForComplete();
     }
 
@@ -59,10 +68,10 @@ class TaskCollection { //TODO: better name?
             }.bind(this._tasksAsync[i]));
         }
 
-        for (var i = 0; i < this._tasks.length; i++) {
+        for (var i = 0; i < this._tasks.length; i++) { //TODO: give browser breathing room to update between tasks
             console.time((<any>this._tasks[i]).name);
             this._tasks[i]();
-            this.active--;
+            this.taskComplete();
             console.timeEnd((<any>this._tasks[i]).name);
         }
 

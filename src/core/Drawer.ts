@@ -24,7 +24,7 @@ class Drawer { //TODO: better name
 
     render (entities : Entity[]) {
         // Clear Canvas
-        this._ctx.fillStyle = "#000";
+        this._ctx.fillStyle = '#000';
         this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
         this._ctx.fillStyle = '#fff';
@@ -41,11 +41,19 @@ class Drawer { //TODO: better name
             ry = Math.sin(-entities[i].pos.angle);
 
             if(texture == null) {
+                if(entities[i].id === 'Player') { //TODO: rm HACK
+                    this._ctx.fillStyle = '#4184DD';
+                }
+
                 this._ctx.fillRect(
                     (entities[i].pos.x * rx - entities[i].pos.y * ry) - entities[i].geometry.width / 2,
                     (entities[i].pos.y * rx + entities[i].pos.x * ry) - entities[i].geometry.height / 2,
                     entities[i].geometry.width, entities[i].geometry.height
                 );
+
+                if(entities[i].id === 'Player') { //TODO: rm HACK
+                    this._ctx.fillStyle = '#fff';
+                }
             } else {
                 this._ctx.drawImage(
                     texture.img,

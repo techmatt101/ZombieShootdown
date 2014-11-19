@@ -8,7 +8,7 @@ class InterfaceController implements IUpdate {
 //        this.fpsCounter.fpsBuffer = [];
 
     constructor () {
-        this.overlayElement = document.getElementById("overlay");
+        this.overlayElement = document.getElementById('overlay');
         var play = document.getElementById('play');
         var menu = document.getElementById('interface');
         var about = document.getElementById('about');
@@ -103,7 +103,7 @@ class InterfaceController implements IUpdate {
 
     drawDebug (ctx : CanvasRenderingContext2D) {
         if (this.selectedEntity !== null) {
-            ctx.fillStyle = "#fff";
+            ctx.fillStyle = '#fff';
             ctx.fillText('ID: ' + this.selectedEntity.id + ' Type: ' + (<any>this.selectedEntity).constructor.name, 5, 10);
             var space = 5;
             var spaceGap = 5;
