@@ -7,7 +7,7 @@ class MapGenerator {
     }
 
     getMainRoom() {
-        return this._rooms[2];
+        return this._rooms[1];
     }
 
     getRooms() {

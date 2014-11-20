@@ -17,7 +17,7 @@ class InputControl implements IComponent<ComponentList> {
     }
 
     update (dt : number) {
-        this._entity.pos.rotateDirection(this._camera.view.clone().reverse().offset(this._input.getPointerPos())); //TODO: optimize
+        this._entity.pos.rotateDirection(this._camera.view.clone().offset(this._input.getPointerPos())); //TODO: optimize
 
         if(this._entity.hasActiveComponent(Movement)) {
             this._movement.reset();

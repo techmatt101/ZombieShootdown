@@ -5,7 +5,7 @@ class EnemyFactory {
 
         zombie.addComponent(new Material());
         zombie.addComponent(new Collision(zombie.geometry));
-        zombie.addComponent(new Movement(zombie.pos, 5, 1));
+        zombie.addComponent(new Movement(zombie.pos, randInt(4, 15), 1));
         zombie.addComponent(new Health(100));
         zombie.addComponent(new Damage(5));
         zombie.addComponent(new AI(new ZombieAI(zombie, target)));

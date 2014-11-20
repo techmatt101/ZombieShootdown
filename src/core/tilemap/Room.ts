@@ -70,7 +70,23 @@ class Room extends Box {
 
         this.tiles[3][0].type = TileType.FLOOR;
         this.tiles[4][0].type = TileType.FLOOR;
+        this.tiles[5][0].type = TileType.FLOOR;
+
+        for (var i = 11; i < 20; i++) {
+            this.tiles[i][0].type = TileType.FLOOR;
+            this.tiles[i][this.height - 1].type = TileType.FLOOR;
+        }
+
+        this.tiles[24][0].type = TileType.FLOOR;
+        this.tiles[25][0].type = TileType.FLOOR;
+        this.tiles[26][0].type = TileType.FLOOR;
+
         this.tiles[3][this.height - 1].type = TileType.FLOOR;
         this.tiles[4][this.height - 1].type = TileType.FLOOR;
+        this.tiles[5][this.height - 1].type = TileType.FLOOR;
+
+        this.tiles[24][this.height - 1].type = TileType.FLOOR;
+        this.tiles[25][this.height - 1].type = TileType.FLOOR;
+        this.tiles[26][this.height - 1].type = TileType.FLOOR;
     }
 }

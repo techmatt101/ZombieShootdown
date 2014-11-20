@@ -77,7 +77,7 @@ class InterfaceController implements IUpdate {
 
         this.game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if(e.ctrlKey) {
-                var clickBox = new Box(3,3, new Vector(e.offsetX - self.game.camera.view.x, e.offsetY - self.game.camera.view.y));
+                var clickBox = new Box(3,3, new Vector(e.offsetX + self.game.camera.view.x, e.offsetY + self.game.camera.view.y));
                 var length = self.game.level.getEntities().length;
                 for (var i = length - 1; i >= 0; i--) {
                     var entity = self.game.level.getEntities()[i];
