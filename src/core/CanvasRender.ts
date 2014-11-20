@@ -1,12 +1,14 @@
-class Drawer { //TODO: better name
+class CanvasRender {
+    private _ctx : CanvasRenderingContext2D;
     private _canvas : Canvas;
     private _camera : Camera;
-    private _ctx : CanvasRenderingContext2D;
+    private _lighting : LightRays;
 
 
-    constructor (canvas : Canvas, camera : Camera) {
+    constructor (canvas : Canvas, camera : Camera, lighting? : LightRays) {
         this._canvas = canvas;
         this._camera = camera;
+        this._lighting = lighting;
 
         canvas.context = canvas.element.getContext('2d');
         // disable pixel smoothing
@@ -27,12 +29,14 @@ class Drawer { //TODO: better name
         this._ctx.fillStyle = '#000';
         this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
-        this._ctx.save();
-
-
         this._ctx.fillStyle = '#fff';
-        this._ctx.translate(~~this._camera.view.x, ~~this._camera.view.y);
-        lightRayDraw(this._ctx, game.player.pos);
+        this._ctx.translate(~~-this._camera.view.x, ~~-this._camera.view.y);
+
+        if(typeof this._lighting !== 'undefined') {
+            this._ctx.save();
+            this._lighting.draw(this._ctx);
+            this._ctx.clip();
+        }
 
         var rx, ry;
         for (var i = 0; i < entities.length; i++) {
@@ -72,6 +76,10 @@ class Drawer { //TODO: better name
             this._ctx.restore();
         }
 
+        if(typeof this._lighting !== 'undefined') {
+            this._ctx.restore();
+        }
+
         if(Config.debug){
             for (var i = 0; i < entities.length; i++) {
                 this._ctx.save();
@@ -79,7 +87,6 @@ class Drawer { //TODO: better name
                 this._ctx.restore();
             }
         }
-        this._ctx.restore();
-        //this._ctx.translate(~~-this._camera.view.x, ~~-this._camera.view.y);
+        this._ctx.translate(~~this._camera.view.x, ~~this._camera.view.y);
     }
 }

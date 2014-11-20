@@ -1,3 +1,74 @@
+class LightRays implements IUpdate {
+    private _segments = [];
+    private _lightSource  = new Vector(0, 0);
+    private _polygons = [];
+
+    constructor (boundary : Box) {
+        var segmentsWidth = boundary.width;
+        var segmentsHeight = boundary.height;
+
+        this._segments = [
+            // Border
+            {a: {x: 0, y: 0}, b: {x: segmentsWidth, y: 0}},
+            {a: {x: segmentsWidth, y: 0}, b: {x: segmentsWidth, y: segmentsHeight}},
+            {a: {x: segmentsWidth, y: segmentsHeight}, b: {x: 0, y: segmentsHeight}},
+            {a: {x: 0, y: segmentsHeight}, b: {x: 0, y: 0}},
+
+        ];
+    }
+
+    setLightSource (lightSource : Vector) {
+        this._lightSource = lightSource;
+    }
+
+    loadBlocks (tiles : Entity[]) {
+        for (var i = 0; i < tiles.length; i++) {
+            if (tiles[i].id === 'WALL Tile' && tiles[i].pos.x !== 0 && tiles[i].pos.y !== 0 && tiles[i].pos.x !== 928 && tiles[i].pos.y !== 992) {
+                this._segments = this._segments.concat(tiles[i].geometry.toPolygon());
+                console.log("TILE");
+            }
+        }
+    }
+
+    update (dt : number) {
+        //var fuzzyRadius = 10;
+        //var numberOfRays = 4;
+        //
+        //this._polygons = [getSightPolygon(this._lightSource.x, this._lightSource.y, this._segments)];
+        //
+        //for (var angle = 0; angle < Math.PI * 2; angle += (Math.PI * 2) / numberOfRays) {
+        //    var dx = Math.cos(angle) * fuzzyRadius;
+        //    var dy = Math.sin(angle) * fuzzyRadius;
+        //    this._polygons.push(getSightPolygon(this._lightSource.x + dx, this._lightSource.y + dy, this._segments));
+        //}
+
+        this._polygons = [getSightPolygon(this._lightSource.x, this._lightSource.y, this._segments)];
+    }
+
+    drawDebug (ctx : CanvasRenderingContext2D) {
+    }
+
+    draw (ctx) {
+        //for (var i = 1; i < this._polygons.length; i++) {
+        //    drawPolygon(this._polygons[i], ctx, "rgba(255,255,255,0.2)");
+        //}
+
+        drawPolygon(this._polygons[0], ctx, "#000");
+        //ctx.globalCompositeOperation = "source-in";
+    }
+}
+
+function drawPolygon (polygon, ctx, fillStyle) {
+    ctx.fillStyle = fillStyle;
+    ctx.beginPath();
+    ctx.moveTo(polygon[0].x, polygon[0].y);
+    for (var i = 1; i < polygon.length; i++) {
+        var intersect = polygon[i];
+        ctx.lineTo(intersect.x, intersect.y);
+    }
+    ctx.fill();
+}
+
 // Find intersection of RAY & SEGMENT
 function getIntersection (ray, segment) {
 
@@ -42,7 +113,7 @@ function getIntersection (ray, segment) {
 
 }
 
-function getSightPolygon (sightX, sightY) {
+function getSightPolygon (sightX, sightY, segments) {
 
     // Get all unique points
     var points = (function (segments) {
@@ -77,7 +148,7 @@ function getSightPolygon (sightX, sightY) {
     // RAYS IN ALL DIRECTIONS
     var intersects = [];
     for (var j = 0; j < uniqueAngles.length; j++) {
-        var angle = uniqueAngles[j];
+        var angle : number = uniqueAngles[j];
 
         // Calculate dx & dy from angle
         var dx = Math.cos(angle);
@@ -90,7 +161,7 @@ function getSightPolygon (sightX, sightY) {
         };
 
         // Find CLOSEST intersection
-        var closestIntersect = null;
+        var closestIntersect : any = null;
         for (var i = 0; i < segments.length; i++) {
             var intersect = getIntersection(ray, segments[i]);
             if (!intersect) continue;
@@ -117,89 +188,3 @@ function getSightPolygon (sightX, sightY) {
     return intersects;
 
 }
-
-///////////////////////////////////////////////////////
-
-// DRAWING
-function lightRayDraw (ctx, pos : Vector) {
-    //// Draw segments
-    //ctx.strokeStyle = "#999";
-    //for (var i = 0; i < segments.length; i++) {
-    //    var seg = segments[i];
-    //    ctx.beginPath();
-    //    ctx.moveTo(seg.a.x, seg.a.y);
-    //    ctx.lineTo(seg.b.x, seg.b.y);
-    //    ctx.stroke();
-    //}
-
-    // Sight Polygons
-    var fuzzyRadius = 10;
-    var polygons = [getSightPolygon(pos.x, pos.y)];
-    for (var angle = 0; angle < Math.PI * 2; angle += (Math.PI * 2) / 10) {
-        var dx = Math.cos(angle) * fuzzyRadius;
-        var dy = Math.sin(angle) * fuzzyRadius;
-        polygons.push(getSightPolygon(pos.x + dx, pos.y + dy));
-    }
-
-
-    // DRAW AS A GIANT POLYGON
-    //for (var i = 1; i < polygons.length; i++) {
-    //    drawPolygon(polygons[i], ctx, "rgba(255,255,255,0.2)");
-    //}
-    //ctx.globalCompositeOperation = "source-in";
-    drawPolygon(polygons[0], ctx, "#000");
-    ctx.clip();
-    //ctx.globalCompositeOperation = "source-over";
-
-    // Draw red dots
-    //ctx.fillStyle = "#dd3838";
-    //ctx.beginPath();
-    //ctx.arc(pos.x, pos.y, 2, 0, 2 * Math.PI, false);
-    //ctx.fill();
-    //for (var angle = 0; angle < Math.PI * 2; angle += (Math.PI * 2) / 10) {
-    //    var dx = Math.cos(angle) * fuzzyRadius;
-    //    var dy = Math.sin(angle) * fuzzyRadius;
-    //    ctx.beginPath();
-    //    ctx.arc(pos.x + dx, pos.y + dy, 2, 0, 2 * Math.PI, false);
-    //    ctx.fill();
-    //}
-
-}
-
-function drawPolygon (polygon, ctx, fillStyle) {
-    ctx.fillStyle = fillStyle;
-    ctx.beginPath();
-    ctx.moveTo(polygon[0].x, polygon[0].y);
-    for (var i = 1; i < polygon.length; i++) {
-        var intersect = polygon[i];
-        ctx.lineTo(intersect.x, intersect.y);
-    }
-    ctx.fill();
-}
-
-
-// LINE SEGMENTS
-var segments = [];
-
-
-function setupSegments(canvas : Canvas, boxes : Entity[]) {
-    var segmentsWidth = canvas.width;
-    var segmentsHeight = canvas.height;
-
-    segments = [
-        // Border
-        {a: {x: 0, y: 0}, b: {x: segmentsWidth, y: 0}},
-        {a: {x: segmentsWidth, y: 0}, b: {x: segmentsWidth, y: segmentsHeight}},
-        {a: {x: segmentsWidth, y: segmentsHeight}, b: {x: 0, y: segmentsHeight}},
-        {a: {x: 0, y: segmentsHeight}, b: {x: 0, y: 0}},
-
-    ];
-
-    //for (var i = 0; i < boxes.length; i++) {
-        //if(boxes[i].id === 'WALL Tile') {
-            segments = segments.concat(new Box(500, 64, new Vector(400, 240)).toPolygon());
-        //}
-    //}
-}
-
-

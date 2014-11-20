@@ -1,10 +1,12 @@
 class RenderSystem implements ISystem {
     private _entities : Entity[] = [];
-    private _renderer : Drawer;
+    private _renderer : CanvasRender;
+    private _lighting : LightRays;
 
 
-    constructor (renderer : Drawer) {
+    constructor (renderer : CanvasRender, lighting? : LightRays) {
         this._renderer = renderer;
+        this._lighting = lighting;
     }
 
     add (entity : Entity) {
@@ -14,6 +16,9 @@ class RenderSystem implements ISystem {
     }
 
     update (dt : number) {
+        if(typeof this._lighting !== 'undefined') {
+            this._lighting.update(dt);
+        }
         this._renderer.render(this._entities);
     }
 

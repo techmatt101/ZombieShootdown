@@ -3,7 +3,8 @@ class Game {
     canvas : Canvas;
     input : InputController;
     //sound : SoundController;
-    renderer : Drawer;
+    lighting : LightRays;
+    renderer : CanvasRender;
     systems : SystemManager;
 
     map : MapManager;
@@ -23,21 +24,30 @@ class Game {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
         this.input = new InputController(this.canvas.element);
 
-        this.map = new MapManager(new Vector(0, 0), 1500, 1000, this.canvas);
+        this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
-        this.renderer = new Drawer(this.canvas, this.camera);
-        this.systems = new SystemManager(this.renderer);
+        this.lighting = new LightRays(this.map);
+        this.renderer = new CanvasRender(this.canvas, this.camera, this.lighting);
+
+        this.systems = new SystemManager();
+        this.systems.logic = new LogicSystem();
+        this.systems.collision = new CollisionSystem();
+        this.systems.render = new RenderSystem(this.renderer, this.lighting);
+
         this.level = new TopDownLevel(this.map, this.camera, this.systems);
         this.logic = new WaveLogic(this);
     }
 
     update (dt : number) {
         this.level.update(dt);
+
         ui.update(dt);
         ui.draw(this.renderer.getCtx());
 
         if (Config.debug) {
-            ui.drawDebug(this.renderer.getCtx());
+            var ctx = this.renderer.getCtx();
+            this.lighting.drawDebug(ctx);
+            ui.drawDebug(ctx);
         }
     }
 
@@ -55,7 +65,7 @@ class Game {
             })
             .add(function Map () {
                 game.map.loadMap(game.level);
-                setupSegments(game.canvas, game.level.getEntities());
+                game.lighting.loadBlocks(game.level.getEntities());
             })
             .add(function LevelEntities () {
                 var bulletPool = new Pool<Entity>(() => {
@@ -72,6 +82,7 @@ class Game {
             })
             .add(function LevelTweaks () {
                 game.level.setObjectToFollow(game.player);
+                game.lighting.setLightSource(game.player.pos);
             })
             .addAsync(function LoadingResources (callback) {
                 ResourceManager.waitForPendingResources(callback)

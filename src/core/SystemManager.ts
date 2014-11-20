@@ -4,12 +4,6 @@ class SystemManager {
     render : RenderSystem;
 
 
-    constructor(renderer : Drawer) {
-        this.logic = new LogicSystem();
-        this.collision = new CollisionSystem();
-        this.render = new RenderSystem(renderer);
-    }
-
     add (entity : Entity) {
         this.logic.add(entity);
         this.collision.add(entity);
