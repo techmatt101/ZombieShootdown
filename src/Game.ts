@@ -35,7 +35,7 @@ class Game {
         this.systems.render = new RenderSystem(this.renderer, this.lighting);
 
         this.level = new TopDownLevel(this.map, this.camera, this.systems);
-        this.logic = new WaveLogic(this);
+        this.logic = new WaveLogic(this.level);
     }
 
     update (dt : number) {
@@ -57,7 +57,7 @@ class Game {
         new TaskCollection('Level Setup', function onCompete () {
             ui.loaded(game);
             game.loop.start();
-            game.logic.start();
+            game.logic.start(game.player);
             console.log('GAME OVER MAN!');
         })
             .add(function Controllers() {

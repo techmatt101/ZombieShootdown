@@ -9,6 +9,10 @@ class TopDownLevel extends Level {
         this._camera = camera;
     }
 
+    getMap() {
+        return this._map;
+    }
+
     setObjectToFollow (obj : Entity) {
         this._camera.setTarget(obj.pos);
     }

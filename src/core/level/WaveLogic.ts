@@ -1,13 +1,15 @@
 class WaveLogic {
     score = 0;
     wave = 0;
-    private _game : Game;
+
+    private _level : TopDownLevel;
+    private _player : Entity;
     private _zombieEventCollection : EventCollection;
     private _zombiePool : Pool<Entity>;
 
 
-    constructor(game : Game) {
-        this._game = game;
+    constructor(level : TopDownLevel) {
+        this._level = level;
 
         var self = this;
         this._zombieEventCollection = new EventCollection(() => {
@@ -17,19 +19,21 @@ class WaveLogic {
         });
 
         this._zombiePool = new Pool<Entity>(() => {
-            var zombie = EnemyFactory.spawnZombie(self._game.player);
+            var zombie = EnemyFactory.spawnZombie(self._player);
             zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen(() => {
                 zombie.active = false; //TODO: hack
                 zombie.available = true;
             }));
-            this._game.level.addEntity(zombie);
+            this._level.addEntity(zombie);
 
             return zombie;
         });
     }
 
-    start() {
-        this._game.player.components.health.on(HealthEvents.DEATH, () => {
+    start(player : Entity) {
+        this._player = player;
+
+        this._player.components.health.on(HealthEvents.DEATH, () => {
             console.log("GAME OVER MAN!");
         });
         this.spawnWave();
@@ -42,7 +46,7 @@ class WaveLogic {
         for (var i = 0; i < numberOfZombies; i++) {
             var zombie = this._zombiePool.acquire();
             zombie.components.health.value = 100; //TODO: hack
-            this.placeInRoom(zombie.geometry, this._game.map.mapGenerator);
+            this.placeInRoom(zombie.geometry, this._level.getMap().mapGenerator);
         }
 
         this._zombieEventCollection.reset(numberOfZombies);
