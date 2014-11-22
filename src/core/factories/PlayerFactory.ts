@@ -7,18 +7,20 @@ class PlayerFactory {
             room.pos.y + room.height / 2
         )));
 
-        player.addComponent(new Material());
-        player.addComponent(new Collision(player.geometry));
-        player.addComponent(new Movement(player.pos, 30, 1));
-        player.addComponent(new WeaponHolder(player.pos, weapon));
-        player.addComponent(new Health(200));
         player.addComponent(new InputControl(player, input, camera));
+        player.addComponent(new Movement(player.pos, 30, 1));
+        player.addComponent(new Collision(player.geometry));
+
+        player.addComponent(new Material());
+
+        player.addComponent(new Health(200));
+        player.addComponent(new WeaponHolder(player.pos, weapon));
 
         player.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
             .acceptDamage(player.components.health);
 
         ResourceManager.retrieveImage('player', (img : HTMLImageElement) => {
-            player.components.material.setTexture(new Texture(img, new Vector(0, 0), 78, 46, new Vector(0,0), 30, 18));
+            player.components.material.setTexture(new Texture(img, new Vector(0, 0), 78, 46, new Vector(0,72), 30, 17));
         });
 
         player.build();

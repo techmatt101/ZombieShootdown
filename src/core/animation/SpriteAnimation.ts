@@ -18,20 +18,20 @@ class SpriteAnimation {
             this._time = 0;
             this._step = 0;
 
-            texture.pos.x = this._sequence[this._step].x;
-            texture.pos.y = this._sequence[this._step].y;
-            texture.width = this._sequence[this._step].width;
-            texture.height = this._sequence[this._step].height;
+            texture.sourcePos.x = this._sequence[this._step].x;
+            texture.sourcePos.y = this._sequence[this._step].y;
+            texture.sourceWidth = this._sequence[this._step].width;
+            texture.sourceHeight = this._sequence[this._step].height;
 
         } else {
             if(this._time > this._sequence[this._step].time) {
                 while (this._time > this._sequence[this._step].time) {
                     this._step++;
                 }
-                texture.pos.x = this._sequence[this._step].x;
-                texture.pos.y = this._sequence[this._step].y;
-                texture.width = this._sequence[this._step].width;
-                texture.height = this._sequence[this._step].height;
+                texture.sourcePos.x = this._sequence[this._step].x;
+                texture.sourcePos.y = this._sequence[this._step].y;
+                texture.sourceWidth = this._sequence[this._step].width;
+                texture.sourceHeight = this._sequence[this._step].height;
             }
         }
 

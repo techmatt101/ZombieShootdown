@@ -1,5 +1,5 @@
 class Gun extends Entity implements IWeapon {
-    placementOffset = new Vector(38, 0);
+    placementOffset = new Vector(32, 0);
     private _bulletPool : Pool<Entity>;
     private _coolDown = 1.5;
     private _activeCoolDown = 0;
