@@ -5,8 +5,8 @@ class WeaponFactory {
 
         bullet.addComponent(new Material());
         bullet.addComponent(new Collision(bullet.geometry));
-        bullet.addComponent(new Movement(bullet.pos, 60));
-        bullet.addComponent(new Damage(40));
+        bullet.addComponent(new Movement(bullet.pos, 80));
+        bullet.addComponent(new Damage(30));
 
         bullet.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
             .inflictDamage(bullet.components.damage);

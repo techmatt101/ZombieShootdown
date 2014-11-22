@@ -59,11 +59,11 @@ class CanvasRender {
             } else {
                 this._ctx.drawImage(
                     texture.img,
-                    texture.pos.x, texture.pos.y,
-                    texture.width, texture.height,
-                    (entities[i].pos.x * rx - entities[i].pos.y * ry) - entities[i].geometry.width / 2,
-                    (entities[i].pos.y * rx + entities[i].pos.x * ry) - entities[i].geometry.height / 2,
-                    entities[i].geometry.width, entities[i].geometry.height
+                    texture.sourcePos.x, texture.sourcePos.y,
+                    texture.sourceWidth, texture.sourceHeight,
+                    ((entities[i].pos.x * rx - entities[i].pos.y * ry) - entities[i].geometry.width / 2) + texture.pos.x,
+                    ((entities[i].pos.y * rx + entities[i].pos.x * ry) - entities[i].geometry.height / 2) + texture.pos.y,
+                    texture.width, texture.height
                 );
             }
 

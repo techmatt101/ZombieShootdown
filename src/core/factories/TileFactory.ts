@@ -25,7 +25,7 @@ class TileFactory {
 
         texturePos.scale(4);
         ResourceManager.retrieveImage('tiles', (img : HTMLImageElement) => {
-            tile.components.material.setTexture(new Texture(img, 4, 4, texturePos));
+            tile.components.material.setTexture(new Texture(img, new Vector(0,0), tileSize.x, tileSize.y, texturePos, 4, 4));
         });
 
         tile.build();
