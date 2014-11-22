@@ -1,5 +1,6 @@
 var Config = {
     debug: true,
+    lighting: false,
     skipMenu: true,
 
     keyMappings: {

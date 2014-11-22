@@ -1,6 +1,7 @@
 class Health implements IComponent<ComponentList>, IObserver {
     active : boolean;
     value : number;
+    isDead = false;
 
     private _eventHandler = new EventHandler<HealthEvents>();
 
@@ -12,6 +13,10 @@ class Health implements IComponent<ComponentList>, IObserver {
         this.value = health;
     }
 
+    set(n : number) {
+        this.isDead = false;
+    }
+
     give(n : number) {
         this.value += n;
     }
@@ -19,7 +24,8 @@ class Health implements IComponent<ComponentList>, IObserver {
     take(n : number) {
         this.value -= n;
 
-        if(this.value <= 0) {
+        if(this.value <= 0 && !this.isDead) {
+            this.isDead = true;
             this._eventHandler.fire(HealthEvents.DEATH);
         }
     }

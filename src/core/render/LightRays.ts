@@ -13,7 +13,6 @@ class LightRays implements IUpdate {
             {a: {x: segmentsWidth, y: 0}, b: {x: segmentsWidth, y: segmentsHeight}},
             {a: {x: segmentsWidth, y: segmentsHeight}, b: {x: 0, y: segmentsHeight}},
             {a: {x: 0, y: segmentsHeight}, b: {x: 0, y: 0}},
-
         ];
     }
 
@@ -186,5 +185,33 @@ function getSightPolygon (sightX, sightY, segments) {
 
     // Polygon is intersects, in order of angle
     return intersects;
+
+}
+
+function isInPolygon(point,polygon){
+
+    // Ray just going right
+    var ray = {
+        a:{x:point.x,y:point.y},
+        b:{x:point.x+1,y:point.y}
+    };
+
+    // Get # of total intersection with polygon walls
+    var numIntersections = 0;
+    for(var i=0;i<polygon.length;i++){
+        // Line from this point to the next
+        var startPoint = polygon[i];
+        var endPoint = (i==polygon.length-1) ? polygon[0] : polygon[i+1];
+        var segment = {
+            ax:startPoint.x, ay:startPoint.y,
+            bx:endPoint.x, by:endPoint.y
+        };
+        if(getIntersection(ray,segment)){
+            numIntersections++;
+        }
+    }
+
+    // If and only if it's odd, it's inside
+    return (numIntersections%2==1);
 
 }

@@ -6,5 +6,5 @@ class ComponentList {
     health : Health;
     damage : Damage;
     weaponHolder : WeaponHolder;
-    spriteAnimation : SpriteAnimation;
+    spriteAnimator : SpriteAnimator;
 }

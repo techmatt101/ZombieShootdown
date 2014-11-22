@@ -1,3 +1,5 @@
+/// <reference path="Level" />
+
 class TopDownLevel extends Level {
     private _camera : Camera;
     private _map : MapManager;

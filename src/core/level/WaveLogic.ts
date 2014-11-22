@@ -45,7 +45,7 @@ class WaveLogic {
         var numberOfZombies = ~~(this.wave * 1.5 + 3);
         for (var i = 0; i < numberOfZombies; i++) {
             var zombie = this._zombiePool.acquire();
-            zombie.components.health.value = 100; //TODO: hack
+            zombie.components.health.set(100); //TODO: hack
             this.placeInRoom(zombie.geometry, this._level.getMap().mapGenerator);
         }
 

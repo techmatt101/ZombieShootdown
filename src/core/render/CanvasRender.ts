@@ -41,27 +41,21 @@ class CanvasRender {
         var rx, ry;
         for (var i = 0; i < entities.length; i++) {
             if(!entities[i].hasActiveComponent(Material)) { continue; }  //TODO: hmmm...
+
             var texture = entities[i].components.material.texture;
+
             this._ctx.save();
             this._ctx.rotate(entities[i].pos.angle);
 
             rx = Math.cos(-entities[i].pos.angle);
             ry = Math.sin(-entities[i].pos.angle);
 
-            if(texture == null) {
-                if(entities[i].id === 'Player') { //TODO: rm HACK
-                    this._ctx.fillStyle = '#4184DD';
-                }
-
+            if(texture === null) {
                 this._ctx.fillRect(
                     (entities[i].pos.x * rx - entities[i].pos.y * ry) - entities[i].geometry.width / 2,
                     (entities[i].pos.y * rx + entities[i].pos.x * ry) - entities[i].geometry.height / 2,
                     entities[i].geometry.width, entities[i].geometry.height
                 );
-
-                if(entities[i].id === 'Player') { //TODO: rm HACK
-                    this._ctx.fillStyle = '#fff';
-                }
             } else {
                 this._ctx.drawImage(
                     texture.img,

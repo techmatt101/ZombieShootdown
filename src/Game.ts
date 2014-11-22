@@ -26,7 +26,9 @@ class Game {
 
         this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
-        this.lighting = new LightRays(this.map);
+        if(Config.lighting) {
+            this.lighting = new LightRays(this.map);
+        }
         this.renderer = new CanvasRender(this.canvas, this.camera, this.lighting);
 
         this.systems = new SystemManager();
@@ -46,7 +48,9 @@ class Game {
 
         if (Config.debug) {
             var ctx = this.renderer.getCtx();
-            this.lighting.drawDebug(ctx);
+            if(typeof this.lighting !== 'undefined') {
+                this.lighting.drawDebug(ctx);
+            }
             ui.drawDebug(ctx);
         }
     }
@@ -65,7 +69,9 @@ class Game {
             })
             .add(function Map () {
                 game.map.loadMap(game.level);
-                game.lighting.loadBlocks(game.level.getEntities());
+                if(typeof game.lighting !== 'undefined') {
+                    game.lighting.loadBlocks(game.level.getEntities());
+                }
             })
             .add(function LevelEntities () {
                 var bulletPool = new Pool<Entity>(() => {
@@ -82,7 +88,9 @@ class Game {
             })
             .add(function LevelTweaks () {
                 game.level.setObjectToFollow(game.player);
-                game.lighting.setLightSource(game.player.pos);
+                if(typeof game.lighting !== 'undefined') {
+                    game.lighting.setLightSource(game.player.pos);
+                }
             })
             .addAsync(function LoadingResources (callback) {
                 ResourceManager.waitForPendingResources(callback)
