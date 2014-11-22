@@ -23,6 +23,9 @@ class WaveLogic {
             zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen(() => {
                 zombie.active = false; //TODO: hack
                 zombie.available = true;
+                var deadZombie = EnemyFactory.spawnDeadZombie();
+                deadZombie.pos.copy(zombie.pos);
+                level.addEntity(deadZombie);
             }));
             this._level.addEntity(zombie);
 
