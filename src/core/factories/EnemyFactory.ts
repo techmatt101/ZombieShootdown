@@ -10,6 +10,8 @@ class EnemyFactory {
         zombie.addComponent(new Damage(5));
         zombie.addComponent(new AI(new ZombieAI(zombie, target)));
 
+        zombie.addComponent(new SpriteAnimator(zombie.components.material));
+
         zombie.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
             .inflictDamage(zombie.components.damage);
 
