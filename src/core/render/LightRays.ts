@@ -53,7 +53,6 @@ class LightRays implements IUpdate {
         //}
 
         drawPolygon(this._polygons[0], ctx, "#000");
-        //ctx.globalCompositeOperation = "source-in";
     }
 }
 
