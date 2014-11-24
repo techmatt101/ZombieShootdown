@@ -81,7 +81,7 @@ function getSightPolygon (sightX, sightY, segments) {
     var uniqueAngles = [];
     for (var j = 0; j < uniquePoints.length; j++) {
         var uniquePoint = uniquePoints[j];
-        var angle = Math.atan2(uniquePoint.y - sightY, uniquePoint.x - sightX);
+        var angle = fastAtan2(uniquePoint.x - sightX, uniquePoint.y - sightY);
         uniquePoint.angle = angle;
         uniqueAngles.push(angle - 0.00001, angle, angle + 0.00001);
     }
@@ -126,4 +126,15 @@ function getSightPolygon (sightX, sightY, segments) {
 
     // Polygon is intersects, in order of angle
     return intersects;
+}
+
+function fastAtan2(x, y) {
+    if (x == 0 && y == 0) {
+        return 0.00;
+    }
+    var radian = Math.acos(x / Math.sqrt(x * x + y * y));
+    if (y < 0) {
+        radian = -radian;
+    }
+    return radian;
 }
