@@ -1,5 +1,5 @@
 class BunnyTest {
-    fps = 60;
+    fps = 1000;
     fpsBuffer = [];
     bunnies = [];
     bunny = {
@@ -33,7 +33,7 @@ class BunnyTest {
     }
 
     update (dt : number) {
-        if (this.fpsBuffer.length > 15) {
+        if (this.fpsBuffer.length > 64) {
             var sum = 0;
             for (var i = 0; i < this.fpsBuffer.length; i++) {
                 sum += this.fpsBuffer[i];

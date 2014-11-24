@@ -1,7 +1,7 @@
 class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
-    renderer : CanvasLightRenderer;
+    renderer : CanvasRenderer;
     systems : SystemManager;
 
     camera : Camera;
@@ -10,7 +10,7 @@ class BunnyTesterGame {
     bunnyTest : BunnyTest;
 
 
-    constructor () {
+    constructor() {
         var self = this;
         this.loop = new GameLoop((dt : number) => {
             self.update(dt);
@@ -19,7 +19,7 @@ class BunnyTesterGame {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
 
         this.camera = new Camera(this.canvas);
-        this.renderer = new CanvasLightRenderer(this.canvas, this.camera);
+        this.renderer = new CanvasRenderer(this.canvas, this.camera);
 
         this.systems = new SystemManager();
         this.systems.logic = new LogicSystem();
@@ -30,9 +30,12 @@ class BunnyTesterGame {
 
         this.bunnyTest = new BunnyTest((bunnyData) => {
             var bunny = new Entity('Bunny', new Box(bunnyData.width, bunnyData.height));
-            bunny.addComponent(new Collision(bunny.geometry));
+            bunny.addComponent(new Material());
             bunny.addComponent(new Movement(bunny.pos));
+            bunny.addComponent(new Collision(bunny.geometry));
             bunny.build();
+
+            bunny.components.material.setTexture(new Texture(bunnyData.img, new Vector(0, 0), bunnyData.width, bunnyData.height));
 
             this.level.addEntity(bunny);
 
@@ -40,12 +43,12 @@ class BunnyTesterGame {
         });
     }
 
-    update (dt : number) {
+    update(dt : number) {
         this.bunnyTest.update(dt);
         this.level.update(dt);
     }
 
-    load () {
+    load() {
         this.bunnyTest.start();
         this.loop.start();
         console.log('GAME OVER MAN!');
