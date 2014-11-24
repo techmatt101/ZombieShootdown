@@ -1,7 +1,7 @@
 class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
-    renderer : CanvasRender;
+    renderer : CanvasLightRenderer;
     systems : SystemManager;
 
     camera : Camera;
@@ -19,7 +19,7 @@ class BunnyTesterGame {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
 
         this.camera = new Camera(this.canvas);
-        this.renderer = new CanvasRender(this.canvas, this.camera);
+        this.renderer = new CanvasLightRenderer(this.canvas, this.camera);
 
         this.systems = new SystemManager();
         this.systems.logic = new LogicSystem();

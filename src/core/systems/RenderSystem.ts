@@ -1,10 +1,10 @@
 class RenderSystem implements ISystem {
     private _entities : Entity[] = [];
-    private _renderer : CanvasRender;
+    private _renderer : CanvasLightRenderer;
     private _lighting : LightRays;
 
 
-    constructor (renderer : CanvasRender, lighting? : LightRays) {
+    constructor (renderer : CanvasLightRenderer, lighting? : LightRays) {
         this._renderer = renderer;
         this._lighting = lighting;
     }

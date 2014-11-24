@@ -1,6 +1,6 @@
 class Level {
-    private _entities : Entity[] = [];
-    private _systems : SystemManager;
+    protected _entities : Entity[] = [];
+    protected _systems : SystemManager;
 
 
     constructor (systems : SystemManager) {

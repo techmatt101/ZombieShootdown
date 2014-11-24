@@ -4,7 +4,7 @@ class Game {
     input : InputController;
     //sound : SoundController;
     lighting : LightRays;
-    renderer : CanvasRender;
+    renderer : CanvasLightRenderer;
     systems : SystemManager;
 
     map : MapManager;
@@ -29,7 +29,7 @@ class Game {
         if(Config.lighting) {
             this.lighting = new LightRays(this.map);
         }
-        this.renderer = new CanvasRender(this.canvas, this.camera, this.lighting);
+        this.renderer = new CanvasLightRenderer(this.canvas, this.camera, this.lighting);
 
         this.systems = new SystemManager();
         this.systems.logic = new LogicSystem();
