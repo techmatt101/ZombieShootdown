@@ -7,12 +7,6 @@ class CanvasLightRenderer extends CanvasRenderer {
     constructor (canvas : Canvas, camera : Camera, lighting : LightRays) {
         super(canvas, camera);
         this._lighting = lighting;
-
-        // disable pixel smoothing
-        canvas.context.imageSmoothingEnabled = false;
-        canvas.context.mozImageSmoothingEnabled = false;
-        canvas.context.oImageSmoothingEnabled = false;
-        canvas.context.webkitImageSmoothingEnabled = false;
     }
 
     render (entities : Entity[]) {
