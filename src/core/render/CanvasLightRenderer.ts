@@ -1,3 +1,5 @@
+/// <reference path="CanvasRenderer" />
+
 class CanvasLightRenderer extends CanvasRenderer {
     private _lighting : LightRays;
 

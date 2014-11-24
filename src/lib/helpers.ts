@@ -1,22 +1,25 @@
-function fastAtan2 (x, y) {
-    if (x == 0) {
-        if (y > 0) return Math.PI / 2;
-        if (y == 0) return 0;
-        return -Math.PI / 2;
+function fastAtan2(x, y) {
+    if (x == 0 && y == 0) {
+        return 0.00;
     }
+    var radian = Math.acos(x / Math.sqrt(x * x + y * y));
+    if (y < 0) {
+        radian = -radian;
+    }
+    return radian;
+}
 
-    var atan, z = y / x;
-    if (z < -1 || z > 1) {
-        atan = Math.PI / 2 - z / (z * z + 0.28);
-        if (y < 0) return atan - Math.PI;
-    } else {
-        atan = z / (1 + 0.28 * z * z);
-        if (x < 0) {
-            if (y < 0) return atan - Math.PI;
-            return atan + Math.PI;
+function insertionSort (ary) {
+    for (var i = 1, l = ary.length; i < l; i++) {
+        var value = ary[i];
+        for (var j = i - 1; j >= 0; j--) {
+            if (ary[j] <= value)
+                break;
+            ary[j + 1] = ary[j];
         }
+        ary[j + 1] = value;
     }
-    return atan;
+    return ary;
 }
 
 function randInt (min : number, max : number) {

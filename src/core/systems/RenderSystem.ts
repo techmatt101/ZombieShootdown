@@ -11,6 +11,7 @@ class RenderSystem implements ISystem {
 
     add (entity : Entity) {
         if(entity.hasComponent(Material)) {
+            this._renderer.prepTexture(entity.components.material.texture);
             this._entities.push(entity);
         }
     }

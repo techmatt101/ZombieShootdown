@@ -1,6 +1,6 @@
 class LightRays implements IUpdate {
     private _segments = [];
-    private _lightSource  = new Vector(0, 0);
+    private _lightSource = new Vector(0, 0);
     private _polygons = [];
 
     constructor (boundary : Box) {
@@ -112,33 +112,28 @@ function getIntersection (ray, segment) {
 }
 
 function getSightPolygon (sightX, sightY, segments) {
-
     // Get all unique points
-    var points = (function (segments) {
-        var a = [];
-        segments.forEach(function (seg) {
-            a.push(seg.a, seg.b);
-        });
-        return a;
-    })(segments);
-    var uniquePoints = (function (points) {
-        var set = {};
-        return points.filter(function (p) {
-            var key = p.x + "," + p.y;
-            if (key in set) {
-                return false;
-            } else {
-                set[key] = true;
-                return true;
-            }
-        });
-    })(points);
+    var points = [];
+    for (var i = 0; i < segments.length; i++) {
+        points.push(segments[i].a, segments[i].b);
+    }
+
+    var uniquePoints = [];
+    var set = {}, key = '';
+    for (var i = 0; i < points.length; i++) {
+        key = points[i].x + "," + points[i].y;
+        if (typeof set[key] !== 'undefined') {
+            continue;
+        }
+        set[key] = true;
+        uniquePoints.push(points[i]);
+    }
 
     // Get all angles
     var uniqueAngles = [];
     for (var j = 0; j < uniquePoints.length; j++) {
         var uniquePoint = uniquePoints[j];
-        var angle = Math.atan2(uniquePoint.y - sightY, uniquePoint.x - sightX);
+        var angle : number = fastAtan2(uniquePoint.x - sightX, uniquePoint.y - sightY);
         uniquePoint.angle = angle;
         uniqueAngles.push(angle - 0.00001, angle, angle + 0.00001);
     }
@@ -174,7 +169,6 @@ function getSightPolygon (sightX, sightY, segments) {
 
         // Add to list of intersects
         intersects.push(closestIntersect);
-
     }
 
     // Sort intersects by angle
@@ -184,33 +178,32 @@ function getSightPolygon (sightX, sightY, segments) {
 
     // Polygon is intersects, in order of angle
     return intersects;
-
 }
 
-function isInPolygon(point,polygon){
+function isInPolygon (point, polygon) {
 
     // Ray just going right
     var ray = {
-        a:{x:point.x,y:point.y},
-        b:{x:point.x+1,y:point.y}
+        a: {x: point.x, y: point.y},
+        b: {x: point.x + 1, y: point.y}
     };
 
     // Get # of total intersection with polygon walls
     var numIntersections = 0;
-    for(var i=0;i<polygon.length;i++){
+    for (var i = 0; i < polygon.length; i++) {
         // Line from this point to the next
         var startPoint = polygon[i];
-        var endPoint = (i==polygon.length-1) ? polygon[0] : polygon[i+1];
+        var endPoint = (i == polygon.length - 1) ? polygon[0] : polygon[i + 1];
         var segment = {
-            ax:startPoint.x, ay:startPoint.y,
-            bx:endPoint.x, by:endPoint.y
+            ax: startPoint.x, ay: startPoint.y,
+            bx: endPoint.x, by: endPoint.y
         };
-        if(getIntersection(ray,segment)){
+        if (getIntersection(ray, segment)) {
             numIntersections++;
         }
     }
 
     // If and only if it's odd, it's inside
-    return (numIntersections%2==1);
+    return (numIntersections % 2 == 1);
 
 }
