@@ -2,6 +2,7 @@ class CanvasRenderer {
     protected _ctx : CanvasRenderingContext2D;
     protected _canvas : Canvas;
     protected _camera : Camera;
+    protected _filters : IFilter[] = [];
 
 
     constructor (canvas : Canvas, camera : Camera) {
@@ -16,17 +17,29 @@ class CanvasRenderer {
         return this._ctx;
     }
 
+    addFilter (filter : IFilter) {
+        this._filters.push(filter);
+    }
+
     render (entities : Entity[]) {
-        // Clear Canvas
-        this._ctx.fillStyle = '#000';
-        this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+        this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
         this._ctx.translate(~~-this._camera.view.x, ~~-this._camera.view.y);
+
+        for (var i = 0; i < this._filters.length; i++) {
+            this._filters[i].init(this._ctx, this._canvas, this._camera);
+        }
+
+        this._ctx.fillStyle = '#000';
 
         for (var i = 0; i < entities.length; i++) {
             if(entities[i].hasActiveComponent(Material)) { //TODO: hmmm...
                 this.drawEntity(entities[i]);
             }
+        }
+
+        for (var i = 0; i < this._filters.length; i++) {
+            this._filters[i].close(this._ctx, this._canvas, this._camera);
         }
 
         if(Config.debug){

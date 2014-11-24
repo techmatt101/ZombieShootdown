@@ -3,7 +3,7 @@ class Game {
     canvas : Canvas;
     input : InputController;
     //sound : SoundController;
-    lighting : LightRays;
+    lighting : LightFilter;
     renderer : CanvasRenderer;
     systems : SystemManager;
 
@@ -27,19 +27,15 @@ class Game {
         this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
 
+        // Renderer and Filters
+        this.renderer = new CanvasRenderer(this.canvas, this.camera);
         if(Config.lighting) {
-            this.lighting = new LightRays(this.map);
-            this.renderer = new CanvasLightRenderer(this.canvas, this.camera, this.lighting);
-        } else {
-            this.renderer = new CanvasRenderer(this.canvas, this.camera);
+            this.lighting = new LightFilter(this.map);
+            this.renderer.addFilter(this.lighting);
         }
+        this.renderer.addFilter(new PixelFilter());
 
-        // disable pixel smoothing //TODO: needs a better home
-        this.canvas.context.imageSmoothingEnabled = false;
-        this.canvas.context.mozImageSmoothingEnabled = false;
-        this.canvas.context.oImageSmoothingEnabled = false;
-        this.canvas.context.webkitImageSmoothingEnabled = false;
-
+        // Systems
         this.systems = new SystemManager();
         this.systems.logic = new LogicSystem();
         this.systems.collision = new CollisionSystem();

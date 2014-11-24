@@ -1,10 +1,12 @@
-class LightRays implements IUpdate {
+class LightFilter implements IUpdate, IFilter {
     private _segments = [];
     private _lightSource = new Vector(0, 0);
     private _polygons = [];
 
     private _worker = new Worker("core/workers/lighting.js");
     private _workerWorking = false;
+
+    private _visionImage : HTMLImageElement;
 
     constructor (boundary : Box) {
         var segmentsWidth = boundary.width;
@@ -23,6 +25,10 @@ class LightRays implements IUpdate {
             self._workerWorking = false;
             self._polygons = e.data;
         };
+
+        ResourceManager.retrieveImage('vision', (img : HTMLImageElement) => {
+            self._visionImage = img;
+        });
     }
 
     setLightSource (lightSource : Vector) {
@@ -38,8 +44,20 @@ class LightRays implements IUpdate {
         }
     }
 
+    init (ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(camera.view.x, camera.view.y, canvas.width, canvas.height);
+        this.draw(ctx);
+
+        ctx.globalCompositeOperation = 'source-atop';
+    }
+
+    close (ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
     update (dt : number) {
-        if(!this._workerWorking) {
+        if (!this._workerWorking) {
             this._worker.postMessage({
                 x: this._lightSource.x,
                 y: this._lightSource.y,
@@ -54,12 +72,15 @@ class LightRays implements IUpdate {
 
     draw (ctx) {
         for (var i = 1; i < this._polygons.length; i++) {
-            drawPolygon(this._polygons[i], ctx, "rgba(255,255,255,0.2)");
+            drawPolygon(this._polygons[i], ctx, "rgba(0,0,0,0.2)");
         }
 
-        if(this._polygons.length > 0) {
+        if (this._polygons.length > 0) {
             drawPolygon(this._polygons[0], ctx, "#000");
         }
+
+        ctx.globalCompositeOperation = 'source-in';
+        ctx.drawImage(this._visionImage, this._lightSource.x - 1000, this._lightSource.y - 1000, 2000, 2000); //TODO: better scale vision
     }
 }
 
