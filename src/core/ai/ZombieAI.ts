@@ -1,4 +1,4 @@
-var aiWorker = new Worker("core/workers/ai.js");
+var aiWorker = new Worker("core/workers/ai.js"); //TODO: UBER HACK!!!!
 
 class ZombieAI implements IAI {
     private _zombie : Entity;
@@ -31,13 +31,13 @@ class ZombieAI implements IAI {
         });
     }
 
-    updatePathFind() {
+    updatePathFind(segments) {
         if (!this._workerWorking) {
             aiWorker.postMessage({
                 id: this._id,
                 p1: {x: this._zombie.pos.x, y: this._zombie.pos.y},
                 p2: {x: this._player.pos.x, y: this._player.pos.y},
-                segments: game.lighting.getSegments()
+                segments: segments
             });
             this._workerWorking = true;
         }

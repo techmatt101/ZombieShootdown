@@ -38,7 +38,7 @@ class Game {
         // Systems
         this.systems = new SystemManager();
         this.systems.logic = new LogicSystem();
-        this.systems.ai = new AISystem();
+        this.systems.ai = new AISystem(this.map);
         this.systems.collision = new CollisionSystem();
         this.systems.render = new RenderSystem(this.renderer, this.lighting);
 
@@ -75,9 +75,6 @@ class Game {
             })
             .add(function Map () {
                 game.map.loadMap(game.level);
-                if(typeof game.lighting !== 'undefined') {
-                    game.lighting.loadBlocks(game.level.getEntities());
-                }
             })
             .add(function LevelEntities () {
                 var bulletPool = new Pool<Entity>(() => {

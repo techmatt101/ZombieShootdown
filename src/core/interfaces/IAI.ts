@@ -1,4 +1,4 @@
 interface IAI {
-    updatePathFind()
+    updatePathFind(segments)
     update(dt : number)
 }
