@@ -37,6 +37,8 @@ class EnemyFactory {
             zombie.components.material.setTexture(new Texture(img, new Vector(0,0), 48, 48, new Vector(66,2), 30, 30));
         });
 
+        zombie.components.material.zIndex = ZIndexLayer.BACKGROUND;
+
         zombie.build();
 
         return zombie;

@@ -1,6 +1,7 @@
 class Material implements IComponent<ComponentList> {
     active : boolean;
     texture : Texture = null;
+    zIndex = ZIndexLayer.FOREGROUND;
 
     static reference(components : ComponentList) {
         return components.material;

@@ -28,6 +28,8 @@ class TileFactory {
             tile.components.material.setTexture(new Texture(img, new Vector(0,0), tileSize.x, tileSize.y, texturePos, 4, 4));
         });
 
+        tile.components.material.zIndex = ZIndexLayer.BACKGROUND;
+
         tile.build();
 
         return tile;

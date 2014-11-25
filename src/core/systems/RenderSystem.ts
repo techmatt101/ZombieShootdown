@@ -19,6 +19,11 @@ class RenderSystem implements ISystem {
         if(typeof this._lighting !== 'undefined') { //TODO: hmmm...
             this._lighting.update(dt);
         }
+
+        this._entities.sort((a : Entity, b : Entity) => { //TODO: hmmm... could be optimized
+            return a.components.material.zIndex - b.components.material.zIndex;
+        });
+
         this._renderer.render(this._entities);
     }
 

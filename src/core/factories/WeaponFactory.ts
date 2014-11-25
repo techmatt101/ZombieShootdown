@@ -16,6 +16,8 @@ class WeaponFactory {
             bullet.active = false;
         });
 
+        bullet.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
+
         bullet.build();
 
         return bullet;
@@ -25,6 +27,9 @@ class WeaponFactory {
         var gun = new Gun('Gun', new Box(14, 5), bulletPool);
         
         gun.addComponent(new Material());
+
+        gun.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
+
         gun.build();
 
         return gun;
