@@ -4,13 +4,16 @@ class AI implements IComponent<ComponentList>, IEntityController {
     private _ai : IAI;
 
     static reference(components : ComponentList) {
-        return components.controller;
+        return components.ai;
     }
 
     constructor(ai : IAI) {
         this._ai = ai;
     }
 
+    getAI() {
+        return this._ai;
+    }
 
     update(dt : number) {
         this._ai.update(dt);
@@ -20,6 +23,6 @@ class AI implements IComponent<ComponentList>, IEntityController {
     }
 
     build(components : ComponentList) {
-        components.controller = this;
+        components.ai = this;
     }
 }

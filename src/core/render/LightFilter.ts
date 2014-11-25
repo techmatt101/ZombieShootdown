@@ -31,6 +31,10 @@ class LightFilter implements IUpdate, IFilter {
         });
     }
 
+    getSegments() {
+        return this._segments;
+    }
+
     setLightSource (lightSource : Vector) {
         this._lightSource = lightSource;
     }
@@ -80,7 +84,7 @@ class LightFilter implements IUpdate, IFilter {
         }
 
         ctx.globalCompositeOperation = 'source-in';
-        ctx.drawImage(this._visionImage, this._lightSource.x - 1000, this._lightSource.y - 1000, 2000, 2000); //TODO: better scale vision
+        ctx.drawImage(this._visionImage, this._lightSource.x - 900, this._lightSource.y - 900, 1800, 1800); //TODO: better scale vision
     }
 }
 

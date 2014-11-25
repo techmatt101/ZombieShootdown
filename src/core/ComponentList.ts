@@ -1,5 +1,6 @@
 class ComponentList {
     controller : IEntityController;
+    ai : AI;
     collision : Collision;
     material : Material;
     movement : Movement;

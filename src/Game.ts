@@ -38,6 +38,7 @@ class Game {
         // Systems
         this.systems = new SystemManager();
         this.systems.logic = new LogicSystem();
+        this.systems.ai = new AISystem();
         this.systems.collision = new CollisionSystem();
         this.systems.render = new RenderSystem(this.renderer, this.lighting);
 
