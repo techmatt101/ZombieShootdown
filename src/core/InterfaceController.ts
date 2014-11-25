@@ -70,6 +70,7 @@ class InterfaceController implements IUpdate {
                 } else {
                     self.pause();
                     self.game.loop.pause();
+                    self.game.sound.pauseAll();
                     self.paused = true;
                 }
             }

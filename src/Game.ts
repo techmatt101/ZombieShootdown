@@ -2,7 +2,7 @@ class Game {
     loop : GameLoop;
     canvas : Canvas;
     input : InputController;
-    //sound : SoundController;
+    sound : SoundController;
     lighting : LightFilter;
     renderer : CanvasRenderer;
     systems : SystemManager;
@@ -23,6 +23,7 @@ class Game {
 
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
         this.input = new InputController(this.canvas.element);
+        this.sound = new SoundController();
 
         this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
@@ -72,6 +73,11 @@ class Game {
         })
             .add(function Controllers() {
                 game.input.loadKeyMappings(Config.keyMappings);
+
+                ResourceManager.retrieveSound('horror-ambient', (audio : HTMLAudioElement) => {
+                    game.sound.load(Sound.AMBIENT, audio);
+                    game.sound.play(Sound.AMBIENT);
+                });
             })
             .add(function Map () {
                 game.map.loadMap(game.level);
