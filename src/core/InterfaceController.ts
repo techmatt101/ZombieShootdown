@@ -105,11 +105,12 @@ class InterfaceController implements IUpdate {
     }
 
     draw (ctx : CanvasRenderingContext2D) {
-        ctx.font = '20pt Calibri';
+        ctx.font = '20pt visitor';
         ctx.fillStyle = '#f00';
-        ctx.fillText('Wave: ' + game.logic.wave, 5, this.game.canvas.height - 50);
-        ctx.fillText('Health: ' + this.game.player.components.health.value, 5, this.game.canvas.height - 30);
-        ctx.fillText('Score: ' + game.logic.score, 5, this.game.canvas.height - 10);
+        var lineHight = 25, line = 1;
+        ctx.fillText('Health: ' + this.game.player.components.health.value, 20, this.game.canvas.height - lineHight * line++);
+        ctx.fillText('Score: ' + game.logic.score, 20, this.game.canvas.height - lineHight * line++);
+        ctx.fillText('Wave: ' + game.logic.wave, 20, this.game.canvas.height - lineHight * line++);
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) {

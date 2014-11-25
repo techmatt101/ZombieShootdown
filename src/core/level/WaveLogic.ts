@@ -14,6 +14,7 @@ class WaveLogic {
         var self = this;
         this._zombieEventCollection = new EventCollection(() => {
             self.spawnWave();
+            self.score += 100;
         }, () => {
             self.score += 10;
         });
@@ -46,6 +47,7 @@ class WaveLogic {
         this.wave++;
 
         var numberOfZombies = ~~(this.wave * 1.5 + 3);
+        //var numberOfZombies = 1;
         for (var i = 0; i < numberOfZombies; i++) {
             var zombie = this._zombiePool.acquire();
             zombie.components.health.set(100); //TODO: hack
@@ -58,7 +60,7 @@ class WaveLogic {
     }
 
     placeInRoom( box : Box, map : MapGenerator) {
-        var t = map.getTileSize(), room = map.getRandomRoom();
+        var t = map.getTileSize(), room = map.getRooms()[0];
 
         box.pos.set(
             randInt(room.pos.x + t.x + box.width / 2, room.pos.x + room.width - t.x - box.width / 2),

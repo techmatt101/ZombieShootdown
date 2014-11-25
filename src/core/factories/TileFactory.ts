@@ -23,9 +23,9 @@ class TileFactory {
                 console.warn('Unknown Tile Type');
         }
 
-        texturePos.scale(4);
+        texturePos.scale(8);
         ResourceManager.retrieveImage('tiles', (img : HTMLImageElement) => {
-            tile.components.material.setTexture(new Texture(img, new Vector(0,0), tileSize.x, tileSize.y, texturePos, 4, 4));
+            tile.components.material.setTexture(new Texture(img, new Vector(0,0), tileSize.x, tileSize.y, texturePos, 8, 8));
         });
 
         tile.components.material.zIndex = ZIndexLayer.BACKGROUND;
