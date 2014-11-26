@@ -68,9 +68,10 @@ class Room extends Box {
             true
         ));
 
-        this.tiles[3][0].type = TileType.FLOOR;
-        this.tiles[4][0].type = TileType.FLOOR;
-        this.tiles[5][0].type = TileType.FLOOR;
+        // TEMPORARY HACKY STUFF
+        this.tiles[3][0].type = TileType.DOOR;
+        this.tiles[4][0].type = TileType.DOOR;
+        this.tiles[5][0].type = TileType.DOOR;
 
         for (var i = 11; i < 20; i++) {
             this.tiles[i][0].type = TileType.FLOOR;
@@ -85,8 +86,8 @@ class Room extends Box {
         this.tiles[4][this.height - 1].type = TileType.FLOOR;
         this.tiles[5][this.height - 1].type = TileType.FLOOR;
 
-        this.tiles[24][this.height - 1].type = TileType.FLOOR;
-        this.tiles[25][this.height - 1].type = TileType.FLOOR;
-        this.tiles[26][this.height - 1].type = TileType.FLOOR;
+        this.tiles[24][this.height - 1].type = TileType.DOOR;
+        this.tiles[25][this.height - 1].type = TileType.DOOR;
+        this.tiles[26][this.height - 1].type = TileType.DOOR;
     }
 }
