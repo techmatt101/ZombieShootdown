@@ -70,11 +70,6 @@ class InputController {
     }
 
     private onMove (e : MouseEvent) {
-        this._pointerPos.x = e.offsetX;
-        this._pointerPos.y = e.offsetY;
-    }
-
-    private onMoveLegacy (e : MouseEvent) { //TODO: implement switch
         this._pointerPos.x = e.layerX;
         this._pointerPos.y = e.layerY;
     }
