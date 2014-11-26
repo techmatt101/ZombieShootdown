@@ -1,4 +1,4 @@
-class AI implements IComponent<ComponentList>, IEntityController {
+class AI implements IComponent<ComponentList> {
     active = true;
 
     private _ai : IAI;

@@ -8,4 +8,9 @@ class DebugTool {
     noClip () {
         this._game.player.components.collision.active = false;
     }
+
+    takeControl(entity : Entity) {
+        this._game.player.components.controller._entity = entity;
+        entity.components.ai.active = false;
+    }
 }

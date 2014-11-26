@@ -1,7 +1,7 @@
 class InputControl implements IComponent<ComponentList> {
     active = true;
 
-    private _entity : Entity;
+    _entity : Entity; //TODO: hmmm.... does this whole thing even need to be a Component?
     private _input : InputController;
     private _camera : Camera;
     private _movement = new Vector(0, 0);

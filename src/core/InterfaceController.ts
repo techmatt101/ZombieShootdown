@@ -117,6 +117,7 @@ class InterfaceController implements IUpdate {
     drawDebug (ctx : CanvasRenderingContext2D) {
         if (this.selectedEntity !== null) {
             ctx.fillStyle = '#fff';
+            ctx.font = '10pt visitor';
             ctx.fillText('ID: ' + this.selectedEntity.id + ' Type: ' + (<any>this.selectedEntity).constructor.name, 5, 10);
             var space = 5;
             var spaceGap = 5;
