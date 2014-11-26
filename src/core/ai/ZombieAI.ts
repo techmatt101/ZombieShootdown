@@ -1,4 +1,4 @@
-var aiWorker = new Worker("core/workers/ai.js"); //TODO: UBER HACK!!!!
+var aiWorker = new Worker("workers/ai.js"); //TODO: UBER HACK!!!!
 
 class ZombieAI implements IAI {
     private _zombie : Entity;
@@ -6,7 +6,7 @@ class ZombieAI implements IAI {
 
     private _canSeePlayer = false;
 
-    //private _worker = new Worker("core/workers/ai.js");
+    //private _worker = new Worker("workers/ai.js");
     private _workerWorking = false;
 
     private _headingLocation = new Vector(40,40);

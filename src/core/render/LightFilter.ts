@@ -3,7 +3,7 @@ class LightFilter implements IUpdate, IFilter {
     private _lightSource = new Vector(0, 0);
     private _polygons = [];
 
-    private _worker = new Worker("core/workers/lighting.js");
+    private _worker = new Worker("workers/lighting.js");
     private _workerWorking = false;
 
     private _visionImage : HTMLImageElement;
