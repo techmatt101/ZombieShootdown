@@ -1,14 +1,15 @@
 class InterfaceController implements IUpdate {
-    paused = false;
-    overlayElement;
-    selectedEntity : Entity = null;
-    game : Game;
-//    fpsCounter = new Box(10, 10 , 50, 20);
-    //        this.fpsCounter.fps = 0;
-//        this.fpsCounter.fpsBuffer = [];
+    private _paused = false;
+    private _overlayElement;
+    private _selectedEntity : Entity = null;
+    private _game : Game;
+    private _lastHealth = 0;
+
+    //private _fps = 0;
+    //private _fpsBuffer = [];
 
     constructor () {
-        this.overlayElement = document.getElementById('overlay');
+        this._overlayElement = document.getElementById('overlay');
         var play = document.getElementById('play');
         var menu = document.getElementById('interface');
         var about = document.getElementById('about');
@@ -56,39 +57,39 @@ class InterfaceController implements IUpdate {
     }
 
     loaded (game : Game) {
-        this.game = game;
+        this._game = game;
         var self = this;
 
-        this.overlayElement.hidden = true;
+        this._overlayElement.hidden = true;
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
             if (e.keyCode === 27) {
-                if (self.paused) {
+                if (self._paused) {
                     self.hide();
-                    self.game.loop.start();
-                    self.paused = false;
+                    self._game.loop.start();
+                    self._paused = false;
                 } else {
                     self.pause();
-                    self.game.loop.pause();
-                    self.game.sound.pauseAll();
-                    self.paused = true;
+                    self._game.loop.pause();
+                    self._game.sound.pauseAll();
+                    self._paused = true;
                 }
             }
         });
 
-        this.game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
-            if(e.ctrlKey) {
-                var clickBox = new Box(3,3, new Vector(e.offsetX + self.game.camera.view.x, e.offsetY + self.game.camera.view.y));
-                var length = self.game.level.getEntities().length;
+        this._game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
+            if (e.ctrlKey) {
+                var clickBox = new Box(3, 3, new Vector(e.offsetX + self._game.camera.view.x, e.offsetY + self._game.camera.view.y));
+                var length = self._game.level.getEntities().length;
                 for (var i = length - 1; i >= 0; i--) {
-                    var entity = self.game.level.getEntities()[i];
-                    if((entity.geometry).isBoundingBoxWith(clickBox)) {
-                        this.selectedEntity = entity;
+                    var entity = self._game.level.getEntities()[i];
+                    if ((entity.geometry).isBoundingBoxWith(clickBox)) {
+                        this._selectedEntity = entity;
                         console.log(entity);
                         return;
                     }
                 }
-                this.selectedEntity = null;
+                this._selectedEntity = null;
             }
         });
     }
@@ -107,27 +108,40 @@ class InterfaceController implements IUpdate {
 
     draw (ctx : CanvasRenderingContext2D) {
         ctx.font = '20pt visitor';
-        ctx.fillStyle = '#f00';
-        var lineHight = 25, line = 1;
-        ctx.fillText('Health: ' + this.game.player.components.health.value, 20, this.game.canvas.height - lineHight * line++);
-        ctx.fillText('Score: ' + game.logic.score, 20, this.game.canvas.height - lineHight * line++);
-        ctx.fillText('Wave: ' + game.logic.wave, 20, this.game.canvas.height - lineHight * line++);
+        ctx.fillStyle = '#fff';
+        var lineHeight = 25, line = 1, margin = 20;
+
+        if(this._lastHealth !== this._game.player.components.health.value) {
+            ctx.fillStyle = '#f00';
+            this._lastHealth = this._game.player.components.health.value;
+        }
+        ctx.fillText('Health: ' + this._game.player.components.health.value, margin, this._game.canvas.height - lineHeight * line++);
+
+        ctx.fillStyle = '#fff';
+
+        ctx.fillText('Score: ' + game.logic.score, margin, this._game.canvas.height - lineHeight * line++);
+        ctx.fillText('Wave: ' + game.logic.wave, margin, this._game.canvas.height - lineHeight * line++);
+    }
+
+    resetTextStyle(ctx) {
+        ctx.font = '20pt visitor';
+        ctx.fillStyle = '#fff';
     }
 
     drawDebug (ctx : CanvasRenderingContext2D) {
-        if (this.selectedEntity !== null) {
+        if (this._selectedEntity !== null) {
             ctx.fillStyle = '#fff';
             ctx.font = '10pt visitor';
-            ctx.fillText('ID: ' + this.selectedEntity.id + ' Type: ' + (<any>this.selectedEntity).constructor.name, 5, 10);
+            ctx.fillText('ID: ' + this._selectedEntity.id + ' Type: ' + (<any>this._selectedEntity).constructor.name, 5, 10);
             var space = 5;
             var spaceGap = 5;
             var line = 20;
             var lineGap = 10;
-            loop(this.selectedEntity);
-            function loop(obj) {
-                for(var key in obj) {
+            loop(this._selectedEntity);
+            function loop (obj) {
+                for (var key in obj) {
                     if (key[0] !== '_' && typeof obj[key] !== 'function' && !(obj[key] instanceof Image)) {
-                        if(typeof obj[key] === 'object') {
+                        if (typeof obj[key] === 'object') {
                             ctx.fillText(key + ':', space, line);
                             line += lineGap;
                             space += spaceGap;
@@ -148,11 +162,11 @@ class InterfaceController implements IUpdate {
     }
 
     pause () {
-        this.overlayElement.hidden = false;
-        this.overlayElement.innerHTML = 'Paused';
+        this._overlayElement.hidden = false;
+        this._overlayElement.innerHTML = 'Paused';
     }
 
     hide () {
-        this.overlayElement.hidden = true;
+        this._overlayElement.hidden = true;
     }
 }
