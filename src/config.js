@@ -1,5 +1,6 @@
 var Config = {
     debug: true,
+    sound: false,
     lighting: false,
     skipMenu: true,
 

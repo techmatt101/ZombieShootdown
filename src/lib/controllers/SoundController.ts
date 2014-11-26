@@ -7,7 +7,9 @@ class SoundController {
     }
 
     play (key : Sound) {
-        this._audioClips[key].play();
+        if(Config.sound) {
+            this._audioClips[key].play();
+        }
     }
 
     pauseAll () {
