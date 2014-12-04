@@ -1,8 +1,8 @@
 /// <reference path="ref" />
-/// <reference path="Game" />
+/// <reference path="client/Game" />
 
-/// <reference path="BunnyTest" />
-/// <reference path="BunnyTesterGame" />
+/// <reference path="client/BunnyTest" />
+/// <reference path="client/BunnyTesterGame" />
 
 
 declare var Config : any;
