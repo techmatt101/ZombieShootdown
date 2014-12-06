@@ -1,6 +1,6 @@
 importScripts('helpers.js', 'raytracing.js');
 
-onmessage = function (e) {
+self.addEventListener('message', function (e) {
 
     var p1 = e.data.p1,
         p2 = e.data.p2;
@@ -30,5 +30,5 @@ onmessage = function (e) {
         }
     }
 
-    postMessage({id: e.data.id, value: true});
-};
+    self.postMessage({id: e.data.id, value: true});
+});

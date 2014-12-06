@@ -1,6 +1,6 @@
 importScripts('helpers.js', 'raytracing.js');
 
-onmessage = function (e) {
+self.addEventListener('message', function (e) {
 
     //var fuzzyRadius = 10;
     //var numberOfRays = 6;
@@ -13,8 +13,8 @@ onmessage = function (e) {
     //    polygons.push(getSightPolygon(e.data.x + dx, e.data.y + dy, e.data.s));
     //}
 
-    postMessage(polygons);
-};
+    self.postMessage(polygons);
+});
 
 function getSightPolygon (sightX, sightY, segments) {
     // Get all unique points
