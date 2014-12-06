@@ -14,6 +14,7 @@ def add(folder):
 srcPath = sys.path[0]
 add('src/lib')
 add('src/core')
+add('src/client')
 
 text_file = open("src/ref.ts", "w")
 text_file.write("\n".join(files))
