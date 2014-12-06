@@ -1,9 +1,9 @@
 class Level {
     protected _entities : Entity[] = [];
-    protected _systems : SystemManager;
+    protected _systems : Systems;
 
 
-    constructor (systems : SystemManager) {
+    constructor (systems : Systems) {
         this._systems = systems;
     }
 

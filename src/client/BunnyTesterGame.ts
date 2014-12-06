@@ -2,7 +2,7 @@ class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
     renderer : CanvasRenderer;
-    systems : SystemManager;
+    systems : Systems;
 
     camera : Camera;
     level : Level;
@@ -21,10 +21,10 @@ class BunnyTesterGame {
         this.camera = new Camera(this.canvas);
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
 
-        this.systems = new SystemManager();
-        this.systems.logic = new LogicSystem();
-        this.systems.collision = new CollisionSystem();
-        this.systems.render = new RenderSystem(this.renderer);
+        this.systems = new Systems();
+        this.systems.scheedule(new LogicSystem());
+        this.systems.scheedule(new CollisionSystem());
+        this.systems.scheedule(new RenderSystem(this.renderer));
 
         this.level = new Level(this.systems);
 

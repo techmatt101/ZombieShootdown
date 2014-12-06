@@ -5,7 +5,7 @@ class Game {
     sound : SoundController;
     lighting : LightFilter;
     renderer : CanvasRenderer;
-    systems : SystemManager;
+    systems : Systems;
 
     map : MapManager;
     camera : Camera;
@@ -37,11 +37,11 @@ class Game {
         this.renderer.addFilter(new PixelFilter());
 
         // Systems
-        this.systems = new SystemManager();
-        this.systems.logic = new LogicSystem();
-        this.systems.ai = new AISystem(this.map);
-        this.systems.collision = new CollisionSystem();
-        this.systems.render = new RenderSystem(this.renderer, this.lighting);
+        this.systems = new Systems();
+        this.systems.scheedule(new LogicSystem());
+        this.systems.scheedule(new AISystem(this.map));
+        this.systems.scheedule(new CollisionSystem());
+        this.systems.scheedule(new RenderSystem(this.renderer, this.lighting));
 
         this.level = new TopDownLevel(this.map, this.camera, this.systems);
         this.logic = new WaveLogic(this.level);

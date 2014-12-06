@@ -5,7 +5,7 @@ class TopDownLevel extends Level {
     private _map : MapManager;
 
 
-    constructor (map : MapManager, camera : Camera, systems : SystemManager) {
+    constructor (map : MapManager, camera : Camera, systems : Systems) {
         super(systems);
         this._map = map;
         this._camera = camera;
