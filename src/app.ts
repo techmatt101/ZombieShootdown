@@ -1,9 +1,4 @@
-/// <reference path="ref" />
-/// <reference path="client/Game" />
-
-/// <reference path="client/BunnyTest" />
-/// <reference path="client/BunnyTesterGame" />
-
+/// <reference path="client-ref" />
 
 declare var Config : any;
 var ui : InterfaceController = null;

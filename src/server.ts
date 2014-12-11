@@ -1,3 +1,5 @@
+/// <reference path="server-ref" />
+declare var Config : any;
 var port = 1337;
 var ws = new WebSocket('ws://localhost:' + port);
 var controller = new MessageController();

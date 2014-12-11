@@ -26,7 +26,7 @@ class Game {
         var game = this;
 
         new TaskCollection('Level Setup', function onCompete () {
-            game.logic.start(game.player);
+            game.logic.start(game.players[0]);
             console.log('GAME OVER MAN!');
         })
             .add(function Map () {
@@ -40,9 +40,9 @@ class Game {
                 });
 
                 var gun = WeaponFactory.spawnGun(bulletPool);
-                game.players.push(PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun));
+                //game.players.push(PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun));
 
-                game.level.addEntity(game.player);
+                game.level.addEntity(game.players[0]);
                 game.level.addEntity(gun);
             })
             .run();

@@ -1,23 +1,32 @@
 import os
 import sys
 
-files = []
-		 		 
-def add(folder):
-	files.extend(''.join('/// <reference path="' + root.replace('src/', '') + '/' + file + '" />')
-			for root, dirs, files in os.walk(folder)
-			for file in files
-			if file.endswith('.ts')
-			if not '_' in file
-		)
-
 srcPath = sys.path[0]
-add('src/lib')
-add('src/core')
-add('src/client')
+		 		 
+def add(folder, list):
+	list.extend(''.join('/// <reference path="' + root.replace('src/', '') + '/' + file + '" />')
+		for root, dirs, list in os.walk(folder)
+		for file in list
+		if file.endswith('.ts')
+		if not '_' in file
+	)
 
-text_file = open("src/ref.ts", "w")
-text_file.write("\n".join(files))
-text_file.close()
+def saveFile(name, data):
+	text_file = open("src/" + name + "-ref.ts", "w")
+	text_file.write(data)
+	text_file.close()
+
+coreFiles = []
+add('src/lib', coreFiles)
+add('src/core', coreFiles)
+coreData = "\n".join(coreFiles);
+
+files = []
+add('src/client', files)
+saveFile('client', coreData + "\n" + "\n".join(files))
+
+files = []
+add('src/server', files)
+saveFile('server', coreData + "\n" + "\n".join(files))
 
 print "References Updated"

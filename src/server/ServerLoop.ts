@@ -1,4 +1,4 @@
-class GameLoop {
+class ServerLoop {
     /**
      Length of a tick in milliseconds. The denominator is your desired framerate.
      e.g. 1000 / 20 = 20 fps,  1000 / 60 = 60 fps

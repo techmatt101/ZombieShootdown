@@ -18,12 +18,12 @@ class TileFactory {
                 texturePos = new Vector(1, 1);
                 tile.addComponent(new Collision(tile.geometry));
 
-                window.addEventListener('click', () => { //TODO: BIGGEST HACK OF THE UNIVERSE BIG TIME JUST WOW REALLY HAVE TO BE JOKING ME!!!! ARE YOU MAD OR WHAT!?!?!
-                    if(tile.components.collision.getBoundary().isBoundingBoxWith(new Box(5, 5, game.camera.view.clone().offset(game.input.getPointerPos())))) {
-                        tile.components.collision.active =  !tile.components.collision.active;
-                        tile.components.material.texture.sourcePos.x = ((tile.components.collision.active) ? 1 : 2) * tileImageSize;
-                    }
-                });
+                //window.addEventListener('click', () => { //TODO: BIGGEST HACK OF THE UNIVERSE BIG TIME JUST WOW REALLY HAVE TO BE JOKING ME!!!! ARE YOU MAD OR WHAT!?!?!
+                //    if(tile.components.collision.getBoundary().isBoundingBoxWith(new Box(5, 5, game.camera.view.clone().offset(game.input.getPointerPos())))) {
+                //        tile.components.collision.active =  !tile.components.collision.active;
+                //        tile.components.material.texture.sourcePos.x = ((tile.components.collision.active) ? 1 : 2) * tileImageSize;
+                //    }
+                //});
 
                 break;
 
