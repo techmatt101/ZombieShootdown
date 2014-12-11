@@ -10,9 +10,9 @@ class Game {
     constructor () {
         // Systems
         this.systems = new Systems();
-        this.systems.scheedule(new LogicSystem());
-        this.systems.scheedule(new AISystem(this.map));
-        this.systems.scheedule(new CollisionSystem());
+        this.systems.schedule(new LogicSystem());
+        this.systems.schedule(new AISystem(this.map));
+        this.systems.schedule(new CollisionSystem());
 
         this.level = new TopDownLevel(this.map, null, this.systems);
         this.logic = new WaveLogic(this.level);

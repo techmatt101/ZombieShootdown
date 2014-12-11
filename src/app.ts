@@ -11,7 +11,7 @@ window.addEventListener('load',() => {
 
 function gameSetup () {
     console.time("GameSetup");
-    game = new Game();
+    game = new SinglePlayerGame();
     console.timeEnd("GameSetup");
     game.load();
 

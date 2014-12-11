@@ -2,7 +2,7 @@ class Systems {
     private _systems : ISystem[] = []; //TODO: optimize
 
 
-    scheedule (system : ISystem) {
+    schedule (system : ISystem) {
         this._systems.push(system);
     }
 

@@ -14,11 +14,13 @@ class Game {
 
     player : Entity;
 
+    levelSetupTasks : TaskCollection;
 
-    constructor () {
-        var self = this;
+
+    constructor() {
+        var game = this;
         this.loop = new GameLoop((dt : number) => {
-            self.update(dt);
+            game.update(dt);
         });
 
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
@@ -30,7 +32,7 @@ class Game {
 
         // Renderer and Filters
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
-        if(Config.lighting) {
+        if (Config.lighting) {
             this.lighting = new LightFilter(this.map);
             this.renderer.addFilter(this.lighting);
         }
@@ -38,38 +40,16 @@ class Game {
 
         // Systems
         this.systems = new Systems();
-        this.systems.scheedule(new LogicSystem());
-        this.systems.scheedule(new AISystem(this.map));
-        this.systems.scheedule(new CollisionSystem());
-        this.systems.scheedule(new RenderSystem(this.renderer, this.lighting));
+        this.systems.schedule(new LogicSystem());
+        this.systems.schedule(new AISystem(this.map));
+        this.systems.schedule(new CollisionSystem());
+        this.systems.schedule(new RenderSystem(this.renderer, this.lighting));
 
         this.level = new TopDownLevel(this.map, this.camera, this.systems);
         this.logic = new WaveLogic(this.level);
-    }
 
-    update (dt : number) {
-        this.level.update(dt);
-
-        ui.update(dt);
-        ui.draw(this.renderer.getCtx());
-
-        if (Config.debug) {
-            var ctx = this.renderer.getCtx();
-            if(typeof this.lighting !== 'undefined') {
-                this.lighting.drawDebug(ctx);
-            }
-            ui.drawDebug(ctx);
-        }
-    }
-
-    load () {
-        var game = this;
-
-        new TaskCollection('Level Setup', function onCompete () {
-            ui.loaded(game);
-            game.loop.start();
-            game.logic.start(game.player);
-            console.log('GAME OVER MAN!');
+        this.levelSetupTasks = new TaskCollection('Level Setup', function onCompete() {
+            game.onCompete();
         })
             .add(function Controllers() {
                 game.input.loadKeyMappings(Config.keyMappings);
@@ -79,31 +59,34 @@ class Game {
                     game.sound.play(Sound.AMBIENT);
                 });
             })
-            .add(function Map () {
+            .add(function Map() {
                 game.map.loadMap(game.level);
-            })
-            .add(function LevelEntities () {
-                var bulletPool = new Pool<Entity>(() => {
-                    var bullet = WeaponFactory.spawnBullet();
-                    game.level.addEntity(bullet);
-                    return bullet;
-                });
+            });
+    }
 
-                var gun = WeaponFactory.spawnGun(bulletPool);
-                game.player = PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun);
+    update(dt : number) {
+        this.level.update(dt);
 
-                game.level.addEntity(game.player);
-                game.level.addEntity(gun);
-            })
-            .add(function LevelTweaks () {
-                game.level.setObjectToFollow(game.player);
-                if(typeof game.lighting !== 'undefined') {
-                    game.lighting.setLightSource(game.player.pos);
-                }
-            })
-            .addAsync(function LoadingResources (callback) {
-                ResourceManager.waitForPendingResources(callback)
-            })
-            .run();
+        ui.update(dt);
+        ui.draw(this.renderer.getCtx());
+
+        if (Config.debug) {
+            var ctx = this.renderer.getCtx();
+            if (typeof this.lighting !== 'undefined') {
+                this.lighting.drawDebug(ctx);
+            }
+            ui.drawDebug(ctx);
+        }
+    }
+
+    onCompete() {
+        ui.loaded(this);
+        this.loop.start();
+    }
+
+    load() {
+        this.levelSetupTasks.addAsync(function LoadingResources(callback) {
+            ResourceManager.waitForPendingResources(callback)
+        }).run();
     }
 }

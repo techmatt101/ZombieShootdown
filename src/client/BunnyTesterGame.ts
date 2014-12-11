@@ -22,9 +22,9 @@ class BunnyTesterGame {
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
 
         this.systems = new Systems();
-        this.systems.scheedule(new LogicSystem());
-        this.systems.scheedule(new CollisionSystem());
-        this.systems.scheedule(new RenderSystem(this.renderer));
+        this.systems.schedule(new LogicSystem());
+        this.systems.schedule(new CollisionSystem());
+        this.systems.schedule(new RenderSystem(this.renderer));
 
         this.level = new Level(this.systems);
 
