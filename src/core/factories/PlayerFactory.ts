@@ -1,6 +1,6 @@
 class PlayerFactory {
 
-    static spawnPlayer(room : Room, input : InputController, camera : Camera, weapon : IWeapon) {
+    static spawnPlayer(room : Room, input : InputController, camera : Camera) {
         var player = new Entity('Player', new Box(48, 48,
             new Vector(
             room.pos.x + room.width / 2,
@@ -14,7 +14,6 @@ class PlayerFactory {
         player.addComponent(new Material());
 
         player.addComponent(new Health(400));
-        player.addComponent(new WeaponHolder(player.pos, weapon));
 
         player.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
             .acceptDamage(player.components.health);

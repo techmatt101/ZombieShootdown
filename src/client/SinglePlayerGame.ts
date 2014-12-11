@@ -20,7 +20,8 @@ class SinglePlayerGame extends Game {
                 });
 
                 var gun = WeaponFactory.spawnGun(bulletPool);
-                game.player = PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun);
+                game.player = PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera);
+                WeaponiseDecorator.giveGun(game.player, gun);
 
                 game.level.addEntity(game.player);
                 game.level.addEntity(gun);
