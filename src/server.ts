@@ -1,24 +1,16 @@
-/// <reference path="server-ref" />
+/*/// <reference path="server-ref" />*/
+/// <reference path="server/dt/node-0.11.d.ts" />
+/// <reference path="server/dt/ws.d.ts" />
 declare var Config : any;
-var port = 1337;
-var ws = new WebSocket('ws://localhost:' + port);
-var controller = new MessageController();
+import WebSocketServer = require('ws');
+var wss = new WebSocketServer.Server({port: 8080});
 
-ws.addEventListener('open', () => {
-    console.info('Server has started on ' + port)
+wss.on('connection', function connection (ws : WebSocketServer) {
+    ws.on('message', function incoming (message) {
+        console.log('received: %s', message);
+    });
+
+    ws.send('reply');
 });
 
-ws.addEventListener('close', () => {
-    console.info('Server has closed');
-});
-
-ws.addEventListener('message', (e : MessageEvent) => {
-    console.log(e);
-
-    var action = controller[e.data.type];
-    if(typeof action === 'undefined') {
-        action(e.data);
-    } else {
-        console.error("Invalid Message Type");
-    }
-});
+console.log("Server Started on port 8080");
