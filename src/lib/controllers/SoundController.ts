@@ -1,24 +1,26 @@
-class SoundController {
-    private _audioClips : {[index : string] : HTMLAudioElement} = {};
+module ZombieApp {
+    export class SoundController {
+        private _audioClips : {[index : string] : HTMLAudioElement} = {};
 
 
-    load (name : Sound, audio : HTMLAudioElement) {
-        this._audioClips[name] = audio;
-    }
+        load(name : Sound, audio : HTMLAudioElement) {
+            this._audioClips[name] = audio;
+        }
 
-    play (key : Sound) {
-        if(Config.sound) {
-            this._audioClips[key].play();
+        play(key : Sound) {
+            if (Config.sound) {
+                this._audioClips[key].play();
+            }
+        }
+
+        pauseAll() {
+            for (var key in this._audioClips) {
+                this._audioClips[key].pause();
+            }
         }
     }
 
-    pauseAll () {
-        for(var key in this._audioClips) {
-            this._audioClips[key].pause();
-        }
+    export enum Sound {
+        AMBIENT
     }
-}
-
-enum Sound {
-    AMBIENT
 }

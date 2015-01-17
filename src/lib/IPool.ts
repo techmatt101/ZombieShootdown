@@ -1,4 +1,6 @@
-interface IPool {
-    available : Boolean;
-    reset()
+module ZombieApp {
+    export interface IPool {
+        available : Boolean;
+        reset()
+    }
 }

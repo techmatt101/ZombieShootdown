@@ -1,26 +1,26 @@
 /// <reference path="client-ref" />
 
 declare var Config : any;
-var ui : InterfaceController = null;
+var ui : ZombieApp.InterfaceController = null;
 var game : any = null;
-var debug : DebugTool = null;
+var debug : ZombieApp.DebugTool = null;
 
 window.addEventListener('load',() => {
-    ui = new InterfaceController();
+    ui = new ZombieApp.InterfaceController();
 });
 
 function gameSetup () {
     console.time("GameSetup");
-    game = new SinglePlayerGame();
+    game = new ZombieApp.SinglePlayerGame();
     console.timeEnd("GameSetup");
     game.load();
 
     if(Config.debug) {
-        debug = new DebugTool(game);
+        debug = new ZombieApp.DebugTool(game);
     }
 }
 
 function bunnyTestSetup() {
-    game = new BunnyTesterGame();
+    game = new ZombieApp.BunnyTesterGame();
     game.load();
 }

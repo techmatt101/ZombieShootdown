@@ -1,15 +1,17 @@
-enum TileType {
-    EMPTY,
-    WALL,
-    DOOR,
-    FLOOR
-}
+module ZombieApp {
+    export enum TileType {
+        EMPTY,
+        WALL,
+        DOOR,
+        FLOOR
+    }
 
-class Tile {
-    type : TileType;
-    data : any = null;
+    export class Tile {
+        type : TileType;
+        data : any = null;
 
-    constructor(type : TileType) {
-        this.type = type;
+        constructor(type : TileType) {
+            this.type = type;
+        }
     }
 }

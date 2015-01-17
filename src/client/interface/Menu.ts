@@ -1,3 +1,5 @@
-class Menu {
+module ZombieApp {
+    export class Menu {
 
+    }
 }
