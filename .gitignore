@@ -20,8 +20,13 @@ $RECYCLE.BIN/
 # Mac crap
 .DS_Store
 
+# Node
+node_modules
+npm-debug.log
+
+# Build
 build/
 bin/
 
-node_modules
-src/ref.ts
+src/client-ref.ts
+src/server-ref.ts
