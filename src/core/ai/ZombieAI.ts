@@ -1,5 +1,5 @@
 module ZombieApp {
-    var aiWorker = new Worker("workers/ai.js"); //TODO: UBER HACK!!!!
+    //var aiWorker = new Worker("workers/ai.js"); //TODO: UBER HACK!!!!
 
     export class ZombieAI implements IAI {
         private _zombie : Entity;
@@ -24,24 +24,24 @@ module ZombieApp {
             //    self._canSeePlayer = e.data;
             //};
 
-            aiWorker.addEventListener('message', function (e) {
-                if (e.data.id == self._id) {
-                    self._canSeePlayer = e.data.value;
-                    self._workerWorking = false;
-                }
-            });
+            //aiWorker.addEventListener('message', function (e) {
+            //    if (e.data.id == self._id) {
+            //        self._canSeePlayer = e.data.value;
+            //        self._workerWorking = false;
+            //    }
+            //});
         }
 
         updatePathFind(segments) {
-            if (!this._workerWorking) {
-                aiWorker.postMessage({
-                    id: this._id,
-                    p1: {x: this._zombie.pos.x, y: this._zombie.pos.y},
-                    p2: {x: this._player.pos.x, y: this._player.pos.y},
-                    segments: segments
-                });
-                this._workerWorking = true;
-            }
+            //if (!this._workerWorking) {
+            //    aiWorker.postMessage({
+            //        id: this._id,
+            //        p1: {x: this._zombie.pos.x, y: this._zombie.pos.y},
+            //        p2: {x: this._player.pos.x, y: this._player.pos.y},
+            //        segments: segments
+            //    });
+            //    this._workerWorking = true;
+            //}
         }
 
         update(dt : number) {

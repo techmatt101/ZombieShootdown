@@ -43,13 +43,13 @@ module ZombieApp {
                 this._filters[i].close(this._ctx, this._canvas, this._camera);
             }
 
-            if (Config.debug) {
-                this.drawDebug(entities);
-            }
+            //if (Config.debug) {
+            //    this.drawDebug(entities);
+            //}
             this._ctx.translate(~~this._camera.view.x, ~~this._camera.view.y);
         }
 
-        protected drawEntity(entity : Entity) { //protected
+        protected drawEntity(entity : Entity) {
             var texture = entity.components.material.texture;
 
             this._ctx.save();
@@ -78,7 +78,7 @@ module ZombieApp {
             this._ctx.restore();
         }
 
-        protected drawDebug(entities : Entity[]) { //protected
+        protected drawDebug(entities : Entity[]) {
             for (var i = 0; i < entities.length; i++) {
                 this._ctx.save();
                 entities[i].drawDebug(this._ctx);

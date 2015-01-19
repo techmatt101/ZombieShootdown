@@ -8,9 +8,9 @@ module ZombieApp {
         }
 
         play(key : Sound) {
-            if (Config.sound) {
-                this._audioClips[key].play();
-            }
+            //if (Config.sound) {
+            //    this._audioClips[key].play();
+            //}
         }
 
         pauseAll() {

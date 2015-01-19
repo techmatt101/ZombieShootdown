@@ -28,5 +28,6 @@ npm-debug.log
 build/
 bin/
 
+src/core-ref.ts
 src/client-ref.ts
 src/server-ref.ts

@@ -10,6 +10,7 @@
   "scripts": {
     "build": "npm run build-references & npm run build-client & npm run build-server",
     "build-references": "python build_references.py",
+    "build-core": "tsc src/core.ts --out build/core.js --sourcemap --target ES5",
     "build-client": "tsc src/app.ts --out build/app.js --sourcemap --target ES5",
     "build-server": "tsc src/server.ts --outDir build/ --target ES5 --module commonjs",
     "test": "jasmine-node test"

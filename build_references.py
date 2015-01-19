@@ -20,6 +20,7 @@ coreFiles = []
 add('src/lib', coreFiles)
 add('src/core', coreFiles)
 coreData = "\n".join(coreFiles);
+saveFile('core', coreData)
 
 files = []
 add('src/client', files)
@@ -27,6 +28,6 @@ saveFile('client', coreData + "\n" + "\n".join(files))
 
 files = []
 add('src/server', files)
-saveFile('server', coreData + "\n" + "\n".join(files))
+saveFile('server', "\n".join(files))
 
 print "References Updated"

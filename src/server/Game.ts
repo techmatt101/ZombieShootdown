@@ -1,50 +1,56 @@
-class Game {
-    systems : Systems;
-    map : MapManager;
-    level : TopDownLevel;
-    logic : WaveLogic;
+/// <reference path="dt/core.d.ts" />
 
-    players : Entity[];
+var Core : ZombieApp = require('./core.js').ZombieApp;
+
+export module Server {
+    export class Game {
+        systems : ZombieApp.Systems;
+        map : ZombieApp.MapManager;
+        level : ZombieApp.TopDownLevel;
+        logic : ZombieApp.WaveLogic;
+
+        players : ZombieApp.Entity[];
 
 
-    constructor () {
-        // Systems
-        this.systems = new Systems();
-        this.systems.schedule(new LogicSystem());
-        this.systems.schedule(new AISystem(this.map));
-        this.systems.schedule(new CollisionSystem());
+        constructor () {
+            // Systems
+            this.systems = new Core.Systems();
+            this.systems.schedule(new Core.LogicSystem());
+            this.systems.schedule(new Core.AISystem(this.map));
+            this.systems.schedule(new Core.CollisionSystem());
 
-        this.level = new TopDownLevel(this.map, null, this.systems);
-        this.logic = new WaveLogic(this.level);
-    }
+            this.level = new Core.TopDownLevel(this.map, null, this.systems);
+            this.logic = new Core.WaveLogic(this.level);
+        }
 
-    update (dt : number) {
-        this.level.update(dt);
-    }
+        update (dt : number) {
+            this.level.update(dt);
+        }
 
-    load () {
-        var game = this;
+        load () {
+            var game = this;
 
-        new TaskCollection('Level Setup', function onCompete () {
-            game.logic.start(game.players[0]);
-            console.log('GAME OVER MAN!');
-        })
-            .add(function Map () {
-                game.map.loadMap(game.level);
+            new Core.TaskCollection('Level Setup', function onCompete () {
+                game.logic.start(game.players[0]);
+                console.log('GAME OVER MAN!');
             })
-            .add(function LevelEntities () {
-                var bulletPool = new Pool<Entity>(() => {
-                    var bullet = WeaponFactory.spawnBullet();
-                    game.level.addEntity(bullet);
-                    return bullet;
-                });
+                .add(function Map () {
+                    game.map.loadMap(game.level);
+                })
+                .add(function LevelEntities () {
+                    //var bulletPool = new Core.Pool<ZombieApp.Entity>(() => {
+                    //    var bullet = Core.WeaponFactory.spawnBullet();
+                    //    game.level.addEntity(bullet);
+                    //    return bullet;
+                    //});
 
-                var gun = WeaponFactory.spawnGun(bulletPool);
-                //game.players.push(PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun));
+                    //var gun = Core.WeaponFactory.spawnGun(bulletPool);
+                    //game.players.push(PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.input, game.camera, gun));
 
-                game.level.addEntity(game.players[0]);
-                game.level.addEntity(gun);
-            })
-            .run();
+                    game.level.addEntity(game.players[0]);
+                    //game.level.addEntity(gun);
+                })
+                .run();
+        }
     }
 }
