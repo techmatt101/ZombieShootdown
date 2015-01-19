@@ -12,6 +12,7 @@ module ZombieApp {
         constructor() {
             this._overlayElement = document.getElementById('overlay');
             var play = document.getElementById('play');
+            var playMulti = document.getElementById('play_multi');
             var menu = document.getElementById('interface');
             var about = document.getElementById('about');
             var option = document.getElementById('option');
@@ -33,10 +34,17 @@ module ZombieApp {
                 launchIntoFullscreen(view);
             });
 
-            function playGame() {
+            function playSingleGame() {
                 menu.hidden = true;
                 setTimeout(() => {
-                    gameSetup();
+                    singlePlayerGameSetup();
+                }, 0);
+            }
+
+            function playMultiGame() {
+                menu.hidden = true;
+                setTimeout(() => {
+                    multiPlayerGameSetup();
                 }, 0);
             }
 
@@ -47,12 +55,13 @@ module ZombieApp {
                 }, 0);
             }
 
-            play.addEventListener('click', playGame);
+            play.addEventListener('click', playSingleGame);
+            playMulti.addEventListener('click', playMultiGame);
             option.addEventListener('click', bunnyTest);
 
             if (Config.skipMenu) {
                 setTimeout(function () {
-                    playGame();
+                    playSingleGame();
                 }, 100);
             }
         }

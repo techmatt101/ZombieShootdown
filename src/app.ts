@@ -9,9 +9,20 @@ window.addEventListener('load',() => {
     ui = new ZombieApp.InterfaceController();
 });
 
-function gameSetup () {
+function singlePlayerGameSetup () {
     console.time("GameSetup");
     game = new ZombieApp.SinglePlayerGame();
+    console.timeEnd("GameSetup");
+    game.load();
+
+    if(Config.debug) {
+        debug = new ZombieApp.DebugTool(game);
+    }
+}
+
+function multiPlayerGameSetup () {
+    console.time("GameSetup");
+    game = new ZombieApp.MultiPlayerGame();
     console.timeEnd("GameSetup");
     game.load();
 

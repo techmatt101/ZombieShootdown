@@ -23,7 +23,7 @@
             <div>
                 <div>
                     <button class="btn" id="play">Single-player</button>
-                    <button class="btn" disabled>Multi-player</button>
+                    <button class="btn" id="play_multi">Multi-player</button>
                 </div>
 
                 <button class="btn" id="option">Options</button>
@@ -31,30 +31,41 @@
             </div>
         </section>
 
+        <section class="menu" id="profile" hidden>
+            <header>
+                <h2 class="retro">Profile</h2>
+            </header>
+
+            <label for="name" class="label">Username</label>
+            <input type="text" class="input" id="name" name="name">
+            <button class="btn">Ok</button>
+        </section>
+
         <section class="menu" id="options" hidden>
             <header>
-                <h2>Options</h2>
+                <h2 class="retro">Options</h2>
             </header>
             <div>
                 <div>
-                    <button class="btn">Controls</button>
-                </div>
-                <div>
-                    <label>Sound</label>
+                    <label class="label">Sound</label>
                     <button class="btn">On</button>
                 </div>
                 <div>
-                    <label>Full Screen</label>
+                    <label class="label">Full Screen</label>
                     <button class="btn">On</button>
                 </div>
                 <div>
-                    <label>Lighting</label>
+                    <label class="label">Lighting</label>
                     <button class="btn">On</button>
                 </div>
                 <div>
-                    <label>Debug</label>
+                    <label class="label">Debug</label>
                     <button class="btn">On</button>
                 </div>
+                <div>
+                    <button class="btn">Edit Profile</button>
+                </div>
+                <br>
                 <div>
                     <button class="btn">Back</button>
                 </div>
