@@ -11,7 +11,7 @@ module ZombieApp {
         map : MapManager;
         camera : Camera;
         level : TopDownLevel;
-        logic : WaveLogic;
+        logic : IWaveLogic;
 
         player : Entity;
 
@@ -42,12 +42,10 @@ module ZombieApp {
             // Systems
             this.systems = new Systems();
             this.systems.schedule(new LogicSystem());
-            this.systems.schedule(new AISystem(this.map));
             this.systems.schedule(new CollisionSystem());
             this.systems.schedule(new RenderSystem(this.renderer, this.lighting));
 
             this.level = new TopDownLevel(this.map, this.camera, this.systems);
-            this.logic = new WaveLogic(this.level);
 
             this.levelSetupTasks = new TaskCollection('Level Setup', function onCompete() {
                 game.onCompete();

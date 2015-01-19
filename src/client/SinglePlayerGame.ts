@@ -4,6 +4,12 @@ module ZombieApp {
     export class SinglePlayerGame extends Game {
         player : Entity;
 
+        constructor() {
+            super();
+            this.systems.schedule(new AISystem(this.map));
+            this.logic = new SinglePlayerWaveLogic(this.level);
+        }
+
         onCompete() {
             super.onCompete();
             this.logic.start(this.player);

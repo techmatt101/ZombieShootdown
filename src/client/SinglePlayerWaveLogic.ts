@@ -1,5 +1,5 @@
 module ZombieApp {
-    export class WaveLogic {
+    export class SinglePlayerWaveLogic implements IWaveLogic {
         score = 0;
         wave = 0;
 

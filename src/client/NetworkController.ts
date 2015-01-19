@@ -1,6 +1,6 @@
 module ZombieApp {
     export class NetworkController {
-        constructor() {
+        connect() {
             var ws = new WebSocket('ws://localhost:8080');
 
             ws.addEventListener('open', () => {
