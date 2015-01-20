@@ -1,6 +1,7 @@
 module ZombieApp {
     export class Entity implements IUpdate, IPool {
-        id : string;
+        id = Date.now().toString(32) + (~~(Math.random() * 10000000)).toString(32);
+        type : string;
         pos : Vector;
         geometry : Box;
         components = new ComponentList();
@@ -11,8 +12,8 @@ module ZombieApp {
         private _componentListLength = 0;
 
 
-        constructor(id : string, geometry : Box) {
-            this.id = id;
+        constructor(type : string, geometry : Box) {
+            this.type = type;
             this.geometry = geometry;
             this.pos = this.geometry.pos; //TODO: hmmmm...
         }

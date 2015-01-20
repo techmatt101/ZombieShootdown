@@ -199,7 +199,7 @@ module ZombieApp {
             if (this._selectedEntity !== null) {
                 ctx.fillStyle = '#fff';
                 ctx.font = '10pt visitor';
-                ctx.fillText('ID: ' + this._selectedEntity.id + ' Type: ' + (<any>this._selectedEntity).constructor.name, 5, 10);
+                ctx.fillText('ID: ' + this._selectedEntity.id + ' Type: ' + this._selectedEntity.type + ' Instance: ' + (<any>this._selectedEntity).constructor.name, 5, 10);
                 var space = 5;
                 var spaceGap = 5;
                 var line = 20;
