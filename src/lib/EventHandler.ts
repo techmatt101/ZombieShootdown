@@ -1,11 +1,12 @@
 module ZombieApp {
     export class EventHandler<T> {
-        private _listeners = {};
+        private _listeners = [];
 
         fire(key : T, data?) {
-            if (typeof this._listeners[<any>key] !== 'undefined') {
-                for (var i = 0; i < this._listeners[<any>key].length; i++) {
-                    this._listeners[<any>key][i](data);
+            var listeners = this._listeners[<any>key];
+            if (typeof listeners !== 'undefined') {
+                for (var i = 0; i < listeners.length; i++) {
+                    listeners[i](data);
                 }
             }
         }
@@ -22,7 +23,7 @@ module ZombieApp {
         }
 
         clear() {
-            this._listeners = {};
+            this._listeners = [];
         }
     }
 }
