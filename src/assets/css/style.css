@@ -30,11 +30,19 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+  color: #e73827;
+  font-family: "visitor", sans-serif;
+  text-shadow: 0 3px #7c1e15;
+  border: 3px solid #e73827;
+  border-bottom-color: #7c1e15;
+  border-right-color: #7c1e15;
+  background: #222;
+  border-radius: 5px;
+  outline-color: #fff;
+  font-size: 0.8em;
+  margin: 5px 3px;
+  padding: 8px 20px;
   margin: 20px;
-  padding: 20px;
-  border-radius: 3px;
-  color: #fff;
-  background: #333;
 }
 #interface .menu {
   background: #000;
@@ -110,4 +118,13 @@ body {
   color: #e73827;
   font-family: "visitor", sans-serif;
   text-shadow: 0 3px #7c1e15;
+}
+.img-list {
+  width: 500px;
+  display: inline-block;
+}
+.img-list img {
+  display: inline-block;
+  cursor: pointer;
+  margin: 5px;
 }

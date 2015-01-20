@@ -1,0 +1,17 @@
+{
+  "name": "ZombieShootout",
+  "version": "0.1.0",
+  "homepage": "https://github.com/techmatt101/ZombieShootout.git",
+  "authors": [
+    "techmatt101"
+  ],
+  "description": "ZombieShootout",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "jsonp": "~0.0.1"
+  }
+}
