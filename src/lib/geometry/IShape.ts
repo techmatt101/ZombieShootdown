@@ -1,5 +1,3 @@
-module ZombieApp {
-    export interface IShape {
-        pos : Vector
-    }
+interface IShape {
+    pos : Vector
 }

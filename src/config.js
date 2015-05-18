@@ -2,7 +2,7 @@ var Config = {
     debug: true,
     sound: false,
     lighting: false,
-    skipMenu: true,
+    skipMenu: false,
 
     keyMappings: {
         87: 'UP', //W Key

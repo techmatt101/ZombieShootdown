@@ -1,6 +1,4 @@
-module ZombieApp {
-    export interface IWeapon extends Entity {
-        placementOffset : Vector
-        attack() : void
-    }
+interface IWeapon extends Entity {
+    placementOffset : Vector
+    attack() : void
 }

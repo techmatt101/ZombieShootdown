@@ -1,72 +1,70 @@
-module ZombieApp {
-    export class SinglePlayerWaveLogic implements IWaveLogic {
-        score = 0;
-        wave = 0;
+class SinglePlayerWaveLogic implements IWaveLogic {
+    score = 0;
+    wave = 0;
 
-        private _level : TopDownLevel;
-        private _player : Entity;
-        private _zombieEventCollection : EventCollection;
-        private _zombiePool : Pool<Entity>;
+    private _level : TopDownLevel;
+    private _player : Entity;
+    private _zombieEventCollection : EventCollection;
+    private _zombiePool : Pool<Entity>;
 
 
-        constructor(level : TopDownLevel) {
-            this._level = level;
+    constructor(level : TopDownLevel) {
+        this._level = level;
 
-            var self = this;
-            this._zombieEventCollection = new EventCollection(() => {
-                self.spawnWave();
-                self.score += 100;
-            }, () => {
-                self.score += 10;
-            });
+        var self = this;
+        this._zombieEventCollection = new EventCollection(() => {
+            self.spawnWave();
+            self.score += 100;
+        }, () => {
+            self.score += 10;
+        });
 
-            this._zombiePool = new Pool<Entity>(() => {
-                var zombie = EnemyFactory.spawnZombie(self._player);
-                zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen(() => {
-                    zombie.active = false; //TODO: hack
-                    zombie.available = true;
-                    var deadZombie = EnemyFactory.spawnDeadZombie();
-                    deadZombie.pos.copy(zombie.pos);
-                    level.addEntity(deadZombie);
-                }));
-                this._level.addEntity(zombie);
+        this._zombiePool = new Pool<Entity>(() => {
+            var zombie = EnemyFactory.spawnZombie(self._player);
+            zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen(() => {
+                zombie.active = false; //TODO: hack
+                zombie.available = true;
+                var deadZombie = EnemyFactory.spawnDeadZombie();
+                deadZombie.pos.copy(zombie.pos);
+                level.addEntity(deadZombie);
+            }));
+            this._level.addEntity(zombie);
 
-                return zombie;
-            });
+            return zombie;
+        });
+    }
+
+    start(player : Entity) {
+        this._player = player;
+
+        this._player.components.health.on(HealthEvents.DEATH, () => {
+            console.log("GAME OVER MAN!");
+        });
+        this.spawnWave();
+    }
+
+    spawnWave() {
+        this.wave++;
+
+        var numberOfZombies = ~~(this.wave * 1.5 + 3);
+        //var numberOfZombies = 1;
+        for (var i = 0; i < numberOfZombies; i++) {
+            var zombie = this._zombiePool.acquire();
+            zombie.components.health.set(100); //TODO: hack
+            this.placeInRoom(zombie.geometry, this._level.getMap().mapGenerator);
         }
 
-        start(player : Entity) {
-            this._player = player;
+        this._zombieEventCollection.reset(numberOfZombies);
 
-            this._player.components.health.on(HealthEvents.DEATH, () => {
-                console.log("GAME OVER MAN!");
-            });
-            this.spawnWave();
-        }
+        console.log("WAVE " + this.wave + " HAS BEGUN! SPAWNED " + numberOfZombies + " ZOMBIES");
+    }
 
-        spawnWave() {
-            this.wave++;
+    placeInRoom(box : Box, map : MapGenerator) {
+        var t = map.getTileSize(), room = map.getRooms()[0];
 
-            var numberOfZombies = ~~(this.wave * 1.5 + 3);
-            //var numberOfZombies = 1;
-            for (var i = 0; i < numberOfZombies; i++) {
-                var zombie = this._zombiePool.acquire();
-                zombie.components.health.set(100); //TODO: hack
-                this.placeInRoom(zombie.geometry, this._level.getMap().mapGenerator);
-            }
-
-            this._zombieEventCollection.reset(numberOfZombies);
-
-            console.log("WAVE " + this.wave + " HAS BEGUN! SPAWNED " + numberOfZombies + " ZOMBIES");
-        }
-
-        placeInRoom(box : Box, map : MapGenerator) {
-            var t = map.getTileSize(), room = map.getRooms()[0];
-
-            box.pos.set(
-                randInt(room.pos.x + t.x + box.width / 2, room.pos.x + room.width - t.x - box.width / 2),
-                randInt(room.pos.y + t.y + box.height / 2, room.pos.y + room.height - t.y - box.height / 2)
-            );
-        }
+        box.pos.set(
+            randInt(room.pos.x + t.x + box.width / 2, room.pos.x + room.width - t.x - box.width / 2),
+            randInt(room.pos.y + t.y + box.height / 2, room.pos.y + room.height - t.y - box.height / 2)
+        );
     }
 }

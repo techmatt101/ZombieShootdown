@@ -1,41 +1,39 @@
-module ZombieApp {
-    export class EventCollection {
-        private _totalEvents = 0;
-        private _activeEvents = 0;
-        private _onComplete : () => void;
-        private _onEventComplete : () => void;
+class EventCollection {
+    private _totalEvents = 0;
+    private _activeEvents = 0;
+    private _onComplete : () => void;
+    private _onEventComplete : () => void;
 
 
-        constructor(onComplete : () => void, onEventComplete? : () => void) {
-            this._onComplete = onComplete;
-            this._onEventComplete = onEventComplete;
-        }
+    constructor(onComplete : () => void, onEventComplete? : () => void) {
+        this._onComplete = onComplete;
+        this._onEventComplete = onEventComplete;
+    }
 
-        listen(action?) {
-            var self = this;
-            this._activeEvents++;
-            this._totalEvents++;
+    listen(action?) {
+        var self = this;
+        this._activeEvents++;
+        this._totalEvents++;
 
-            return () => {
-                if (typeof action !== 'undefined') {
-                    action();
-                }
-                if (typeof this._onEventComplete !== 'undefined') {
-                    this._onEventComplete();
-                }
-                self.testForComplete();
-            };
-        }
-
-        reset(overrideTotalEvents?) {
-            this._activeEvents = overrideTotalEvents || this._totalEvents;
-        }
-
-        private testForComplete() {
-            this._activeEvents--;
-            if (this._activeEvents === 0) {
-                this._onComplete();
+        return () => {
+            if (typeof action !== 'undefined') {
+                action();
             }
+            if (typeof this._onEventComplete !== 'undefined') {
+                this._onEventComplete();
+            }
+            self.testForComplete();
+        };
+    }
+
+    reset(overrideTotalEvents?) {
+        this._activeEvents = overrideTotalEvents || this._totalEvents;
+    }
+
+    private testForComplete() {
+        this._activeEvents--;
+        if (this._activeEvents === 0) {
+            this._onComplete();
         }
     }
 }

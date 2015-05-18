@@ -1,29 +1,32 @@
-module ZombieApp {
-    export class EventHandler<T> {
-        private _listeners = [];
+interface IObserver {
+    on (event_type, callback)
+    off ()
+}
 
-        fire(key : T, data?) {
-            var listeners = this._listeners[<any>key];
-            if (typeof listeners !== 'undefined') {
-                for (var i = 0; i < listeners.length; i++) {
-                    listeners[i](data);
-                }
+class EventHandler<T> {
+    private _listeners = [];
+
+    fire(key : T, data?) {
+        var listeners = this._listeners[<any>key];
+        if (typeof listeners !== 'undefined') {
+            for (var i = 0; i < listeners.length; i++) {
+                listeners[i](data);
             }
         }
+    }
 
-        add(key : T, callback) {
-            if (typeof this._listeners[<any>key] === 'undefined') {
-                this._listeners[<any>key] = [];
-            }
-            this._listeners[<any>key].push(callback);
+    add(key : T, callback) {
+        if (typeof this._listeners[<any>key] === 'undefined') {
+            this._listeners[<any>key] = [];
         }
+        this._listeners[<any>key].push(callback);
+    }
 
-        remove() {
+    remove() {
 
-        }
+    }
 
-        clear() {
-            this._listeners = [];
-        }
+    clear() {
+        this._listeners = [];
     }
 }

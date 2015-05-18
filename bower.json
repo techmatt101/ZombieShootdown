@@ -12,6 +12,5 @@
     "bower_components"
   ],
   "dependencies": {
-    "jsonp": "~0.0.1"
   }
 }

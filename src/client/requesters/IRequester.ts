@@ -1,3 +1,0 @@
-interface IRequester {
-    request(callback)
-}

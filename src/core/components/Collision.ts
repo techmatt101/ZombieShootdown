@@ -1,80 +1,78 @@
-module ZombieApp {
-    export class Collision implements IComponent<ComponentList>, IObserver {
-        active = true;
-        behaviours = new CollisionBehaviourList();
+enum CollisionEvents {
+    COLLIDE
+}
 
-        private _box : Box;
-        private _isTouching = false;
-        private _eventHandler = new EventHandler<CollisionEvents>();
-        private _behaviourList : Array<(behaviours) => IBehavior> = [];
+class Collision implements IComponent<ComponentList>, IObserver {
+    active = true;
+    behaviours = new CollisionBehaviourList();
 
-        static reference(components : ComponentList) {
-            return components.collision;
-        }
+    private _box : Box;
+    private _isTouching = false;
+    private _eventHandler = new EventHandler<CollisionEvents>();
+    private _behaviourList : Array<(behaviours) => IBehavior> = [];
 
-        constructor(box : Box) {
-            this._box = box;
-        }
+    static reference(components : ComponentList) {
+        return components.collision;
+    }
 
-        getBoundary() {
-            return this._box;
-        }
+    constructor(box : Box) {
+        this._box = box;
+    }
 
-        setAsCollided() {
-            this._isTouching = true;
-            this._eventHandler.fire(CollisionEvents.COLLIDE);
-        }
+    getBoundary() {
+        return this._box;
+    }
 
-        test(collision : Collision) {
-            return this._box.isBoundingBoxWith(collision.getBoundary());
-        }
+    setAsCollided() {
+        this._isTouching = true;
+        this._eventHandler.fire(CollisionEvents.COLLIDE);
+    }
 
-        testBehaviours(collision : Collision) {
-            for (var i = 0; i < this._behaviourList.length; i++) {
-                var our = this._behaviourList[i](this.behaviours),
-                    their = this._behaviourList[i](collision.behaviours);
+    test(collision : Collision) {
+        return this._box.isBoundingBoxWith(collision.getBoundary());
+    }
 
-                if (typeof their !== 'undefined') {
-                    if (our.dominant && their.passive) {
-                        our.action(their);
-                    }
-                    if (their.dominant && our.passive) {
-                        their.action(our);
-                    }
+    testBehaviours(collision : Collision) {
+        for (var i = 0; i < this._behaviourList.length; i++) {
+            var our = this._behaviourList[i](this.behaviours),
+                their = this._behaviourList[i](collision.behaviours);
+
+            if (typeof their !== 'undefined') {
+                if (our.dominant && their.passive) {
+                    our.action(their);
+                }
+                if (their.dominant && our.passive) {
+                    their.action(our);
                 }
             }
         }
+    }
 
-        buildBehaviours() {
-            this._behaviourList = [];
-            for (var key in this.behaviours) {
-                this._behaviourList.push(<(behaviours : any) => IBehavior> new Function('b', 'return b.' + key + ';'));
-            }
-        }
-
-        update(dt : number) : void {
-            this._isTouching = false;
-        }
-
-        drawDebug(ctx : CanvasRenderingContext2D) : void {
-            ctx.strokeStyle = (this._isTouching) ? '#FFFF00' : '#F00';
-            ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
-        }
-
-        build(components : ComponentList) {
-            components.collision = this;
-            this.buildBehaviours();
-        }
-
-        on(event_type : CollisionEvents, callback) {
-            this._eventHandler.add(event_type, callback);
-        }
-
-        off() {
+    buildBehaviours() {
+        this._behaviourList = [];
+        for (var key in this.behaviours) {
+            this._behaviourList.push(<(behaviours : any) => IBehavior> new Function('b', 'return b.' + key + ';'));
         }
     }
-}
 
-enum CollisionEvents {
-    COLLIDE
+    update(dt : number) : void {
+        this._isTouching = false;
+    }
+
+    drawDebug(ctx : CanvasRenderingContext2D) : void {
+        ctx.strokeStyle = (this._isTouching) ? '#FFFF00' : '#F00';
+        ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
+    }
+
+    build(components : ComponentList) {
+        components.collision = this;
+        this.buildBehaviours();
+    }
+
+    on(event_type : CollisionEvents, callback) {
+        this._eventHandler.add(event_type, callback);
+    }
+
+    off() {
+    }
 }

@@ -1,6 +1,4 @@
-module ZombieApp {
-    export interface IAI {
-        updatePathFind(segments)
-        update(dt : number)
-    }
+interface IAI {
+    updatePathFind(segments)
+    update(dt : number)
 }

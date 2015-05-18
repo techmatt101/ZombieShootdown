@@ -1,9 +1,7 @@
 /// <reference path="Vector" />
 
-module ZombieApp {
-    export class Circle implements IShape {
-        constructor(public radius : number,
-                    public pos : Vector = new Vector(0, 0)) {
-        }
+class Circle implements IShape {
+    constructor(public radius : number,
+                public pos : Vector = new Vector(0, 0)) {
     }
 }

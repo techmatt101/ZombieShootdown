@@ -1,6 +1,4 @@
-module ZombieApp {
-    export class CollisionBehaviourList {
-        zombieDamage : DamageCollisionBehavior;
-        playerDamage : DamageCollisionBehavior;
-    }
+class CollisionBehaviourList {
+    zombieDamage : DamageCollisionBehavior;
+    playerDamage : DamageCollisionBehavior;
 }

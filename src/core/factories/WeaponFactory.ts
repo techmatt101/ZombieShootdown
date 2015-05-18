@@ -1,39 +1,37 @@
-module ZombieApp {
-    export class WeaponFactory {
+class WeaponFactory {
 
-        static spawnBullet() {
-            var bullet = new Entity('Bullet', new Box(8, 5));
+    static spawnBullet() {
+        var bullet = new Entity('Bullet', new Box(8, 5));
 
-            bullet.addComponent(new Material());
-            bullet.addComponent(new Collision(bullet.geometry));
-            bullet.addComponent(new Movement(bullet.pos, 80));
-            bullet.addComponent(new Damage(30));
+        bullet.addComponent(new Material());
+        bullet.addComponent(new Collision(bullet.geometry));
+        bullet.addComponent(new Movement(bullet.pos, 80));
+        bullet.addComponent(new Damage(30));
 
-            bullet.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
-                .inflictDamage(bullet.components.damage);
+        bullet.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
+            .inflictDamage(bullet.components.damage);
 
-            bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
-                bullet.available = true;
-                bullet.active = false;
-            });
+        bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
+            bullet.available = true;
+            bullet.active = false;
+        });
 
-            bullet.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
+        bullet.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
 
-            bullet.build();
+        bullet.build();
 
-            return bullet;
-        }
+        return bullet;
+    }
 
-        static spawnGun(bulletPool : Pool<Entity>) {
-            var gun = new Gun('Gun', new Box(14, 5), bulletPool);
+    static spawnGun(bulletPool : Pool<Entity>) {
+        var gun = new Gun('Gun', new Box(14, 5), bulletPool);
 
-            gun.addComponent(new Material());
+        gun.addComponent(new Material());
 
-            gun.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
+        gun.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
 
-            gun.build();
+        gun.build();
 
-            return gun;
-        }
+        return gun;
     }
 }
