@@ -11,14 +11,13 @@ class LightFilter implements IUpdate, IFilter {
     constructor(map : MapManager) { //TODO: hmmm.. just only segments will do?
         this._map = map;
 
-        var self = this;
-        this._worker.onmessage = function(e) {
-            self._workerWorking = false;
-            self._polygons = e.data;
+        this._worker.onmessage = (e) => {
+            this._workerWorking = false;
+            this._polygons = e.data;
         };
 
         ResourceManager.retrieveImage('vision', (img : HTMLImageElement) => {
-            self._visionImage = img;
+            this._visionImage = img;
         });
     }
 

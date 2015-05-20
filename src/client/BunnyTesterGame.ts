@@ -11,9 +11,8 @@ class BunnyTesterGame {
 
 
     constructor() {
-        var self = this;
         this.loop = new GameLoop((dt : number) => {
-            self.update(dt);
+            this.update(dt);
         });
 
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));

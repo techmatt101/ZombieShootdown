@@ -59,31 +59,29 @@ class InterfaceController implements IUpdate {
 
     loaded(game : Game) {
         this._game = game;
-        var self = this;
-
         this._overlayElement.hidden = true;
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
             if (e.keyCode === 27) {
-                if (self._paused) {
-                    self.hide();
-                    self._game.loop.start();
-                    self._paused = false;
+                if (this._paused) {
+                    this.hide();
+                    this._game.loop.start();
+                    this._paused = false;
                 } else {
-                    self.pause();
-                    self._game.loop.pause();
-                    self._game.sound.pauseAll();
-                    self._paused = true;
+                    this.pause();
+                    this._game.loop.pause();
+                    this._game.sound.pauseAll();
+                    this._paused = true;
                 }
             }
         });
 
         this._game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                var clickBox = new Box(3, 3, new Vector(e.offsetX + self._game.camera.view.x, e.offsetY + self._game.camera.view.y));
-                var length = self._game.level.getEntities().length;
+                var clickBox = new Box(3, 3, new Vector(e.offsetX + this._game.camera.view.x, e.offsetY + this._game.camera.view.y));
+                var length = this._game.level.getEntities().length;
                 for (var i = length - 1; i >= 0; i--) {
-                    var entity = self._game.level.getEntities()[i];
+                    var entity = this._game.level.getEntities()[i];
                     if ((entity.geometry).isBoundingBoxWith(clickBox)) {
                         this._selectedEntity = entity;
                         console.log(entity);

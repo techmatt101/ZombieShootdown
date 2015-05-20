@@ -17,13 +17,12 @@ class ZombieAI implements IAI {
         this._zombie = entity;
         this._player = player;
 
-        var self = this;
-        //this._worker.onmessage = function (e) {
+        //this._worker.onmessage = (e) => {
         //    self._workerWorking = false;
         //    self._canSeePlayer = e.data;
         //};
 
-        //aiWorker.addEventListener('message', function (e) {
+        //aiWorker.addEventListener('message', (e) => {
         //    if (e.data.id == self._id) {
         //        self._canSeePlayer = e.data.value;
         //        self._workerWorking = false;

@@ -11,7 +11,6 @@ class EventCollection {
     }
 
     listen(action?) {
-        var self = this;
         this._activeEvents++;
         this._totalEvents++;
 
@@ -22,7 +21,7 @@ class EventCollection {
             if (typeof this._onEventComplete !== 'undefined') {
                 this._onEventComplete();
             }
-            self.testForComplete();
+            this.testForComplete();
         };
     }
 

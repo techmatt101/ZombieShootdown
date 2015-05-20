@@ -11,17 +11,16 @@ class SinglePlayerWaveLogic implements IWaveLogic {
     constructor(level : TopDownLevel) {
         this._level = level;
 
-        var self = this;
         this._zombieEventCollection = new EventCollection(() => {
-            self.spawnWave();
-            self.score += 100;
+            this.spawnWave();
+            this.score += 100;
         }, () => {
-            self.score += 10;
+            this.score += 10;
         });
 
         this._zombiePool = new Pool<Entity>(() => {
-            var zombie = EnemyFactory.spawnZombie(self._player);
-            zombie.components.health.on(HealthEvents.DEATH, self._zombieEventCollection.listen(() => {
+            var zombie = EnemyFactory.spawnZombie(this._player);
+            zombie.components.health.on(HealthEvents.DEATH, this._zombieEventCollection.listen(() => {
                 zombie.active = false; //TODO: hack
                 zombie.available = true;
                 var deadZombie = EnemyFactory.spawnDeadZombie();

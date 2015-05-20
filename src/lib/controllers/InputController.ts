@@ -18,35 +18,33 @@ class InputController {
 
 
     constructor(canvas : HTMLCanvasElement) {
-        var self = this;
-
         //load all actions into pressed to prevent undefined on lookups
         for (var action in InputAction) {
             this._pressed[action] = false;
         }
 
-        window.addEventListener('keyup', function(e : KeyboardEvent) {
-            self.onUp(e.keyCode);
+        window.addEventListener('keyup', (e : KeyboardEvent) => {
+            this.onUp(e.keyCode);
         }, false);
 
-        window.addEventListener('keydown', function(e : KeyboardEvent) {
-            self.onDown(e.keyCode);
+        window.addEventListener('keydown', (e : KeyboardEvent) => {
+            this.onDown(e.keyCode);
         }, false);
 
-        window.addEventListener('mousedown', function(e : MouseEvent) {
-            self.onDown(e.button)
+        window.addEventListener('mousedown', (e : MouseEvent) => {
+            this.onDown(e.button)
         }, false);
 
-        window.addEventListener('mouseup', function(e : MouseEvent) {
-            self.onUp(e.button)
+        window.addEventListener('mouseup', (e : MouseEvent) => {
+            this.onUp(e.button)
         }, false);
 
-        canvas.addEventListener('contextmenu', function(e) {
+        canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         }, false);
 
-        canvas.addEventListener('mousemove', function(e : MouseEvent) {
-            self.onMove(e);
+        canvas.addEventListener('mousemove', (e : MouseEvent) => {
+            this.onMove(e);
         }, false);
     }
 
