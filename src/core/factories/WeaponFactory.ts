@@ -11,7 +11,7 @@ class WeaponFactory {
         bullet.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
             .inflictDamage(bullet.components.damage);
 
-        bullet.components.collision.on(CollisionEvents.COLLIDE, () => {
+        bullet.components.collision.on(CollisionEvent.COLLIDE, () => {
             bullet.available = true;
             bullet.active = false;
         });

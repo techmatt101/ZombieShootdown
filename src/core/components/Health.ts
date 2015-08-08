@@ -1,4 +1,4 @@
-enum HealthEvents {
+enum HealthEvent {
     DEATH
 }
 
@@ -7,7 +7,7 @@ class Health implements IComponent<ComponentList>, IObserver {
     value : number;
     isDead = false;
 
-    private _eventHandler = new EventHandler<HealthEvents>();
+    private _eventHandler = new EventHandler<HealthEvent>();
 
     static reference(components : ComponentList) {
         return components.health;
@@ -30,7 +30,7 @@ class Health implements IComponent<ComponentList>, IObserver {
 
         if (this.value <= 0 && !this.isDead) {
             this.isDead = true;
-            this._eventHandler.fire(HealthEvents.DEATH);
+            this._eventHandler.fire(HealthEvent.DEATH);
         }
     }
 
@@ -45,7 +45,7 @@ class Health implements IComponent<ComponentList>, IObserver {
         components.health = this;
     }
 
-    on(event_type : HealthEvents, callback) {
+    on(event_type : HealthEvent, callback) {
         this._eventHandler.add(event_type, callback);
     }
 

@@ -20,7 +20,7 @@ class SinglePlayerWaveLogic implements IWaveLogic {
 
         this._zombiePool = new Pool<Entity>(() => {
             var zombie = EnemyFactory.spawnZombie(this._player);
-            zombie.components.health.on(HealthEvents.DEATH, this._zombieEventCollection.listen(() => {
+            zombie.components.health.on(HealthEvent.DEATH, this._zombieEventCollection.listen(() => {
                 zombie.active = false; //TODO: hack
                 zombie.available = true;
                 var deadZombie = EnemyFactory.spawnDeadZombie();
@@ -36,7 +36,7 @@ class SinglePlayerWaveLogic implements IWaveLogic {
     start(player : Entity) {
         this._player = player;
 
-        this._player.components.health.on(HealthEvents.DEATH, () => {
+        this._player.components.health.on(HealthEvent.DEATH, () => {
             console.log("GAME OVER MAN!");
         });
         this.spawnWave();

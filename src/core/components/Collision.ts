@@ -1,4 +1,4 @@
-enum CollisionEvents {
+enum CollisionEvent {
     COLLIDE
 }
 
@@ -8,7 +8,7 @@ class Collision implements IComponent<ComponentList>, IObserver {
 
     private _box : Box;
     private _isTouching = false;
-    private _eventHandler = new EventHandler<CollisionEvents>();
+    private _eventHandler = new EventHandler<CollisionEvent>();
     private _behaviourList : Array<(behaviours) => IBehavior> = [];
 
     static reference(components : ComponentList) {
@@ -25,7 +25,7 @@ class Collision implements IComponent<ComponentList>, IObserver {
 
     setAsCollided() {
         this._isTouching = true;
-        this._eventHandler.fire(CollisionEvents.COLLIDE);
+        this._eventHandler.fire(CollisionEvent.COLLIDE);
     }
 
     test(collision : Collision) {
@@ -69,7 +69,7 @@ class Collision implements IComponent<ComponentList>, IObserver {
         this.buildBehaviours();
     }
 
-    on(event_type : CollisionEvents, callback) {
+    on(event_type : CollisionEvent, callback) {
         this._eventHandler.add(event_type, callback);
     }
 
