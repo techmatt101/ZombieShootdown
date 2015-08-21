@@ -1,8 +1,8 @@
 class Camera {
     public view : Vector;
     public boundary : Box;
+    public target : Vector;
     private _canvas : Canvas;
-    private _target : Vector;
     private _smoothing = new Vector(8, 8);
 
 
@@ -13,18 +13,18 @@ class Camera {
     }
 
     setTarget(targetPos : Vector) {
-        this._target = targetPos;
+        this.target = targetPos;
     }
 
     moveToTarget(time) {
-        this.view.x += (((this._target.x - this._canvas.center.x) - this.view.x) / this._smoothing.x) * time; //smooth camera movement
-        this.view.y += (((this._target.y - this._canvas.center.y) - this.view.y) / this._smoothing.y) * time;
+        this.view.x += (((this.target.x - this._canvas.center.x) - this.view.x) / this._smoothing.x) * time; //smooth camera movement
+        this.view.y += (((this.target.y - this._canvas.center.y) - this.view.y) / this._smoothing.y) * time;
         this.retainInBoundary();
     }
 
     jumpToTarget() {
-        this.view.x = this._target.x - this._canvas.center.x;
-        this.view.y = this._target.y - this._canvas.center.y;
+        this.view.x = this.target.x - this._canvas.center.x;
+        this.view.y = this.target.y - this._canvas.center.y;
         //this.retainInBoundary();
     }
 

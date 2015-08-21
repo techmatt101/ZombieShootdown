@@ -10,7 +10,7 @@ class DebugTool {
     }
 
     takeControl(entity : Entity) {
-        this._game.player.components.controller._entity = entity;
+        (<any>this._game.player.components.controller)._entity = entity;
         entity.components.ai.active = false;
     }
 }

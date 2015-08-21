@@ -1,7 +1,8 @@
 class Game {
     loop : GameLoop;
     canvas : Canvas;
-    input : InputController;
+    input : InputHandler;
+    inputState : InputState;
     sound : SoundController;
     lighting : LightFilter;
     renderer : CanvasRenderer;
@@ -24,11 +25,19 @@ class Game {
         });
 
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
-        this.input = new InputController(this.canvas.element);
-        this.sound = new SoundController();
 
         this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
         this.camera = new Camera(this.canvas, this.map);
+
+        this.sound = new SoundController();
+        this.input = new InputHandler(InputAction);
+
+        var mouseAndKeyboardController = new MouseAndKeyboardController(this.canvas.element);
+        var mouseAndKeyboardControllerAdaptor = new MouseAndKeyboardAdaptor(mouseAndKeyboardController, this.camera);
+        var gamepadController = new GamepadController();
+
+        this.input.loadController(mouseAndKeyboardControllerAdaptor);
+        this.input.loadController(gamepadController);
 
         // Renderer and Filters
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
@@ -50,7 +59,11 @@ class Game {
             game.onCompete();
         })
             .add(function Controllers() {
-                game.input.loadKeyMappings(Config.keyMappings);
+                game.input.load(); //TODO: hmm...
+                game.inputState = game.input.getState();
+
+                gamepadController.loadKeyMappings(Config.gamepadKeyMappings);
+                mouseAndKeyboardController.loadKeyMappings(Config.mouseKeyMappings);
 
                 ResourceManager.retrieveSound('horror-ambient', (audio : HTMLAudioElement) => {
                     game.sound.load(Sound.AMBIENT, audio);
@@ -63,6 +76,7 @@ class Game {
     }
 
     update(dt : number) {
+        this.input.update(dt);
         this.level.update(dt);
 
         ui.update(dt);
