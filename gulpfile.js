@@ -26,7 +26,7 @@ gulp.task('size', function() {
 });
 
 gulp.task('watch', ['build'], function() {
-    gulp.watch('src/scripts/**/*.js', ['scripts']);
+    gulp.watch('src/**/*.ts', ['scripts']);
     $.util.log(chalk.blue("Now watching project"))
 });
 
