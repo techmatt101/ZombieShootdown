@@ -84,7 +84,9 @@ class Game {
         this.input.update(dt);
         this.systems.update(dt);
         this.camera.update(dt);
-        this.lighting.update(dt);
+        if (Config.lighting) {
+            this.lighting.update(dt);
+        }
         this.renderer.paint();
         ui.paint(this.renderer.getCtx());
 
