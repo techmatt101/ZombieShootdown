@@ -14,7 +14,7 @@ gulp.task('default', ['clean'], function() {
 
 gulp.task('clean', del.bind(null, ['build/**/*']));
 
-gulp.task('build', ['markup', 'assets', 'scripts', 'other'], function() {
+gulp.task('build', ['markup', 'assets', 'scripts', 'styles', 'other'], function() {
     if (isProduction) {
         gulp.start('size');
     }
@@ -48,6 +48,15 @@ gulp.task('scripts', function() {
         .pipe($.if(isProduction, $.uglify()))
         .pipe($.if(isDebug, $.sourcemaps.write()))
         .pipe(gulp.dest('build'));
+});
+
+gulp.task('styles', function() {
+    gulp.src('src/styles/**/*.less')
+        .pipe($.if(isDebug, $.sourcemaps.init()))
+        .pipe($.less())
+        .pipe($.if(isProduction, $.minifyCss()))
+        .pipe($.if(isDebug, $.sourcemaps.write()))
+        .pipe(gulp.dest('build/styles'));
 });
 
 gulp.task('assets', function() {
