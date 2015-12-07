@@ -1,4 +1,4 @@
-class LogicSystem implements ISystem {
+class LogicSystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
 
 

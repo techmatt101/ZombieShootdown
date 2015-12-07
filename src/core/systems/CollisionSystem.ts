@@ -1,4 +1,4 @@
-class CollisionSystem implements ISystem {
+class CollisionSystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
 
 

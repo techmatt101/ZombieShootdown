@@ -5,7 +5,7 @@ class TopDownLevel extends Level {
     private _map : MapManager;
 
 
-    constructor(map : MapManager, camera : Camera, systems : Systems) {
+    constructor(map : MapManager, camera : Camera, systems : Systems<Entity>) {
         super(systems);
         this._map = map;
         this._camera = camera;
@@ -17,10 +17,5 @@ class TopDownLevel extends Level {
 
     setObjectToFollow(obj : Entity) {
         this._camera.setTarget(obj.pos);
-    }
-
-    update(dt) {
-        this._camera.update(dt);
-        super.update(dt);
     }
 }

@@ -6,7 +6,8 @@ class Game {
     sound : SoundController;
     lighting : LightFilter;
     renderer : CanvasRenderer;
-    systems : Systems;
+    systems : Systems<Entity>;
+    debugSystem : DebugSystem;
 
     map : MapManager;
     camera : Camera;
@@ -49,11 +50,14 @@ class Game {
         this.renderer.addFilter(new PixelFilter());
 
         // Systems
-        this.systems = new Systems();
+        this.systems = new Systems<Entity>();
         this.systems.schedule(new LogicSystem());
         this.systems.schedule(new CollisionSystem());
-        this.systems.schedule(new RenderSystem(this.renderer, this.lighting));
-
+        this.systems.schedule(new RenderSystem(this.renderer));
+        if(Config.debug) {
+            this.debugSystem = new DebugSystem(this.camera);
+            this.systems.schedule(this.debugSystem);
+        }
         this.level = new TopDownLevel(this.map, this.camera, this.systems);
 
         this.levelSetupTasks = new TaskCollection('Level Setup', function onCompete() {
@@ -78,18 +82,17 @@ class Game {
 
     update(dt : number) {
         this.input.update(dt);
-        this.level.update(dt);
+        this.systems.update(dt);
+        this.camera.update(dt);
+        this.lighting.update(dt);
+        this.renderer.paint();
+        ui.paint(this.renderer.getCtx());
 
-        ui.update(dt);
-        ui.draw(this.renderer.getCtx());
-
-        if (Config.debug) {
+        if(Config.debug) {
             var ctx = this.renderer.getCtx();
-            if (typeof this.lighting !== 'undefined') {
-                this.lighting.drawDebug(ctx);
-            }
-            ui.drawDebug(ctx);
+            this.debugSystem.paint(ctx);
             this.camera.drawDebug(ctx);
+            ui.drawDebug(ctx);
         }
     }
 

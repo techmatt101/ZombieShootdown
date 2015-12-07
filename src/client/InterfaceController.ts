@@ -15,21 +15,30 @@ class InterfaceController implements IUpdate {
         var menu = document.getElementById('interface');
         var about = document.getElementById('about');
         var option = document.getElementById('option');
+        var view = document.getElementById('game-container');
 
-        about.addEventListener('click', function() {
-            function launchIntoFullscreen(element) {
-                if (element.requestFullscreen) {
-                    element.requestFullscreen();
-                } else if (element.mozRequestFullScreen) {
-                    element.mozRequestFullScreen();
-                } else if (element.webkitRequestFullscreen) {
-                    element.webkitRequestFullscreen();
-                } else if (element.msRequestFullscreen) {
-                    element.msRequestFullscreen();
-                }
+        function launchIntoFullscreen(element) {
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();
             }
 
-            var view = document.getElementById('game-container');
+
+            setTimeout(function() {
+                var g = <any>document.getElementById('game');
+                var r = element.getBoundingClientRect();
+                g.width = r.width;
+                g.height = r.height;
+                console.log(r);
+            }, 1000)
+        }
+
+        about.addEventListener('click', function() {
             launchIntoFullscreen(view);
         });
 
@@ -88,7 +97,7 @@ class InterfaceController implements IUpdate {
 
         this._game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                var clickBox = new Box(3, 3, new Vector(e.offsetX + this._game.camera.viewportOffset.x, e.offsetY + this._game.camera.viewportOffset.y));
+                var clickBox = new Box(3, 3, new Vector(e.offsetX + this._game.camera.pos.x, e.offsetY + this._game.camera.pos.y));
                 var length = this._game.level.getEntities().length;
                 for (var i = length - 1; i >= 0; i--) {
                     var entity = this._game.level.getEntities()[i];
@@ -115,7 +124,7 @@ class InterfaceController implements IUpdate {
 //            this.fpsBuffer.push(60 / (time * 6));
     }
 
-    draw(ctx : CanvasRenderingContext2D) {
+    paint(ctx : CanvasRenderingContext2D) {
         ctx.font = '20pt visitor';
         ctx.fillStyle = '#fff';
 

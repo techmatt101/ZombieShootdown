@@ -1,4 +1,4 @@
-interface ISystem {
-    add(entity : Entity)
-    update(dt : number)
+interface ISystem<T> {
+    add(entity : T);
+    update(dt : number);
 }

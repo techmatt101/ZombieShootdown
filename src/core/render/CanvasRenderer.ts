@@ -3,6 +3,7 @@ class CanvasRenderer {
     protected _canvas : Canvas;
     protected _camera : Camera;
     protected _filters : IFilter[] = [];
+    protected _entities : Entity[] = [];
 
 
     constructor(canvas : Canvas, camera : Camera) {
@@ -22,6 +23,10 @@ class CanvasRenderer {
     }
 
     render(entities : Entity[]) {
+        this._entities = entities;
+    }
+
+    paint() {
         this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._ctx.scale(this._camera.zoom, this._camera.zoom);
         this._ctx.translate(~~-(this._camera.pos.x - this._camera.size.x), ~~-(this._camera.pos.y - this._camera.size.y));
@@ -32,9 +37,9 @@ class CanvasRenderer {
 
         this._ctx.fillStyle = '#000';
 
-        for (var i = 0; i < entities.length; i++) {
-            if (entities[i].hasActiveComponent(Material)) { //TODO: hmmm...
-                this.drawEntity(entities[i]);
+        for (var i = 0; i < this._entities.length; i++) {
+            if (this._entities[i].hasActiveComponent(Material)) { //TODO: hmmm...
+                this.drawEntity(this._entities[i]);
             }
         }
 

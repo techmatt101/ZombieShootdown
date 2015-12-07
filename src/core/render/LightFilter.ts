@@ -51,7 +51,7 @@ class LightFilter implements IUpdate, IFilter {
     drawDebug(ctx : CanvasRenderingContext2D) {
     }
 
-    draw(ctx) {
+    draw(ctx : CanvasRenderingContext2D) {
         for (var i = 1; i < this._polygons.length; i++) {
             this.drawPolygon(this._polygons[i], ctx, "rgba(0,0,0,0.2)");
         }

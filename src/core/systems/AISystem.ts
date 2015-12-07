@@ -1,4 +1,4 @@
-class AISystem implements ISystem {
+class AISystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
     private _map : MapManager;
     private _index = 0;

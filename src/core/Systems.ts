@@ -1,14 +1,14 @@
-class Systems {
-    private _systems : ISystem[] = []; //TODO: optimize
+class Systems<T> {
+    private _systems : ISystem<T>[] = [];
 
 
-    schedule(system : ISystem) {
+    schedule(system : ISystem<T>) {
         this._systems.push(system);
     }
 
-    add(entity : Entity) {
+    add(object : T) {
         for (var i = 0; i < this._systems.length; i++) {
-            this._systems[i].add(entity);
+            this._systems[i].add(object);
         }
     }
 

@@ -1,4 +1,4 @@
-class InputHandler {
+class InputHandler implements IUpdate {
     private _controllers : IInputController[] = [];
     private _inputState : InputState;
 
@@ -31,5 +31,8 @@ class InputHandler {
         for (var i = 0; i < this._controllers.length; i++) {
             this._controllers[i].update(dt);
         }
+    }
+
+    drawDebug(ctx : CanvasRenderingContext2D) {
     }
 }

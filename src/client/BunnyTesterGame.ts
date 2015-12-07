@@ -2,7 +2,7 @@ class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
     renderer : CanvasRenderer;
-    systems : Systems;
+    systems : Systems<any>;
 
     camera : Camera;
     level : Level;
@@ -25,7 +25,7 @@ class BunnyTesterGame {
         this.systems.schedule(new CollisionSystem());
         this.systems.schedule(new RenderSystem(this.renderer));
 
-        this.level = new Level(this.systems);
+        //this.level = new Level(this.systems);
 
         this.bunnyTest = new BunnyTest((bunnyData) => {
             var bunny = new Entity('Bunny', new Box(bunnyData.width, bunnyData.height));
@@ -44,7 +44,7 @@ class BunnyTesterGame {
 
     update(dt : number) {
         this.bunnyTest.update(dt);
-        this.level.update(dt);
+        this.systems.update(dt);
     }
 
     load() {
