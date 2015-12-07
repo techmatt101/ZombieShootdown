@@ -62,6 +62,16 @@ class InterfaceController implements IUpdate {
         this._overlayElement.hidden = true;
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
+            if (e.keyCode === 33) {
+                this._game.camera.setScale(this._game.camera.zoom + 0.05);
+                console.log(this._game.camera.zoom);
+            }
+
+            if (e.keyCode === 34) {
+                this._game.camera.setScale(this._game.camera.zoom - 0.05);
+                console.log(this._game.camera.zoom);
+            }
+
             if (e.keyCode === 27) {
                 if (this._paused) {
                     this.hide();
@@ -78,7 +88,7 @@ class InterfaceController implements IUpdate {
 
         this._game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                var clickBox = new Box(3, 3, new Vector(e.offsetX + this._game.camera.view.x, e.offsetY + this._game.camera.view.y));
+                var clickBox = new Box(3, 3, new Vector(e.offsetX + this._game.camera.viewportOffset.x, e.offsetY + this._game.camera.viewportOffset.y));
                 var length = this._game.level.getEntities().length;
                 for (var i = length - 1; i >= 0; i--) {
                     var entity = this._game.level.getEntities()[i];

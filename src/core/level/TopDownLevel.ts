@@ -20,7 +20,7 @@ class TopDownLevel extends Level {
     }
 
     update(dt) {
-        this._camera.moveToTarget(dt);
+        this._camera.update(dt);
         super.update(dt);
     }
 }

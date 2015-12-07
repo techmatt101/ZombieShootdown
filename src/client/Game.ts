@@ -27,7 +27,8 @@ class Game {
         this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
 
         this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
-        this.camera = new Camera(this.canvas, this.map);
+        this.camera = new Camera(this.canvas);
+        this.camera.setBoundary(this.map);
 
         this.sound = new SoundController();
         this.input = new InputHandler(InputAction);
@@ -88,6 +89,7 @@ class Game {
                 this.lighting.drawDebug(ctx);
             }
             ui.drawDebug(ctx);
+            this.camera.drawDebug(ctx);
         }
     }
 

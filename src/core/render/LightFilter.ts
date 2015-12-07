@@ -27,7 +27,7 @@ class LightFilter implements IUpdate, IFilter {
 
     init(ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(camera.view.x, camera.view.y, canvas.width, canvas.height);
+        ctx.fillRect(camera.pos.x, camera.pos.y, canvas.width, canvas.height);
         this.draw(ctx);
 
         ctx.globalCompositeOperation = 'source-atop';

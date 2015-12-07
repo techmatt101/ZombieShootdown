@@ -26,8 +26,8 @@ class MouseAndKeyboardAdaptor implements IInputController {
         if (this._inputState.isKeyDown(InputAction.DOWN)) this._inputState.movementAxes.y += 1;
 
         if(!this._lastPos.equal(this._mouseAndKeyboardController.pointerPos)) {
-            this._inputState.directionAxes.x = (this._camera.view.x + this._mouseAndKeyboardController.pointerPos.x) - this._camera.target.x;
-            this._inputState.directionAxes.y = (this._camera.view.y + this._mouseAndKeyboardController.pointerPos.y) - this._camera.target.y;
+            this._inputState.directionAxes.x = ((this._camera.pos.x - this._camera.viewportOffset.x) + this._mouseAndKeyboardController.pointerPos.x) - this._camera.target.x;
+            this._inputState.directionAxes.y = ((this._camera.pos.y - this._camera.viewportOffset.y) + this._mouseAndKeyboardController.pointerPos.y) - this._camera.target.y;
             this._lastPos.copy(this._mouseAndKeyboardController.pointerPos);
         }
     }
