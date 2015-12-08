@@ -10,7 +10,7 @@ class GamepadController implements IInputController {
     private _inputState : InputState;
     private _lastButtonState : boolean[] = [];
     private _gamepad : Gamepad;
-    private _axisThreshold = 0.25 * 2;
+    private _axisThreshold = 0.3;
 
 
     load(inputState : InputState) {
@@ -27,25 +27,24 @@ class GamepadController implements IInputController {
             return;
         }
 
+        // Sticks
+        var leftAxes = new Vector(this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_HORIZONTAL], this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_VERTICAL]);
+        var rightAxes = new Vector(this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL], this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL]);
+
+        if(leftAxes.len() > this._axisThreshold) {
+            this._inputState.movementAxes.copy(leftAxes);
+        }
+
+        if(rightAxes.len() > this._axisThreshold) {
+            this._inputState.directionAxes.copy(rightAxes);
+        }
+
+        // Buttons
         if (typeof this._lastButtonState === "undefined") {
             for (var i = 0; i < this._gamepad.buttons.length; i++) {
                 this._lastButtonState.push(this._gamepad.buttons[i].pressed);
             }
         }
-
-        var totalLeftAxes = Math.abs(this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_HORIZONTAL]) + Math.abs(this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_VERTICAL]);
-        var totalRightAxes = Math.abs(this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL]) + Math.abs(this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL]);
-
-        if(totalLeftAxes > this._axisThreshold) {
-            this._inputState.movementAxes.x = this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_HORIZONTAL];
-            this._inputState.movementAxes.y = this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_VERTICAL];
-        }
-
-        if(totalRightAxes > this._axisThreshold) {
-            this._inputState.directionAxes.x = this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL];
-            this._inputState.directionAxes.y = this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL];
-        }
-
 
         for (var i = 0; i < this._gamepad.buttons.length; i++) {
             if (this._gamepad.buttons[i].pressed !== this._lastButtonState[i]) {
