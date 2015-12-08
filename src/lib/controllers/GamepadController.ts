@@ -11,6 +11,8 @@ class GamepadController implements IInputController {
     private _lastButtonState : boolean[] = [];
     private _gamepad : Gamepad;
     private _axisThreshold = 0.3;
+    public leftAxes = new Vector(0 ,0);
+    public rightAxes = new Vector(0 ,0);
 
 
     load(inputState : InputState) {
@@ -32,11 +34,15 @@ class GamepadController implements IInputController {
         var rightAxes = new Vector(this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL], this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL]);
 
         if(leftAxes.len() > this._axisThreshold) {
-            this._inputState.movementAxes.copy(leftAxes);
+            this.leftAxes.copy(leftAxes);
+        } else {
+            this.leftAxes.reset();
         }
 
         if(rightAxes.len() > this._axisThreshold) {
-            this._inputState.directionAxes.copy(rightAxes);
+            this.rightAxes.copy(rightAxes);
+        } else {
+            this.rightAxes.reset();
         }
 
         // Buttons

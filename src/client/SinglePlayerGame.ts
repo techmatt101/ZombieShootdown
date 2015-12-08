@@ -19,6 +19,8 @@ class SinglePlayerGame extends Game {
 
         this.levelSetupTasks
             .add(function LevelEntities() {
+                game.level.addEntity(InterfaceFactory.spawnPointer(game.inputState, game.camera));
+
                 var bulletPool = new Pool<Entity>(() => {
                     var bullet = WeaponFactory.spawnBullet();
                     game.level.addEntity(bullet);

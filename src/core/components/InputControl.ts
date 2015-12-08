@@ -14,8 +14,10 @@ class InputControl implements IComponent<ComponentList> {
     }
 
     update(dt : number) {
-        this._entity.components.movement.direct(this._input.movementAxes, dt);
-        this._entity.pos.angle = fastAtan2(this._input.directionAxes.x, this._input.directionAxes.y);
+        this._entity.components.movement.direct(this._input.movementCoordinates, dt);
+        if(this._input.directionCoordinates.x !== 0 || this._input.directionCoordinates.y !== 0) {
+            this._entity.pos.angle = fastAtan2(this._input.directionCoordinates.x, this._input.directionCoordinates.y);
+        }
 
         if (this._input.isKeyDown(InputAction.ACTION_1) && this._entity.hasActiveComponent(WeaponHolder)) {
             this._entity.components.weaponHolder.attack();

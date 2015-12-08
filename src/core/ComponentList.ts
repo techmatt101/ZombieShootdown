@@ -8,4 +8,5 @@ class ComponentList {
     damage : Damage;
     weaponHolder : WeaponHolder;
     spriteAnimator : SpriteAnimator;
+    pointer : Pointer;
 }

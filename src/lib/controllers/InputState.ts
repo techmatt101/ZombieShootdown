@@ -1,6 +1,6 @@
 class InputState {
-    movementAxes = new Vector(0, 0);
-    directionAxes = new Vector(0, 0);
+    movementCoordinates = new Vector(0, 0);
+    directionCoordinates = new Vector(0, 0);
     inputActions : Object;
 
     private _pressed : {[action : number] : boolean} = {};

@@ -27,7 +27,9 @@ class InputHandler implements IUpdate {
     }
 
     update(dt : number) {
-        this._inputState.movementAxes.reset();
+        this._inputState.movementCoordinates.reset();
+        this._inputState.directionCoordinates.reset();
+
         for (var i = 0; i < this._controllers.length; i++) {
             this._controllers[i].update(dt);
         }
