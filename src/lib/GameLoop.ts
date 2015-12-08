@@ -19,9 +19,9 @@ class GameLoop {
         if (dt > 1) {// Prevent fast-forwarding by limiting the length of a single frame. //todo: needed?
             dt = 1;
         }
-        this._update(dt);
-        this._lastGameLoopFrame = now;
         this._requestedAnimationFrame = window.requestAnimationFrame(this.loop.bind(this));
+        this._lastGameLoopFrame = now;
+        this._update(dt);
     }
 
     pause() {
