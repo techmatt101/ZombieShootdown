@@ -15,6 +15,7 @@ class Game {
     logic : IWaveLogic;
 
     player : Entity;
+    pointer : Entity;
 
     levelSetupTasks : TaskCollection;
 
@@ -88,8 +89,8 @@ class Game {
         if (Config.lighting) {
             this.lighting.update(dt);
         }
+        ui.update(dt);
         this.renderer.paint();
-        ui.paint(this.renderer.getCtx());
 
         if(Config.debug) {
             var ctx = this.renderer.getCtx();
@@ -97,6 +98,8 @@ class Game {
             this.camera.drawDebug(ctx);
             ui.drawDebug(ctx);
         }
+
+        ui.paint(this.renderer.getCtx());
     }
 
     onCompete() {

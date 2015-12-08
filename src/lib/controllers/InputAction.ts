@@ -7,4 +7,6 @@ enum InputAction {
     ACTION_2,
     ACTION_3,
     MENU,
+    ZOOM_IN,
+    ZOOM_OUT,
 }
