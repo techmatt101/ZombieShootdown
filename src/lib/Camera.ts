@@ -1,6 +1,7 @@
 class Camera implements IUpdate {
     public pos : Vector;
     public size : Vector;
+    public viewport : Box;
     public viewportOffset : Vector;
     public zoom = 1;
     public boundary : Box = null;
@@ -13,11 +14,7 @@ class Camera implements IUpdate {
         this.size = new Vector(canvas.center.x, canvas.center.y);
         this.viewportOffset = canvas.center;
         this._smoothing = new Vector(0.00001, 0.00001);
-    }
-
-    setScale(scale : number) {
-        this.zoom = scale;
-        this.size.copy(this.viewportOffset).scale(1 / this.zoom);
+        this.viewport = new Box(0, 0);
     }
 
     setTarget(targetPos : Vector) {
@@ -69,6 +66,13 @@ class Camera implements IUpdate {
         this.pos.y += y * this._smoothing.y;
 
         this.retainInBoundary();
+
+        this.size.copy(this.viewportOffset).scale(1 / this.zoom);
+
+        this.viewport.pos.x = this.pos.x - this.size.x;
+        this.viewport.pos.y = this.pos.y - this.size.y;
+        this.viewport.width = this.pos.x + this.size.x;
+        this.viewport.height = this.pos.y + this.size.y;
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) {

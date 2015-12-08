@@ -72,12 +72,12 @@ class InterfaceController implements IUpdate {
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
             if (e.keyCode === 33) {
-                this._game.camera.setScale(this._game.camera.zoom + 0.05);
+                this._game.camera.zoom += 0.05;
                 console.log(this._game.camera.zoom);
             }
 
             if (e.keyCode === 34) {
-                this._game.camera.setScale(this._game.camera.zoom - 0.05);
+                this._game.camera.zoom -= 0.05;
                 console.log(this._game.camera.zoom);
             }
 

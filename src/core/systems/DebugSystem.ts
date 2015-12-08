@@ -16,13 +16,13 @@ class DebugSystem implements ISystem<Entity> {
 
     paint(ctx : CanvasRenderingContext2D) {
         ctx.scale(this._camera.zoom, this._camera.zoom);
-        ctx.translate(~~-(this._camera.pos.x - this._camera.size.x), ~~-(this._camera.pos.y - this._camera.size.y));
+        ctx.translate(~~-this._camera.viewport.pos.x, ~~-this._camera.viewport.pos.y);
         for (var i = 0; i < this._enmities.length; i++) {
             ctx.save();
             this._enmities[i].drawDebug(ctx);
             ctx.restore();
         }
-        ctx.translate(~~(this._camera.pos.x - this._camera.size.x), ~~(this._camera.pos.y - this._camera.size.y));
+        ctx.translate(~~this._camera.viewport.pos.x, ~~this._camera.viewport.pos.y);
         ctx.scale(1 / this._camera.zoom, 1 / this._camera.zoom);
     }
 }

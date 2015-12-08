@@ -29,7 +29,7 @@ class CanvasRenderer {
     paint() {
         this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._ctx.scale(this._camera.zoom, this._camera.zoom);
-        this._ctx.translate(~~-(this._camera.pos.x - this._camera.size.x), ~~-(this._camera.pos.y - this._camera.size.y));
+        this._ctx.translate(~~-this._camera.viewport.pos.x, ~~-this._camera.viewport.pos.y);
 
         for (var i = 0; i < this._filters.length; i++) {
             this._filters[i].init(this._ctx, this._canvas, this._camera);
@@ -47,7 +47,7 @@ class CanvasRenderer {
             this._filters[i].close(this._ctx, this._canvas, this._camera);
         }
 
-        this._ctx.translate(~~(this._camera.pos.x - this._camera.size.x), ~~(this._camera.pos.y - this._camera.size.y));
+        this._ctx.translate(~~this._camera.viewport.pos.x, ~~this._camera.viewport.pos.y);
         this._ctx.scale(1 / this._camera.zoom, 1 / this._camera.zoom);
     }
 
