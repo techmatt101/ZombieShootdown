@@ -1,7 +1,7 @@
 class InterfaceFactory {
 
     static spawnPointer(input : InputState, camera : Camera) {
-        var pointer = new Entity('Pointer', new Box(0, 0));
+        var pointer = new Entity('Pointer', new Point(0, 0, 0), new Box(0, 0));
         var martial = new Material();
         pointer.addComponent(martial);
         pointer.addComponent(new Pointer(pointer.pos, martial, input, camera));

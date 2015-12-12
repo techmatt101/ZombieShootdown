@@ -1,7 +1,7 @@
 class Entity implements IUpdate, IPool {
     id = Date.now().toString(32) + (~~(Math.random() * 10000000)).toString(32);
     type : string;
-    pos : Vector;
+    pos : Point;
     geometry : Box;
     components = new ComponentList();
     available = false;
@@ -11,10 +11,11 @@ class Entity implements IUpdate, IPool {
     private _componentListLength = 0;
 
 
-    constructor(type : string, geometry : Box) {
+    constructor(type : string, pos : Point, geometry : Box) {
         this.type = type;
         this.geometry = geometry;
-        this.pos = this.geometry.pos; //TODO: hmmmm...
+        this.pos = pos; //TODO: hmmmm...
+        geometry.pos = pos;
     }
 
     addComponent(component : IComponent<ComponentList>) {

@@ -1,11 +1,7 @@
 class PlayerFactory {
 
     static spawnPlayer(room : Room, input : InputState) {
-        var player = new Entity('Player', new Box(48, 48,
-            new Vector(
-                room.pos.x + room.width / 2,
-                room.pos.y + room.height / 2
-            )));
+        var player = new Entity('Player', new Point(room.pos.x + room.width / 2, room.pos.y + room.height / 2, 0), new Box(48, 48));
 
         player.addComponent(new InputControl(player, input));
         player.addComponent(new Movement(player.pos, 30, 1));

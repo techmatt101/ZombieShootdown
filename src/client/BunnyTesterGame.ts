@@ -28,7 +28,7 @@ class BunnyTesterGame {
         //this.level = new Level(this.systems);
 
         this.bunnyTest = new BunnyTest((bunnyData) => {
-            var bunny = new Entity('Bunny', new Box(bunnyData.width, bunnyData.height));
+            var bunny = new Entity('Bunny', new Point(0, 0, 0), new Box(bunnyData.width, bunnyData.height));
             bunny.addComponent(new Material());
             bunny.addComponent(new Movement(bunny.pos));
             bunny.addComponent(new Collision(bunny.geometry));

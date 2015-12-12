@@ -1,115 +1,102 @@
-class Vector {
-    constructor(public x : number,
-                public y : number,
-                public angle : number = 0) {
+// <reference path="IVector" />
+
+class Vector implements IVector {
+    x : number;
+    y : number;
+
+    static From(other : IVector) {
+        return new Vector(other.x, other.y);
     }
 
-    //////////////////////
-
-    rotateDirection(other : Vector) {
-        this.angle = fastAtan2(
-            other.x - this.x,
-            other.y - this.y
-        );
-        return this;
+    constructor(x : number, y : number) {
+        this.x = x;
+        this.y = y;
     }
 
-    rotate(other : Vector) {
-        var x = this.x - other.x,
-            y = this.y - other.y,
-            cos = Math.cos(this.angle),
-            sin = Math.sin(this.angle);
-        this.x = x * cos - y * sin + other.x;
-        this.y = x * sin + y * cos + other.y;
-        return this;
-    }
-
-    traject(speed) {
-        this.x += speed * Math.cos(this.angle);
-        this.y += speed * Math.sin(this.angle);
+    traject(speed : number, direction : number) {
+        this.x += speed * Math.cos(direction);
+        this.y += speed * Math.sin(direction);
     }
 
     reverse() {
         this.x = -this.x;
         this.y = -this.y;
+
         return this;
     }
 
-    offset(offset : Vector) {
+    offset(offset : IVector) {
         this.x += offset.x;
         this.y += offset.y;
-        this.angle += offset.angle;
         return this;
     }
 
-    scale(n) { //TODO: hmmm...
+    scale(n : number) {
         this.x *= n;
         this.y *= n;
+
         return this;
     }
 
-    min(other : Vector) {
+    min(other : IVector) {
         this.x = Math.min(this.x, other.x);
         this.y = Math.min(this.y, other.y);
+
         return this;
     }
 
-    max(other : Vector) {
+    max(other : IVector) {
         this.x = Math.max(this.x, other.x);
         this.y = Math.max(this.y, other.y);
+
         return this;
     }
 
-    /////////////////////
-
-    equal(other : Vector) {
+    equal(other : IVector) {
         return (other.x === this.x && other.y === this.y);
     }
 
-    set(x : number, y : number, angle : number = 0) {
+    set(x : number, y : number) {
         this.x = x;
         this.y = y;
-        this.angle = angle;
     }
 
-    copy(other : Vector) {
+    copy(other : IVector) {
         this.x = other.x;
         this.y = other.y;
-        this.angle = other.angle;
         return this;
-    }
-
-    clone() {
-        return new Vector(this.x, this.y, this.angle);
     }
 
     reset() {
         this.x = 0;
         this.y = 0;
-        this.angle = 0;
     }
 
-    add(other : Vector) {
+    add(other : IVector) {
         this.x += other.x;
         this.y += other.y;
+
         return this;
     }
 
-    sub(other : Vector) {
+    sub(other : IVector) {
         this.x -= other.x;
         this.y -= other.y;
+
         return this;
     }
 
-    multiply(other : Vector) {
+    multiply(other : IVector) {
         this.x *= other.x;
         this.y *= other.y;
+
         return this;
     }
 
-    divide(other : Vector) {
+    divide(other : IVector) {
         this.x /= other.x;
         this.y /= other.y;
+
         return this;
     }
 
@@ -118,7 +105,7 @@ class Vector {
         this.y = ~~this.y;
     }
 
-    clamp(min : Vector, max : Vector) {
+    clamp(min : IVector, max : IVector) {
         this.x = Math.min(Math.max(this.x, min.x), max.x);
         this.y = Math.min(Math.max(this.y, min.y), max.y);
 
@@ -134,7 +121,7 @@ class Vector {
         return this;
     }
 
-    dot(other : Vector) {
+    dot(other : IVector) {
         return this.x * other.x + this.y * other.y;
     }
 

@@ -2,32 +2,25 @@ class Movement implements IComponent<ComponentList> {
     active = true;
     speed : number;
     friction : number;
+    direction  = new Vector(0, 0);
 
-    private _pos : Vector;
+    private _pos : Point;
 
     static reference(components : ComponentList) {
         return components.movement;
     }
 
-    constructor(pos : Vector, speed = 5, friction = 0) {
+    constructor(pos : Point, speed = 5, friction = 0) {
         this._pos = pos;
         this.speed = speed;
         this.friction = friction;
     }
 
-    direct(direction : Vector, dt : number) {
-        direction.normalize().scale(this.speed * dt);
-        this._pos.add(direction);
-    }
-
-    traject(dt : number) {
-        this._pos.traject(this.speed * dt);
-    }
-
-
     update(dt : number) : void {
+        this.direction.normalize().scale(this.speed * dt);
+        this._pos.add(this.direction);
         if (this.friction < 1) { //TODO: hmmm...
-            this._pos.traject((this.speed - this.speed * this.friction) * dt);
+            this._pos.trajectFromDirection((this.speed - this.speed * this.friction) * dt);
         }
     }
 

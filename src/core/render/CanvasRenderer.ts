@@ -55,10 +55,10 @@ class CanvasRenderer {
         var texture = entity.components.material.texture;
 
         this._ctx.save();
-        this._ctx.rotate(entity.pos.angle);
+        this._ctx.rotate(entity.pos.direction);
 
-        var rx = Math.cos(-entity.pos.angle),
-            ry = Math.sin(-entity.pos.angle);
+        var rx = Math.cos(-entity.pos.direction),
+            ry = Math.sin(-entity.pos.direction);
 
         if (texture === null) {
             this._ctx.fillRect(

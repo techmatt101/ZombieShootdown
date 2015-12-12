@@ -1,7 +1,7 @@
 class TileFactory {
 
     static spawnTile(pos : Vector, tileSize : Vector, tileData : Tile) {
-        var tile = new Entity(TileType[tileData.type] + ' Tile', new Box(tileSize.x, tileSize.y, pos));
+        var tile = new Entity(TileType[tileData.type] + ' Tile', new Point(0, 0, 0).copyVector(pos), new Box(tileSize.x, tileSize.y));
 
         tile.addComponent(new Material());
 
@@ -29,7 +29,7 @@ class TileFactory {
 
             case TileType.FLOOR:
                 texturePos = new Vector(0, 1);
-                tile.pos.angle = (Math.PI / 2) * randInt(0, 3);
+                tile.pos.direction = (Math.PI / 2) * randInt(0, 3);
 
                 break;
 

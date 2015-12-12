@@ -40,19 +40,21 @@ class MapGenerator {
         var maxout = 0;
         var isGirdFilled = false;
 
+        var gridPos = new Vector(0, 0);
+
         while (!isGirdFilled) {
             maxout++;
             pos.y = 0;
             while (pos.y + minRoomSize < this._grid.height) {
-
                 var roomSizeMax = new Vector(maxRoomSize, maxRoomSize);
+                gridPos.copy(gridBoundary).sub(pos);
 
                 // Create Room
                 var room = new Room( //TODO: better room random size that is based on cubic space
                     //randInt(roomSizeMax.x, minRoomSize),
                     //randInt(roomSizeMax.y, minRoomSize),
                     30, 8,
-                    pos.clone()
+                    Vector.From(pos)
                 );
                 var roomSize = new Vector(room.width, room.height);
 
@@ -66,7 +68,7 @@ class MapGenerator {
                 }
 
                 //Clamp to Grid
-                roomSizeMax.min(gridBoundary.clone().sub(pos)); //TODO: hmmm...
+                roomSizeMax.min(gridPos); //TODO: hmmm...
 
                 //Check room
                 if (roomSizeMax.x < minRoomSize || roomSizeMax.y < minRoomSize) {

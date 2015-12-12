@@ -1,14 +1,14 @@
 class WeaponHolder implements IComponent<ComponentList> {
     active = true;
 
-    private _pos : Vector;
+    private _pos : Point;
     private _weapon : IWeapon;
 
     static reference(components : ComponentList) {
         return components.weaponHolder;
     }
 
-    constructor(pos : Vector, weapon : IWeapon) {
+    constructor(pos : Point, weapon : IWeapon) {
         this._pos = pos;
         this._weapon = weapon;
     }
@@ -16,7 +16,6 @@ class WeaponHolder implements IComponent<ComponentList> {
     attack() {
         this._weapon.attack();
     }
-
 
     update(dt : number) : void {
         this._weapon.pos.copy(this._pos).offset(this._weapon.placementOffset);

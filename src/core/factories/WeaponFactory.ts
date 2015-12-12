@@ -1,7 +1,7 @@
 class WeaponFactory {
 
     static spawnBullet() {
-        var bullet = new Entity('Bullet', new Box(8, 5));
+        var bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));
 
         bullet.addComponent(new Material());
         bullet.addComponent(new Collision(bullet.geometry));
@@ -24,7 +24,7 @@ class WeaponFactory {
     }
 
     static spawnGun(bulletPool : Pool<Entity>) {
-        var gun = new Gun('Gun', new Box(14, 5), bulletPool);
+        var gun = new Gun('Gun', new Point(0, 0, 0), new Box(14, 5), bulletPool);
 
         gun.addComponent(new Material());
 

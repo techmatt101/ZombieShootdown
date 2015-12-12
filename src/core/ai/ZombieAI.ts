@@ -54,7 +54,7 @@ class ZombieAI implements IAI {
             }
 
             this._zombie.pos.rotateDirection(pos);
-            this._zombie.components.movement.direct(pos.clone().sub(this._zombie.pos), dt);  //TODO: optimize
+            this._zombie.components.movement.direction.copy(pos).sub(this._zombie.pos);
         }
     }
 }

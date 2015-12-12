@@ -1,7 +1,7 @@
 class EnemyFactory {
 
     static spawnZombie(target : Entity) {
-        var zombie = new Entity('Zombie', new Box(48, 48, new Vector(0, 0)));
+        var zombie = new Entity('Zombie', new Point(0, 0, 0), new Box(48, 48));
 
         zombie.addComponent(new AI(new ZombieAI(zombie, target)));
         zombie.addComponent(new Movement(zombie.pos, randInt(14, 25), 1));
@@ -29,7 +29,7 @@ class EnemyFactory {
     }
 
     static spawnDeadZombie() {
-        var zombie = new Entity('Dead Zombie', new Box(48, 48, new Vector(0, 0)));
+        var zombie = new Entity('Dead Zombie', new Point(0, 0, 0), new Box(48, 48, new Vector(0, 0)));
 
         zombie.addComponent(new Material());
 
