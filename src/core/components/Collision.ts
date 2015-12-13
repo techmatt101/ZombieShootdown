@@ -2,7 +2,7 @@ enum CollisionEvent {
     COLLIDE
 }
 
-class Collision implements IComponent<ComponentList>, IObserver {
+class Collision implements IComponent, IObserver {
     active = true;
     behaviours = new CollisionBehaviourList();
 
@@ -11,7 +11,7 @@ class Collision implements IComponent<ComponentList>, IObserver {
     private _eventHandler = new EventHandler<CollisionEvent>();
     private _behaviourList : Array<(behaviours) => IBehavior> = [];
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.collision;
     }
 
@@ -64,7 +64,7 @@ class Collision implements IComponent<ComponentList>, IObserver {
         ctx.strokeRect(this._box.pos.x - this._box.width / 2, this._box.pos.y - this._box.height / 2, this._box.width, this._box.height);
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.collision = this;
         this.buildBehaviours();
     }

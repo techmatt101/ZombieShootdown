@@ -1,11 +1,11 @@
-class SpriteAnimator implements IComponent<ComponentList> {
+class SpriteAnimator implements IComponent {
     active = true;
 
     private _material : Material;
     private _animations : SpriteAnimation;
     //private _textures : Texture[];
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.spriteAnimator;
     }
 
@@ -45,7 +45,7 @@ class SpriteAnimator implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.spriteAnimator = this;
     }
 }

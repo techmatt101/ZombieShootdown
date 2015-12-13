@@ -1,4 +1,4 @@
-interface IComponent<T> extends IUpdate {
+interface IComponent extends IUpdate {
     active : boolean
-    build(components : T)
+    build(components : IComponentDirectory)
 }

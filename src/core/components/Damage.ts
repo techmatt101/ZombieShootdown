@@ -1,8 +1,8 @@
-class Damage implements IComponent<ComponentList> {
+class Damage implements IComponent {
     active : boolean;
     value : number;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.damage;
     }
 
@@ -16,7 +16,7 @@ class Damage implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.damage = this;
     }
 }

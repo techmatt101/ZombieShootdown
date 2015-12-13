@@ -2,14 +2,14 @@ enum HealthEvent {
     DEATH
 }
 
-class Health implements IComponent<ComponentList>, IObserver {
+class Health implements IComponent, IObserver {
     active : boolean;
     value : number;
     isDead = false;
 
     private _eventHandler = new EventHandler<HealthEvent>();
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.health;
     }
 
@@ -41,7 +41,7 @@ class Health implements IComponent<ComponentList>, IObserver {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.health = this;
     }
 

@@ -1,9 +1,9 @@
-class AI implements IComponent<ComponentList> {
+class AI implements IComponent {
     active = true;
 
     private _ai : IAI;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.ai;
     }
 
@@ -22,7 +22,7 @@ class AI implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.ai = this;
     }
 }

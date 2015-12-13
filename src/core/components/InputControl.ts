@@ -1,10 +1,10 @@
-class InputControl implements IComponent<ComponentList> {
+class InputControl implements IComponent {
     active = true;
 
     private _entity : Entity;
     private _input : InputState;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.controller;
     }
 
@@ -27,7 +27,7 @@ class InputControl implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.controller = this;
     }
 }

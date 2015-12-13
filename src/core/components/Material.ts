@@ -1,9 +1,9 @@
-class Material implements IComponent<ComponentList> {
+class Material implements IComponent {
     active : boolean;
     texture : Texture = null;
     zIndex = ZIndexLayer.FOREGROUND;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.material;
     }
 
@@ -19,7 +19,7 @@ class Material implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.material = this;
     }
 }

@@ -1,4 +1,4 @@
-class Movement implements IComponent<ComponentList> {
+class Movement implements IComponent {
     active = true;
     speed : number;
     friction : number;
@@ -6,7 +6,7 @@ class Movement implements IComponent<ComponentList> {
 
     private _pos : Point;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.movement;
     }
 
@@ -27,7 +27,7 @@ class Movement implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.movement = this;
     }
 }

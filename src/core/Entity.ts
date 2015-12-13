@@ -3,11 +3,11 @@ class Entity implements IUpdate, IPool {
     type : string;
     pos : Point;
     geometry : Box;
-    components = new ComponentList();
+    components : IComponentDirectory = {};
     available = false;
     active = true;
 
-    private _componentList : IComponent<ComponentList>[] = [];
+    private _componentList : IComponent[] = [];
     private _componentListLength = 0;
 
 
@@ -18,7 +18,7 @@ class Entity implements IUpdate, IPool {
         geometry.pos = pos;
     }
 
-    addComponent(component : IComponent<ComponentList>) {
+    addComponent(component : IComponent) {
         this._componentList.push(component);
         this._componentListLength++;
         component.build(this.components);

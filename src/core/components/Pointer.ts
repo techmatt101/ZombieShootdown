@@ -1,11 +1,11 @@
-class Pointer implements IComponent<ComponentList> {
+class Pointer implements IComponent {
     active = true;
     private _input : InputState;
     private _pos : Vector;
     private _camera : Camera;
     private _material : Material;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.pointer;
     }
 
@@ -25,7 +25,7 @@ class Pointer implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.pointer = this;
     }
 }

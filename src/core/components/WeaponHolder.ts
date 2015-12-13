@@ -1,10 +1,10 @@
-class WeaponHolder implements IComponent<ComponentList> {
+class WeaponHolder implements IComponent {
     active = true;
 
     private _pos : Point;
     private _weapon : IWeapon;
 
-    static reference(components : ComponentList) {
+    static reference(components : IComponentDirectory) {
         return components.weaponHolder;
     }
 
@@ -25,7 +25,7 @@ class WeaponHolder implements IComponent<ComponentList> {
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 
-    build(components : ComponentList) {
+    build(components : IComponentDirectory) {
         components.weaponHolder = this;
     }
 }
