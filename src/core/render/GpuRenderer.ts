@@ -11,6 +11,9 @@ import { CHUNK_SIZE } from '../../world/constants';
 
 const REMEMBERED_BRIGHTNESS = 0.12;
 const OUT_OF_VIEW_LIGHTING = 0.25;
+const EXPOSURE = 1.5;
+const CONTRAST = 1.6;
+const BRIGHTEST_LIGHTING = 1.6;
 const NEAR_SHADOW_SOFTNESS = 0.1;
 const FAR_SHADOW_SOFTNESS = 10;
 const SOFTEST_SHADOW_DISTANCE = 500;
@@ -46,6 +49,9 @@ export class GpuRenderer implements EntityRenderer, TextureOwner {
             chunkSize: CHUNK_SIZE,
             rememberedBrightness: REMEMBERED_BRIGHTNESS,
             outOfViewLighting: OUT_OF_VIEW_LIGHTING,
+            exposure: EXPOSURE,
+            contrast: CONTRAST,
+            brightestLighting: BRIGHTEST_LIGHTING,
             nearShadowSoftness: NEAR_SHADOW_SOFTNESS,
             farShadowSoftness: FAR_SHADOW_SOFTNESS,
             softestShadowDistance: SOFTEST_SHADOW_DISTANCE,

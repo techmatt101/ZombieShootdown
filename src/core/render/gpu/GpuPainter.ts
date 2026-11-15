@@ -223,7 +223,7 @@ export class GpuPainter {
         this.#paintSprites(pass, batch, isLit, false);
         if (isLit) {
             pass.setBindGroup(1, targets.softLight.asSource);
-            pass.setPipeline(this.#pipelines.darken);
+            pass.setPipeline(this.#pipelines.shade);
             this.#draw(pass, FULLSCREEN_TRIANGLE_VERTICES, 1, 0, 0);
             if (this.#hasGlow) {
                 pass.setPipeline(this.#pipelines.warmGlow);

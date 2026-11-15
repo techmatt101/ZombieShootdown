@@ -20,11 +20,13 @@ export interface RecordedWrite {
 export class FakeGpuTexture {
     label : string;
     size : readonly number[];
+    format : GPUTextureFormat | undefined;
     isDestroyed = false;
 
-    constructor(label : string, size : readonly number[] = []) {
+    constructor(label : string, size : readonly number[] = [], format? : GPUTextureFormat) {
         this.label = label;
         this.size = size;
+        this.format = format;
     }
 
     createView() {
@@ -63,6 +65,7 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
     const draws : RecordedDraw[] = [];
     const writes : RecordedWrite[] = [];
     const textures : FakeGpuTexture[] = [];
+    const pipelines : GPURenderPipelineDescriptor[] = [];
     let isUnconfigured = false;
 
     const labelOf = (target : unknown) => {
@@ -89,7 +92,7 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
     const device = {
         createBuffer: (descriptor : GPUBufferDescriptor) => new FakeGpuBuffer(descriptor.label ?? '', descriptor.size, descriptor.usage),
         createTexture: (descriptor : GPUTextureDescriptor) => {
-            const texture = new FakeGpuTexture(descriptor.label ?? '', [...(descriptor.size as Iterable<number>)]);
+            const texture = new FakeGpuTexture(descriptor.label ?? '', [...(descriptor.size as Iterable<number>)], descriptor.format);
             textures.push(texture);
             return texture;
         },
@@ -97,7 +100,10 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
         createShaderModule: (descriptor : GPUShaderModuleDescriptor) => ({ label: descriptor.label }),
         createBindGroupLayout: () => ({}),
         createPipelineLayout: () => ({}),
-        createRenderPipeline: (descriptor : GPURenderPipelineDescriptor) => ({ label: descriptor.label }),
+        createRenderPipeline: (descriptor : GPURenderPipelineDescriptor) => {
+            pipelines.push(descriptor);
+            return { label: descriptor.label };
+        },
         createBindGroup: (descriptor : GPUBindGroupDescriptor) => ({ label: descriptor.label }),
         createCommandEncoder: () => ({ beginRenderPass, finish: () => ({}) }),
         queue: {
@@ -130,6 +136,7 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
         draws,
         writes,
         textures,
+        pipelines,
         pipelinesDrawn,
         writesTo,
         lastWriteTo,

@@ -88,12 +88,12 @@ The engine is entity/component based: entities are built from components, system
   - `EntitySprites.ts`: culls entities outside the camera view and queues the rest in z order.
   - `GpuRenderer`: fills the batch (world layer, then entities) each frame and hands it to `gpu/GpuPainter`. `init()` is async (`createGpuContext`), and `paint()` does nothing until it is ready.
   - `gpu/GpuPainter`: per frame:
-    1. **Light pass:** adds every light into two `rgba8unorm` targets at once.
+    1. **Light pass:** adds every light into two `rgba16float` targets at once, so overlapping lights keep adding up past 1 instead of clipping (alpha channels are `saturate`d where read).
        - `light`: rgb = light colour × falloff × cone; a = in view (sight lights only). Cones have soft edges (`CONE_SOFT_EDGE`).
        - `glow`: rgb = glow colour; a = explored (the remembered map mask).
     2. **Blur:** two half-resolution passes (across, then down) soften both targets. The blur radius grows with distance from the player (`NEAR_SHADOW_SOFTNESS` → `FAR_SHADOW_SOFTNESS` over `SOFTEST_SHADOW_DISTANCE`, in `GpuRenderer`), so shadows are crisp close up and soft further out.
     3. **Scene:** draws sprites. `isHiddenOutOfSight` sprites (zombies) are faded by the soft sight channel.
-    4. **Composite:** multiplies the scene by `explored × (REMEMBERED_BRIGHTNESS + light × visibility)`, where visibility is 1 in view and `OUT_OF_VIEW_LIGHTING` elsewhere (constants in `GpuRenderer`). So never-seen places stay black, explored ones are very dim, lights brighten them, and lights behind walls show only faintly. Then it adds glow the same way, and additive sprites.
+    4. **Composite (`shade`):** tone-maps `explored × (REMEMBERED_BRIGHTNESS + light × visibility)`, where visibility is 1 in view and `OUT_OF_VIEW_LIGHTING` elsewhere, then multiplies the scene by it. The tone curve is `pow(1 - exp(-lighting × EXPOSURE), CONTRAST) × BRIGHTEST_LIGHTING` (constants in `GpuRenderer`): a shoulder so bright light rolls off instead of clipping flat, a contrast power that crushes the mids, and up to `BRIGHTEST_LIGHTING` (at most 2) times the sprite's own colour. The canvas is 8-bit, so the shader outputs half the factor and the `DOUBLED_MULTIPLY` blend (`src × dst + dst × src`) doubles it back. So never-seen places stay black, explored ones are very dim, lights brighten them with hot spots, and lights behind walls show only faintly. Then it adds glow (with the same contrast power), and additive sprites.
   - **Normal maps:** a `Texture` can carry `normals` laid out like its sprite sheet, in the common green-up convention (green = facing up the screen).
     - **Hand-made maps:** `<sprite>_n.png` in `public/assets/img/` (player, zombie, `tiles_n.png` for the tile atlas), loaded alongside the sprite.
     - **Generated maps:** `lib/spriteNormals.ts` (`normalMapOf`) builds one for sprites without a hand-made map (dead zombies).

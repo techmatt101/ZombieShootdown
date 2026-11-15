@@ -77,6 +77,6 @@ fn fragmentMain(in : SpriteVertex) -> @location(0) vec4f {
 
 @fragment
 fn fragmentInSight(in : SpriteVertex) -> @location(0) vec4f {
-    let sight = textureSample(softLightTexture, softSampler, in.position.xy / camera.viewport.xy).a;
+    let sight = saturate(textureSample(softLightTexture, softSampler, in.position.xy / camera.viewport.xy).a);
     return shadedSprite(in) * sight;
 }

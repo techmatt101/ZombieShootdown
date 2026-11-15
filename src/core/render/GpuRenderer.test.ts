@@ -97,11 +97,46 @@ describe('GpuRenderer', () => {
             'blur down:blur down',
             'scene:sprite',
             'scene:sprite in sight',
-            'scene:darken',
+            'scene:shade',
             'scene:warm glow',
             'scene:sprite additive',
         ]);
         expect(renderer.drawCalls).toBe(11);
+    });
+
+    it('adds lights up in float targets, so overlapping lights keep brightening instead of clipping', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 500, isSight: true })]));
+        renderer.paint();
+        const lightTargets = gpu.textures.filter((texture) => ['light', 'shadow blur', 'soft light'].includes(texture.label.replace(/ glow$/, '')));
+        expect(lightTargets.length).toBe(6);
+        for (let i = 0; i < lightTargets.length; i++) {
+            expect(lightTargets[i].format).toBe('rgba16float');
+        }
+        const brightness = gpu.pipelines.find((pipeline) => pipeline.label === 'brightness')!;
+        expect(brightness.fragment?.targets).toMatchObject([{ format: 'rgba16float' }, { format: 'rgba16float' }]);
+    });
+
+    it('shades the scene with a doubling multiply, so tone-mapped light can brighten past a sprite\'s own colour', async () => {
+        const { gpu } = await readyRenderer();
+        const shade = gpu.pipelines.find((pipeline) => pipeline.label === 'shade')!;
+        const target = [...shade.fragment!.targets][0]!;
+        expect(target.blend?.color).toEqual({ srcFactor: 'dst', dstFactor: 'src' });
+        const constants = shade.fragment!.constants!;
+        expect(Object.keys(constants).sort()).toEqual(['brightestLighting', 'contrast', 'exposure', 'outOfViewLighting', 'rememberedBrightness']);
+        expect(constants.brightestLighting).toBeGreaterThan(1);
+        expect(constants.brightestLighting).toBeLessThanOrEqual(2);
+        expect(constants.contrast).toBeGreaterThan(1);
+    });
+
+    it('gives the warm glow the same contrast, and only the constants its shader uses', async () => {
+        const { gpu } = await readyRenderer();
+        const shade = gpu.pipelines.find((pipeline) => pipeline.label === 'shade')!;
+        const warmGlow = gpu.pipelines.find((pipeline) => pipeline.label === 'warm glow')!;
+        expect(warmGlow.fragment?.constants).toEqual({
+            outOfViewLighting: shade.fragment!.constants!.outOfViewLighting,
+            contrast: shade.fragment!.constants!.contrast,
+        });
     });
 
     it('skips the warm glow when no light glows', async () => {

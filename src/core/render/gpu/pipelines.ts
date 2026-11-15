@@ -5,7 +5,7 @@ import fanShader from './shaders/fan.wgsl?raw';
 import memoryShader from './shaders/memory.wgsl?raw';
 import spriteShader from './shaders/sprite.wgsl?raw';
 
-export const LIGHT_TARGET_FORMAT : GPUTextureFormat = 'rgba8unorm';
+export const LIGHT_TARGET_FORMAT : GPUTextureFormat = 'rgba16float';
 export const SPRITE_STRIDE = 64;
 export const FAN_VERTEX_STRIDE = 8;
 export const MEMORY_INSTANCE_STRIDE = 8;
@@ -14,6 +14,9 @@ export interface PipelineSettings {
     chunkSize : number;
     rememberedBrightness : number;
     outOfViewLighting : number;
+    exposure : number;
+    contrast : number;
+    brightestLighting : number;
 }
 
 export interface Pipelines {
@@ -29,7 +32,7 @@ export interface Pipelines {
     memory : GPURenderPipeline;
     blurAcross : GPURenderPipeline;
     blurDown : GPURenderPipeline;
-    darken : GPURenderPipeline;
+    shade : GPURenderPipeline;
     warmGlow : GPURenderPipeline;
 }
 
@@ -43,8 +46,8 @@ const ADDITIVE : GPUBlendState = {
     alpha: { srcFactor: 'one', dstFactor: 'one' },
 };
 
-const MULTIPLY : GPUBlendState = {
-    color: { srcFactor: 'zero', dstFactor: 'src' },
+export const DOUBLED_MULTIPLY : GPUBlendState = {
+    color: { srcFactor: 'dst', dstFactor: 'src' },
     alpha: { srcFactor: 'zero', dstFactor: 'one' },
 };
 
@@ -182,10 +185,16 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         }),
         blurAcross: blur('blur across', 1, 0),
         blurDown: blur('blur down', 0, 1),
-        darken: composite('darken', 'darkenMain', MULTIPLY, {
+        shade: composite('shade', 'shadeMain', DOUBLED_MULTIPLY, {
             rememberedBrightness: settings.rememberedBrightness,
             outOfViewLighting: settings.outOfViewLighting,
+            exposure: settings.exposure,
+            contrast: settings.contrast,
+            brightestLighting: settings.brightestLighting,
         }),
-        warmGlow: composite('warm glow', 'warmGlowMain', ADDITIVE, { outOfViewLighting: settings.outOfViewLighting }),
+        warmGlow: composite('warm glow', 'warmGlowMain', ADDITIVE, {
+            outOfViewLighting: settings.outOfViewLighting,
+            contrast: settings.contrast,
+        }),
     };
 }
