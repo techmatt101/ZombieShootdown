@@ -76,7 +76,7 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
     #findOffscreenSpawnPoints() : Vector[] {
         const camera = this.#level.getCamera();
         const open = this.#level.getMap().getGenerator().getOpenFloorPositions();
-        const offscreen = open.filter((point) => !camera.canSee(point, OFFSCREEN_SPAWN_MARGIN));
+        const offscreen = open.filter((point) => !camera.isInCurrentOrUpcomingView(point, OFFSCREEN_SPAWN_MARGIN));
         if (offscreen.length > 0) {
             return shuffle(offscreen);
         }

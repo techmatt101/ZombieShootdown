@@ -46,8 +46,12 @@ export class Camera implements IUpdate {
         this.#clampToBoundary(this.pos);
     }
 
-    canSee(point : IVector, margin = 0) {
-        return this.#isInViewAround(this.pos, point, margin)
+    isInCurrentView(point : IVector, margin = 0) {
+        return this.#isInViewAround(this.pos, point, margin);
+    }
+
+    isInCurrentOrUpcomingView(point : IVector, margin = 0) {
+        return this.isInCurrentView(point, margin)
             || this.#isInViewAround(this.#positionOnceSettled(), point, margin);
     }
 
