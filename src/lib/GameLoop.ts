@@ -1,4 +1,6 @@
-/** Drives `update(dt)` from requestAnimationFrame; `dt` is in tenths of a second, capped at 1. */
+const MAX_FRAME_STEP = 1;
+const MS_PER_STEP = 100;
+
 export class GameLoop {
     #lastFrameTime = 0;
     #frameRequest = 0;
@@ -19,11 +21,10 @@ export class GameLoop {
     }
 
     #loop = (now : DOMHighResTimeStamp) => {
-        // Prevent fast-forwarding by limiting the length of a single frame.
-        const dt = Math.min(Math.max(now - this.#lastFrameTime, 0) / 100, 1);
-        // Queue the next frame before updating so update() can pause the loop.
-        this.#frameRequest = requestAnimationFrame(this.#loop);
+        const elapsed = Math.max(now - this.#lastFrameTime, 0);
+        const dt = Math.min(elapsed / MS_PER_STEP, MAX_FRAME_STEP);
         this.#lastFrameTime = now;
+        this.#frameRequest = requestAnimationFrame(this.#loop);
         this.#update(dt);
     };
 }

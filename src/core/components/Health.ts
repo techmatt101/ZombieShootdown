@@ -7,7 +7,7 @@ export enum HealthEvent {
 }
 
 export class Health implements IComponent, IObserver<HealthEvent> {
-    active = false; // activated by Entity.build()
+    active = false;
     value : number;
     isDead = false;
 

@@ -2,14 +2,13 @@ import { InputState } from './InputState';
 import { resolveKeyMappings, type KeyBindings, type KeyMappings } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
 
-/** Keyboard keys are bound by `KeyboardEvent.code`, mouse buttons as `Mouse<button>`. */
 const mouseButtonCode = (e : MouseEvent) => `Mouse${e.button}`;
 
 export class MouseAndKeyboardController {
     pointerPos = new Vector(0, 0);
 
     #keys : KeyBindings = new Map();
-    #inputState! : InputState; // set in load()
+    #inputState! : InputState;
     #canvas : HTMLCanvasElement;
     #pointerLockEnabled = false;
 
@@ -20,8 +19,17 @@ export class MouseAndKeyboardController {
 
     load(inputState : InputState) {
         this.#inputState = inputState;
+        this.#listenForButtons();
+        this.#disableContextMenu();
+        this.#trackPointer();
+        this.#enablePointerLock();
+    }
 
-        // Key Presses
+    loadKeyMappings(mappings : KeyMappings) {
+        this.#keys = resolveKeyMappings(mappings);
+    }
+
+    #listenForButtons() {
         window.addEventListener('keyup', (e) => {
             this.#inputState.setKeyRelease(this.#keys.get(e.code));
         });
@@ -37,13 +45,15 @@ export class MouseAndKeyboardController {
         window.addEventListener('mouseup', (e) => {
             this.#inputState.setKeyRelease(this.#keys.get(mouseButtonCode(e)));
         });
+    }
 
-        // Disable right click context menu from appearing
+    #disableContextMenu() {
         this.#canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
+    }
 
-        // Mouse Movement
+    #trackPointer() {
         this.#canvas.addEventListener('mousemove', (e) => {
             if (this.#pointerLockEnabled) {
                 this.pointerPos.x += e.movementX;
@@ -53,14 +63,11 @@ export class MouseAndKeyboardController {
                 this.pointerPos.y = e.offsetY;
             }
         });
-
-        // Pointer Lock
-        document.addEventListener('pointerlockchange', () => this.#onPointerLockChange());
-        this.#onPointerLockChange();
     }
 
-    loadKeyMappings(mappings : KeyMappings) {
-        this.#keys = resolveKeyMappings(mappings);
+    #enablePointerLock() {
+        document.addEventListener('pointerlockchange', () => this.#onPointerLockChange());
+        this.#onPointerLockChange();
     }
 
     #onPointerLockChange() {

@@ -19,9 +19,7 @@ export class RenderSystem implements ISystem<Entity> {
     }
 
     update(dt : number) {
-        this.#entities.sort((a : Entity, b : Entity) => { //TODO: hmmm... could be optimized
-            return a.components.material!.zIndex - b.components.material!.zIndex; // add() only accepts entities with a Material
-        });
+        this.#entities.sort((a, b) => a.getComponent('material').zIndex - b.getComponent('material').zIndex);
 
         this.#renderer.render(this.#entities);
     }

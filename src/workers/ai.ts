@@ -14,7 +14,6 @@ export interface LineOfSightResponse {
     value : boolean;
 }
 
-/** Answers whether p1 has an unobstructed line of sight to p2. */
 self.addEventListener('message', (e : MessageEvent<LineOfSightRequest>) => {
     const { id, p1, p2, segments } = e.data;
 

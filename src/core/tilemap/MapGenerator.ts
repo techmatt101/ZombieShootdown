@@ -28,6 +28,24 @@ export class MapGenerator {
         return this.#grid.tileSize;
     }
 
+    getOpenFloorPositions() : Vector[] {
+        const tiles = this.#grid.getGird();
+        const isFloor = (x : number, y : number) => tiles[x]?.[y]?.type === TileType.FLOOR;
+        const neighbourOffsets = [-1, 0, 1];
+        const isSurroundedByFloor = (x : number, y : number) =>
+            neighbourOffsets.every((dx) => neighbourOffsets.every((dy) => isFloor(x + dx, y + dy)));
+        const positions : Vector[] = [];
+
+        for (let x = 0; x < tiles.length; x++) {
+            for (let y = 0; y < tiles[x].length; y++) {
+                if (isSurroundedByFloor(x, y)) {
+                    positions.push(new Vector(x, y).multiply(this.#grid.tileSize));
+                }
+            }
+        }
+        return positions;
+    }
+
     generate(tileSize : Vector, gridSize : Vector, maxRoomSize : number, minRoomSize : number) {
         this.#grid.tileSize = tileSize;
         gridSize.divide(tileSize);
@@ -39,10 +57,8 @@ export class MapGenerator {
         this.#grid.height = this.#grid.getGird()[0].length;
 
         const pos = new Vector(0, 0);
-        const gridBoundary = new Vector(this.#grid.width, this.#grid.height);  //TODO: hmmm...
+        const gridBoundary = new Vector(this.#grid.width, this.#grid.height);
 
-        const col = [];
-        const lastRoom : Room | null = null;
         let maxout = 0;
         let isGirdFilled = false;
 
@@ -55,26 +71,13 @@ export class MapGenerator {
                 const roomSizeMax = new Vector(maxRoomSize, maxRoomSize);
                 gridPos.copy(gridBoundary).sub(pos);
 
-                // Create Room
-                const room = new Room( //TODO: better room random size that is based on cubic space
-                    //randInt(roomSizeMax.x, minRoomSize),
-                    //randInt(roomSizeMax.y, minRoomSize),
+                const room = new Room(
                     30, 8,
                     Vector.From(pos)
                 );
-                const roomSize = new Vector(room.width, room.height);
 
-                // get last col
+                roomSizeMax.min(gridPos);
 
-                //Align to last col
-
-                //Find Height Limit
-                //TODO: for each col: if(col[i].y > pos.y && pos.y + )
-
-                //Clamp to Grid
-                roomSizeMax.min(gridPos); //TODO: hmmm...
-
-                //Check room
                 if (roomSizeMax.x < minRoomSize || roomSizeMax.y < minRoomSize) {
                     console.log("Too small to fit room", pos.x, pos.y);
                     pos.y += room.height;
@@ -83,57 +86,22 @@ export class MapGenerator {
 
                 this.#addRoom(room);
                 pos.y += room.height;
-
-                //Add connection rooms
-                // - Last Room
-                // - Y Room
-                // - Max Room
-
-                //add to next col
-
-                //if(typeof lastRow[activeLastRoom] !== 'undefined') {
-                //    pos.x = lastRow[activeLastRoom].pos.x + lastRow[activeLastRoom].width;
-                //    pos.y = Math.max(pos.y, lastRow[activeLastRoom].pos.y);
-                //
-                //} else {
-                //    pos.x = 0;
-                //}
-                //
-                //
-                //
-                //if(typeof lastRow[activeLastRoom] !== 'undefined' && typeof lastRow[activeLastRoom+1] !== 'undefined' && lastRow[activeLastRoom+1].width > lastRow[activeLastRoom].width) {
-                //    roomSizeMax.y = Math.min(roomSizeMax.y, lastRow[activeLastRoom].height);
-                //}
-                //
-                //var room = this.addRoom(pos.clone(), roomSizeMax, minRoomSize);
-                //currentRow.push(room);
-                //lastRoom = room;
-                //
-                //pos.y += room.height;
-                //activeLastRoom++;
             }
-            //activeLastRoom = 0;
-            //lastRow = currentRow;
-            //currentRow = [];
 
             if (maxout > 0) {
                 isGirdFilled = true;
             }
         }
 
-
-        //TODO: hmmm...
         for (const room of this.#rooms) {
             room.pos.multiply(this.#grid.tileSize);
             room.width *= this.#grid.tileSize.x;
             room.height *= this.#grid.tileSize.y;
         }
-
-        //TODO: add some monsters, items, and gold in random areas of the map.
     }
 
     #addRoom(room : Room) {
-        room.tiles = this.#grid.fill(new Vector(room.width, room.height), TileType.FLOOR); //TODO: hmmm....
+        room.tiles = this.#grid.fill(new Vector(room.width, room.height), TileType.FLOOR);
         room.build();
 
         this.#placeRoom(room, room.pos);
@@ -145,7 +113,6 @@ export class MapGenerator {
     #placeRoom(room : Room, position : Vector) {
         room.pos.copy(position).floor();
         let tx = 0, ty = 0;
-        //copy the tiles from the room onto the grid
         for (let x = room.pos.x; x < (room.pos.x + room.width); ++x) {
             for (let y = room.pos.y; y < (room.pos.y + room.height); ++y) {
                 this.#grid.getGird()[x][y] = room.tiles[tx][ty];

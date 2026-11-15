@@ -3,18 +3,19 @@ import { HealthEvent } from '../../core/components/Health';
 import { Entity } from '../../core/Entity';
 import { spawnDeadZombie, spawnZombie } from '../../core/factories/EnemyFactory';
 import { TopDownLevel } from '../../core/level/TopDownLevel';
-import { MapGenerator } from '../../core/tilemap/MapGenerator';
 import { EventCollection } from '../../lib/EventCollection';
-import { Box } from '../../lib/geometry/Box';
-import { randInt } from '../../lib/helpers';
+import { Vector } from '../../lib/geometry/Vector';
+import { shuffle } from '../../lib/helpers';
 import { Pool } from '../../lib/Pool';
+
+const OFFSCREEN_SPAWN_MARGIN = 64;
 
 export class SinglePlayerWaveLogic implements IWaveLogic {
     score = 0;
     wave = 0;
 
     #level : TopDownLevel;
-    #player! : Entity; // set in start(), before any zombie is spawned
+    #player! : Entity;
     #zombieEventCollection : EventCollection;
     #zombiePool : Pool<Entity>;
 
@@ -32,7 +33,7 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
         this.#zombiePool = new Pool<Entity>(() => {
             const zombie = spawnZombie(this.#player);
             zombie.getComponent('health').on(HealthEvent.DEATH, this.#zombieEventCollection.listen(() => {
-                zombie.active = false; //TODO: hack
+                zombie.active = false;
                 zombie.available = true;
                 const deadZombie = spawnDeadZombie();
                 deadZombie.pos.copy(zombie.pos);
@@ -57,11 +58,14 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
         this.wave++;
 
         const numberOfZombies = Math.trunc(this.wave * 1.5 + 3);
-        //var numberOfZombies = 1;
+        const spawnPoints = this.#findOffscreenSpawnPoints();
         for (let i = 0; i < numberOfZombies; i++) {
             const zombie = this.#zombiePool.acquire();
-            zombie.getComponent('health').set(100); //TODO: hack
-            this.placeInRoom(zombie.geometry, this.#level.getMap().getGenerator());
+            zombie.getComponent('health').set(100);
+            if (spawnPoints.length > 0) {
+                const point = spawnPoints[i % spawnPoints.length];
+                zombie.pos.set(point.x, point.y);
+            }
         }
 
         this.#zombieEventCollection.reset(numberOfZombies);
@@ -69,12 +73,17 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
         console.log(`WAVE ${this.wave} HAS BEGUN! SPAWNED ${numberOfZombies} ZOMBIES`);
     }
 
-    placeInRoom(box : Box, map : MapGenerator) {
-        const t = map.getTileSize(), room = map.getRooms()[0];
+    #findOffscreenSpawnPoints() : Vector[] {
+        const camera = this.#level.getCamera();
+        const open = this.#level.getMap().getGenerator().getOpenFloorPositions();
+        const offscreen = open.filter((point) => !camera.canSee(point, OFFSCREEN_SPAWN_MARGIN));
+        if (offscreen.length > 0) {
+            return shuffle(offscreen);
+        }
 
-        box.pos.set(
-            randInt(room.pos.x + t.x + box.width / 2, room.pos.x + room.width - t.x - box.width / 2),
-            randInt(room.pos.y + t.y + box.height / 2, room.pos.y + room.height - t.y - box.height / 2)
-        );
+        const player = this.#player.pos;
+        const distanceFromPlayer = (point : Vector) => Math.hypot(point.x - player.x, point.y - player.y);
+        const farthestFromPlayerFirst = (a : Vector, b : Vector) => distanceFromPlayer(b) - distanceFromPlayer(a);
+        return open.sort(farthestFromPlayerFirst);
     }
 }

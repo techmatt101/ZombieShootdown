@@ -27,7 +27,6 @@ export class EventHandler<T extends PropertyKey> {
     }
 
     remove() {
-
     }
 
     clear() {

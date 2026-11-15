@@ -4,5 +4,5 @@ export interface IWaveLogic {
     score : number;
     wave : number;
 
-    start(player : Entity) : void; //TODO: really pass in player?
+    start(player : Entity) : void;
 }

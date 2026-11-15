@@ -8,7 +8,6 @@ export class SpriteAnimator implements IComponent {
 
     #material : Material;
     #animations : SpriteAnimation;
-    //private _textures : Texture[];
 
     static reference(components : IComponentDirectory) {
         return components.spriteAnimator;
@@ -34,15 +33,9 @@ export class SpriteAnimator implements IComponent {
         });
     }
 
-    //loadTextures(json, image : HTMLImageElement) {
-    //    for (var i = 0; i < json.spriteSequence.length; i++) {
-    //        var data = json.spriteSequence[i];
-    //        this._textures.push(new Texture(image, data.width, data.height, new Vector(data.x, data.y)));
-    //    }
-    //}
 
     update(dt : number) : void {
-        if (this.#material.texture !== null) { //TODO: hack
+        if (this.#material.texture !== null) {
             this.#animations.update(dt, this.#material.texture);
         }
     }

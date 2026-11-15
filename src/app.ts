@@ -7,13 +7,11 @@ import { Config } from './config';
 
 declare global {
     interface Window {
-        /** Console access to the running game when `Config.debug` is on. */
         game? : SinglePlayerGame | BunnyTesterGame;
         debug? : DebugTool;
     }
 }
 
-// Created on window load, before any game can start.
 export let ui! : InterfaceController;
 
 window.addEventListener('load', () => {

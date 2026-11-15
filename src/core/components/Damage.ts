@@ -2,7 +2,7 @@ import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
 
 export class Damage implements IComponent {
-    active = false; // activated by Entity.build()
+    active = false;
     value : number;
 
     static reference(components : IComponentDirectory) {

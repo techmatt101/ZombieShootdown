@@ -8,8 +8,9 @@ import { loadImage } from '../../../lib/assets';
 
 import type { IVector } from '../../../lib/geometry/IVector';
 
-/** Visible-area outline computed by the lighting worker. */
 export type LightPolygon = IVector[];
+
+const VISION_RADIUS = 900;
 
 export class LightFilter implements IUpdate, IFilter {
     #map : MapManager;
@@ -21,7 +22,7 @@ export class LightFilter implements IUpdate, IFilter {
 
     #visionImage : HTMLImageElement | null = null;
 
-    constructor(map : MapManager) { //TODO: hmmm.. just only segments will do?
+    constructor(map : MapManager) {
         this.#map = map;
 
         this.#worker.onmessage = (e : MessageEvent<LightPolygon[]>) => {
@@ -68,16 +69,20 @@ export class LightFilter implements IUpdate, IFilter {
         for (let i = 1; i < this.#polygons.length; i++) {
             this.#drawPolygon(this.#polygons[i], ctx, "rgba(0,0,0,0.2)");
         }
-        if (this.#polygons.length > 0) { //TODO: hmmm...
+        if (this.#polygons.length > 0) {
             this.#drawPolygon(this.#polygons[0], ctx, "#000");
         }
 
         if (this.#visionImage === null) return;
         ctx.globalCompositeOperation = 'source-in';
-        ctx.drawImage(this.#visionImage, this.#lightSource.x - 900, this.#lightSource.y - 900, 1800, 1800); //TODO: better scale vision
+        ctx.drawImage(
+            this.#visionImage,
+            this.#lightSource.x - VISION_RADIUS, this.#lightSource.y - VISION_RADIUS,
+            VISION_RADIUS * 2, VISION_RADIUS * 2
+        );
     }
 
-    #drawPolygon(polygon : LightPolygon, ctx : CanvasRenderingContext2D, fillStyle : string) { //TODO: hmmm....
+    #drawPolygon(polygon : LightPolygon, ctx : CanvasRenderingContext2D, fillStyle : string) {
         ctx.fillStyle = fillStyle;
         ctx.beginPath();
         ctx.moveTo(polygon[0].x, polygon[0].y);

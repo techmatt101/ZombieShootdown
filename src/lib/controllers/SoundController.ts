@@ -11,9 +11,6 @@ export class SoundController {
     }
 
     play(key : Sound) {
-        //if (Config.sound) {
-        //    this._audioClips[key].play();
-        //}
     }
 
     pauseAll() {

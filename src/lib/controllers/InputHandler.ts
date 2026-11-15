@@ -8,8 +8,6 @@ export class InputHandler implements IUpdate {
 
 
     constructor() {
-
-        // rest buttons on lose focus of window
         window.addEventListener('blur', () => {
             this.#inputState.reset();
         });

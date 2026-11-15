@@ -21,7 +21,12 @@ export class Room extends Box {
     }
 
     build() {
-        //create walls round edge of room tiles
+        this.#buildEdgeWalls();
+        this.#buildCornerWalls();
+        this.#openDoorways();
+    }
+
+    #buildEdgeWalls() {
         for (let x = 1; x < this.width - 1; x++) {
             this.addSolidWall(new Wall(
                 new Vector(x, 0),
@@ -47,8 +52,9 @@ export class Room extends Box {
                 Direction.EAST
             ));
         }
+    }
 
-        //create corner walls
+    #buildCornerWalls() {
         this.addWall(new Wall(
             new Vector(0, 0),
             this.tiles[0][0],
@@ -73,8 +79,9 @@ export class Room extends Box {
             Direction.SOUTH_EAST,
             true
         ));
+    }
 
-        // TEMPORARY HACKY STUFF
+    #openDoorways() {
         this.tiles[3][0].type = TileType.DOOR;
         this.tiles[4][0].type = TileType.DOOR;
         this.tiles[5][0].type = TileType.DOOR;

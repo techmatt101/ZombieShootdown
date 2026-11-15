@@ -10,7 +10,7 @@ export class Box implements IShape {
                 public pos : Vector = new Vector(0, 0)) {
     }
 
-    isBoundingBoxWith(box : Box) { //TODO: cache half value
+    isBoundingBoxWith(box : Box) {
         return this.pos.x - this.width / 2 < box.pos.x + box.width / 2 &&
             this.pos.x + this.width / 2 > box.pos.x - box.width / 2 &&
             this.pos.y - this.height / 2 < box.pos.y + box.height / 2 &&

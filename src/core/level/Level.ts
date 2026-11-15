@@ -17,7 +17,7 @@ export class Level {
 
     addEntity(entity : Entity) {
         this.#entities.push(entity);
-        this.#systems.add(entity); //TODO: hmmm....
+        this.#systems.add(entity);
     }
 
     addEntities(entities : Entity[]) {

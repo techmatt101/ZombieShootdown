@@ -1,4 +1,3 @@
-/** Counts down a batch of one-shot events, firing `onComplete` when the last one has fired. */
 export class EventCollection {
     #totalEvents = 0;
     #activeEvents = 0;

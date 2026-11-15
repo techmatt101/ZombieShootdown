@@ -5,6 +5,8 @@ import { Camera } from '../../lib/Camera';
 import { InputState } from '../../lib/controllers/InputState';
 import { Vector } from '../../lib/geometry/Vector';
 
+const MIN_VISIBLE_AIM_DISTANCE = 10;
+
 export class Pointer implements IComponent {
     active = true;
     #input : InputState;
@@ -28,7 +30,8 @@ export class Pointer implements IComponent {
             this.#pos.copy(this.#camera.target);
         }
         this.#pos.add(this.#input.directionCoordinates);
-        this.#material.active = Math.abs(this.#input.directionCoordinates.x) > 10 || Math.abs(this.#input.directionCoordinates.y) > 10; //TODO: hmmm... could be better
+        const aim = this.#input.directionCoordinates;
+        this.#material.active = Math.abs(aim.x) > MIN_VISIBLE_AIM_DISTANCE || Math.abs(aim.y) > MIN_VISIBLE_AIM_DISTANCE;
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

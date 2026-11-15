@@ -13,7 +13,6 @@ export class MenuInterface implements IUI {
         const view = byId('game-container');
         const canvas = byId<HTMLCanvasElement>('game');
 
-        // Match the canvas to the container once it has gone fullscreen
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement === view) {
                 const { width, height } = view.getBoundingClientRect();
@@ -26,17 +25,16 @@ export class MenuInterface implements IUI {
             view.requestFullscreen().catch((error) => console.warn('Fullscreen unavailable', error));
         });
 
-        // Hide the menu, then start on the next task so the browser can repaint first
-        const startGame = (setup : () => void) => {
+        const hideMenuThenStartAfterRepaint = (setup : () => void) => {
             menu.hidden = true;
             setTimeout(setup, 0);
         };
 
-        play.addEventListener('click', () => startGame(singlePlayerGameSetup));
-        option.addEventListener('click', () => startGame(bunnyTestSetup));
+        play.addEventListener('click', () => hideMenuThenStartAfterRepaint(singlePlayerGameSetup));
+        option.addEventListener('click', () => hideMenuThenStartAfterRepaint(bunnyTestSetup));
 
         if (Config.skipMenu) {
-            setTimeout(() => startGame(singlePlayerGameSetup), 100);
+            setTimeout(() => hideMenuThenStartAfterRepaint(singlePlayerGameSetup), 100);
         }
     }
 
@@ -48,5 +46,4 @@ export class MenuInterface implements IUI {
 
     drawDebug(ctx : CanvasRenderingContext2D) {
     }
-
 }

@@ -12,7 +12,6 @@ function track<T>(label : string, request : Promise<T>) : Promise<T> {
     return request;
 }
 
-/** Loads (once) and decodes `assets/img/<name>.png`. */
 export function loadImage(name : string) : Promise<HTMLImageElement> {
     let request = images.get(name);
     if (request === undefined) {
@@ -24,7 +23,6 @@ export function loadImage(name : string) : Promise<HTMLImageElement> {
     return request;
 }
 
-/** Loads (once) `assets/audio/<name>.mp3`, resolving when it can play through. */
 export function loadSound(name : string) : Promise<HTMLAudioElement> {
     let request = sounds.get(name);
     if (request === undefined) {
@@ -38,7 +36,6 @@ export function loadSound(name : string) : Promise<HTMLAudioElement> {
     return request;
 }
 
-/** Resolves once every requested asset (including ones requested while waiting) has settled. */
 export async function whenAssetsLoaded() : Promise<void> {
     while (pending.size > 0) {
         await Promise.allSettled(pending);

@@ -1,5 +1,6 @@
 import { Canvas } from './Canvas';
 import { Box } from './geometry/Box';
+import type { IVector } from './geometry/IVector';
 import { Vector } from './geometry/Vector';
 import type { IUpdate } from './IUpdate';
 
@@ -42,23 +43,47 @@ export class Camera implements IUpdate {
     }
 
     retainInBoundary() {
-        if (this.boundary === null) return;
+        this.#clampToBoundary(this.pos);
+    }
 
-        if(this.size.x * 2 < this.boundary.width) {
-            if (this.pos.x - this.size.x < this.boundary.pos.x) {
-                this.pos.x = this.boundary.pos.x + this.size.x;
-            } else if (this.pos.x + this.size.x > this.boundary.width) {
-                this.pos.x = this.boundary.width - this.size.x;
+    canSee(point : IVector, margin = 0) {
+        return this.#isInViewAround(this.pos, point, margin)
+            || this.#isInViewAround(this.#positionOnceSettled(), point, margin);
+    }
+
+    #positionOnceSettled() : IVector {
+        if (this.target === null) {
+            return this.pos;
+        }
+        return this.#clampToBoundary(new Vector(this.target.x, this.target.y));
+    }
+
+    #isInViewAround(center : IVector, point : IVector, margin : number) {
+        const halfWidth = this.viewportOffset.x / this.zoom + margin;
+        const halfHeight = this.viewportOffset.y / this.zoom + margin;
+        return Math.abs(point.x - center.x) <= halfWidth && Math.abs(point.y - center.y) <= halfHeight;
+    }
+
+    #clampToBoundary(pos : Vector) {
+        if (this.boundary === null) return pos;
+
+        if (this.size.x * 2 < this.boundary.width) {
+            if (pos.x - this.size.x < this.boundary.pos.x) {
+                pos.x = this.boundary.pos.x + this.size.x;
+            } else if (pos.x + this.size.x > this.boundary.width) {
+                pos.x = this.boundary.width - this.size.x;
             }
         }
 
-        if(this.size.y * 2 < this.boundary.height) {
-            if (this.pos.y - this.size.y < this.boundary.pos.y) {
-                this.pos.y = this.boundary.pos.y + this.size.y;
-            } else if (this.pos.y + this.size.y > this.boundary.height) {
-                this.pos.y = this.boundary.height - this.size.y;
+        if (this.size.y * 2 < this.boundary.height) {
+            if (pos.y - this.size.y < this.boundary.pos.y) {
+                pos.y = this.boundary.pos.y + this.size.y;
+            } else if (pos.y + this.size.y > this.boundary.height) {
+                pos.y = this.boundary.height - this.size.y;
             }
         }
+
+        return pos;
     }
 
     update(dt : number) {

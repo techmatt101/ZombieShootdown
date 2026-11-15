@@ -5,9 +5,7 @@ export interface GameConfig {
     sound : boolean;
     lighting : boolean;
     skipMenu : boolean;
-    /** Keyboard `KeyboardEvent.code` values and mouse buttons (`Mouse<button>`). */
     keyMappings : KeyMappings;
-    /** Standard-layout gamepad buttons (`Button<index>`). */
     gamepadKeyMappings : KeyMappings;
 }
 
@@ -27,8 +25,8 @@ export const Config : GameConfig = {
         ArrowLeft: 'LEFT',
         ArrowRight: 'RIGHT',
         Space: 'ACTION_1',
-        Mouse0: 'ACTION_1', // Left click
-        Mouse2: 'ACTION_2', // Right click
+        Mouse0: 'ACTION_1',
+        Mouse2: 'ACTION_2',
         Escape: 'MENU',
     },
 

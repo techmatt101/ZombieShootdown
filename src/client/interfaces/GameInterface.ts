@@ -11,9 +11,6 @@ export class GameInterface implements IUI {
     #overlayElement : HTMLElement;
     #selectedEntity : Entity | null = null;
 
-    //private _fps = 0;
-    //private _fpsBuffer = [];
-
 
     constructor(game : Game) {
         this.#game = game;
@@ -37,9 +34,9 @@ export class GameInterface implements IUI {
 
         this.#game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                // Topmost (last added) entity under the pointer
-                this.#selectedEntity = this.#game.level.getEntities()
-                    .findLast((entity) => entity.geometry.isBoundingBoxWith(this.#game.pointer.geometry)) ?? null;
+                const isUnderPointer = (entity : Entity) => entity.geometry.isBoundingBoxWith(this.#game.pointer.geometry);
+                const topmostEntityUnderPointer = this.#game.level.getEntities().findLast(isUnderPointer);
+                this.#selectedEntity = topmostEntityUnderPointer ?? null;
                 if (this.#selectedEntity !== null) {
                     console.log(this.#selectedEntity);
                 }
@@ -64,16 +61,6 @@ export class GameInterface implements IUI {
         if(this.#game.inputState.isKeyDown(InputAction.ZOOM_OUT)) {
             this.#game.camera.zoom -= 0.1 * dt;
         }
-
-//            if(this.fpsBuffer.length > 15){
-//                var sum = 0;
-//                for(var i = 0; i < this.fpsBuffer.length; i++){
-//                    sum += this.fpsBuffer[i];
-//                }
-//                this.fps = ~~(sum / this.fpsBuffer.length);
-//                this.fpsBuffer = [];
-//            }
-//            this.fpsBuffer.push(60 / (time * 6));
     }
 
     paint(ctx : CanvasRenderingContext2D) {
@@ -124,10 +111,5 @@ export class GameInterface implements IUI {
                 }
             }
         }
-//            ctx.fillStyle = "#fff";
-//            ctx.fillText(this.fps + " fps", this.x+1, this.y+1);
-//            ctx.fillStyle = "#f00";
-//            ctx.fillText(this.fps + " fps", this.x, this.y);
     }
-
 }

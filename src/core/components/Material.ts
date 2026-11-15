@@ -4,7 +4,7 @@ import { ZIndexLayer } from '../level/ZIndexLayer';
 import { Texture } from '../../lib/Texture';
 
 export class Material implements IComponent {
-    active = false; // activated by Entity.build()
+    active = false;
     texture : Texture | null = null;
     zIndex = ZIndexLayer.FOREGROUND;
 

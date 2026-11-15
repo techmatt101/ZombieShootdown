@@ -5,7 +5,6 @@ import { Point } from '../lib/geometry/Point';
 import type { IUpdate } from '../lib/IUpdate';
 import type { IPool } from '../lib/Pool';
 
-/** A component class: exposes a static lookup for its slot in the component directory. */
 export interface ComponentType {
     reference(components : IComponentDirectory) : IComponent | undefined;
 }
@@ -25,7 +24,7 @@ export class Entity implements IUpdate, IPool {
     constructor(type : string, pos : Point, geometry : Box) {
         this.type = type;
         this.geometry = geometry;
-        this.pos = pos; //TODO: hmmmm...
+        this.pos = pos;
         geometry.pos = pos;
     }
 
@@ -35,7 +34,6 @@ export class Entity implements IUpdate, IPool {
         return component;
     }
 
-    /** Returns a component this entity is known to have; throws if it was never added. */
     getComponent<K extends keyof IComponentDirectory>(key : K) : NonNullable<IComponentDirectory[K]> {
         const component = this.components[key];
         if (component === undefined) {
@@ -54,12 +52,12 @@ export class Entity implements IUpdate, IPool {
 
     build() {
         for (const component of this.#componentList) {
-            component.active = true; //TODO: hmmmm....
+            component.active = true;
             component.build(this.components);
         }
     }
 
-    reset() { ///TODO: hmmm...
+    reset() {
         this.active = true;
     }
 

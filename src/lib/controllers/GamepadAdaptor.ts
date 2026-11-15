@@ -7,7 +7,7 @@ import type { KeyMappings } from './KeyMapper';
 export class GamepadAdaptor implements IInputController {
     #gamepadController : GamepadController;
     #camera : Camera;
-    #inputState! : InputState; // set in load()
+    #inputState! : InputState;
 
 
     constructor(gamepadController : GamepadController, camera : Camera) {
@@ -27,8 +27,8 @@ export class GamepadAdaptor implements IInputController {
     update(dt : number) {
         this.#gamepadController.update(dt);
         this.#inputState.movementCoordinates.copy(this.#gamepadController.leftAxes);
-        // rightAxes is zeroed inside the dead zone, so any length means the stick is aiming
-        if (this.#gamepadController.rightAxes.len() > 0) {
+        const isRightStickAiming = this.#gamepadController.rightAxes.len() > 0;
+        if (isRightStickAiming) {
             this.#inputState.aimSource = 'gamepad';
             this.#inputState.directionCoordinates.copy(this.#gamepadController.rightAxes).scale(Math.min(this.#camera.size.x, this.#camera.size.y) / 2);
         }

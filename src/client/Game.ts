@@ -43,7 +43,6 @@ export abstract class Game {
     level : TopDownLevel;
     abstract logic : IWaveLogic;
 
-    // Spawned by the level setup tasks, before the game loop starts.
     player! : Entity;
     pointer! : Entity;
 
@@ -71,7 +70,6 @@ export abstract class Game {
         this.input.loadController(gamepadControllerAdaptor);
         this.input.loadController(mouseAndKeyboardControllerAdaptor);
 
-        // Renderer and Filters
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
         if (Config.lighting) {
             this.lighting = new LightFilter(this.map);
@@ -79,7 +77,6 @@ export abstract class Game {
         }
         this.renderer.addFilter(new PixelFilter());
 
-        // Systems
         this.systems = new Systems<Entity>();
         this.systems.schedule(new LogicSystem());
         this.systems.schedule(new CollisionSystem());
@@ -92,7 +89,7 @@ export abstract class Game {
 
         this.levelSetupTasks = new TaskCollection('Level Setup')
             .add('Controllers', () => {
-                this.input.load(); //TODO: hmm...
+                this.input.load();
 
                 gamepadController.loadKeyMappings(Config.gamepadKeyMappings);
                 mouseAndKeyboardController.loadKeyMappings(Config.keyMappings);

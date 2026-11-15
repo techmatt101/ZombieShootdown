@@ -1,5 +1,5 @@
 import type { IBehavior } from '../behaviours/IBehavior';
-import { CollisionBehaviourList } from '../CollisionBehaviourList';
+import type { CollisionBehaviourList } from '../CollisionBehaviourList';
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
 import { EventHandler, type IObserver, type Listener } from '../../lib/EventHandler';
@@ -11,7 +11,7 @@ export enum CollisionEvent {
 
 export class Collision implements IComponent, IObserver<CollisionEvent> {
     active = true;
-    behaviours = new CollisionBehaviourList();
+    behaviours : CollisionBehaviourList = {};
 
     #box : Box;
     #isTouching = false;

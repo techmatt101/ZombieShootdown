@@ -1,6 +1,5 @@
 export type Task = () => void | Promise<void>;
 
-/** A named, timed sequence of (optionally async) setup steps. */
 export class TaskCollection {
     readonly name : string;
     #tasks : Array<{ name : string; run : Task }> = [];

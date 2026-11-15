@@ -16,7 +16,6 @@ export class SpriteAnimation {
     constructor(animation : ISpriteAnimationData) {
         this.#length = animation.animationTime;
         this.#sequence = animation.spriteSequence;
-
     }
 
     update(dt : number, texture : Texture) {
@@ -30,7 +29,6 @@ export class SpriteAnimation {
             texture.sourcePos.y = this.#sequence[this.#step].y;
             texture.sourceWidth = this.#sequence[this.#step].width;
             texture.sourceHeight = this.#sequence[this.#step].height;
-
         } else {
             if (this.#time > this.#sequence[this.#step].time) {
                 while (this.#time > this.#sequence[this.#step].time) {
@@ -42,14 +40,5 @@ export class SpriteAnimation {
                 texture.sourceHeight = this.#sequence[this.#step].height;
             }
         }
-
-        //var lastKeyFrame = this._animations[this._step];
-        //var nextKeyFrame = this._animations[this._step + 1];
-        //
-        //return {
-        //    progress: (time - lastKeyFrame.time) / (nextKeyFrame.time - lastKeyFrame.time),  //TODO: calculate curve
-        //    lastKeyFrame: lastKeyFrame,
-        //    nextKeyFrame: nextKeyFrame
-        //}
     }
 }

@@ -43,7 +43,7 @@ export class CanvasRenderer {
         this.#ctx.fillStyle = '#000';
 
         for (const entity of this.#entities) {
-            if (entity.hasActiveComponent(Material)) { //TODO: hmmm...
+            if (entity.hasActiveComponent(Material)) {
                 this.#drawEntity(entity);
             }
         }

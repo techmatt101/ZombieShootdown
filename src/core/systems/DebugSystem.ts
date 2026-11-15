@@ -15,7 +15,6 @@ export class DebugSystem implements ISystem<Entity> {
     }
 
     update(dt : number) {
-
     }
 
     paint(ctx : CanvasRenderingContext2D) {

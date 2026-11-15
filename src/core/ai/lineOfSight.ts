@@ -2,7 +2,6 @@ import type { IVector } from '../../lib/geometry/IVector';
 import type { Segment } from '../../lib/geometry/Segment';
 import type { LineOfSightRequest, LineOfSightResponse } from '../../workers/ai';
 
-// One worker shared by every AI; requests are matched to responses by id.
 let worker : Worker | null = null;
 const pending = new Map<number, (visible : boolean) => void>();
 let nextId = 0;
@@ -18,7 +17,6 @@ function getWorker() {
     return worker;
 }
 
-/** Resolves true when nothing in `segments` blocks the straight line from `from` to `to`. */
 export function checkLineOfSight(from : IVector, to : IVector, segments : Segment[]) : Promise<boolean> {
     const id = nextId++;
     const request : LineOfSightRequest = {

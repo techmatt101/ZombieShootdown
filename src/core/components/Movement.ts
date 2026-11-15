@@ -24,7 +24,7 @@ export class Movement implements IComponent {
     update(dt : number) : void {
         this.direction.normalize().scale(this.speed * dt);
         this.#pos.add(this.direction);
-        if (this.friction < 1) { //TODO: hmmm...
+        if (this.friction < 1) {
             this.#pos.trajectFromDirection((this.speed - this.speed * this.friction) * dt);
         }
     }

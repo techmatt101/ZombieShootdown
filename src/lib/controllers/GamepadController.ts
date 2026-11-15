@@ -12,7 +12,7 @@ export enum GamepadAxe {
 
 export class GamepadController implements IInputController {
     #keys : KeyBindings = new Map();
-    #inputState! : InputState; // set in load()
+    #inputState! : InputState;
     #lastButtonState : boolean[] = [];
     #axisThreshold = 0.3;
     public leftAxes = new Vector(0 ,0);
@@ -33,7 +33,11 @@ export class GamepadController implements IInputController {
             return;
         }
 
-        // Sticks
+        this.#updateSticks(gamepad);
+        this.#updateButtons(gamepad);
+    }
+
+    #updateSticks(gamepad : Gamepad) {
         const leftAxes = new Vector(gamepad.axes[GamepadAxe.LEFT_ANALOGUE_HORIZONTAL], gamepad.axes[GamepadAxe.LEFT_ANALOGUE_VERTICAL]);
         const rightAxes = new Vector(gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL], gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL]);
 
@@ -48,15 +52,17 @@ export class GamepadController implements IInputController {
         } else {
             this.rightAxes.reset();
         }
+    }
 
-        // Buttons: fire press/release on state changes only
+    #updateButtons(gamepad : Gamepad) {
         const buttonState = gamepad.buttons.map((button) => button.pressed);
         if (this.#lastButtonState.length === 0) {
             this.#lastButtonState = buttonState;
         }
 
         for (const [i, pressed] of buttonState.entries()) {
-            if (pressed !== this.#lastButtonState[i]) {
+            const changed = pressed !== this.#lastButtonState[i];
+            if (changed) {
                 const action = this.#keys.get(`Button${i}`);
                 if (pressed) {
                     this.#inputState.setKeyPress(action);
