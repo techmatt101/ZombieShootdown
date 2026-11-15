@@ -1,6 +1,6 @@
 import { ChunkEvent, type Chunk, type ChunkSource } from '../world/ChunkStreamer';
-import { CHUNK_SHIFT, CHUNK_TILES, LAST_TILE, chunkKey } from '../world/constants';
-import { generateChunk, type ChunkData } from '../world/generateChunk';
+import { CHUNK_SHIFT, CHUNK_TILES, LAST_TILE, TILE_SIZE, chunkKey } from '../world/constants';
+import { generateChunk, isCornerVertex, type ChunkData } from '../world/generateChunk';
 import { TileType } from '../world/TileType';
 import type { Listener } from '../lib/EventHandler';
 
@@ -80,10 +80,25 @@ export function chunksFromRows(rows : string[]) : FakeChunkSource {
             chunk.tiles[(tileX & LAST_TILE) + ((tileY & LAST_TILE) << CHUNK_SHIFT)] = TILE_BY_SYMBOL[rows[tileY][tileX]];
         }
     }
+    const isFloorAt = (tileX : number, tileY : number) => rows[tileY]?.[tileX] === '.';
     for (const chunk of chunks.values()) {
+        chunk.corners = cornersOf(chunk, isFloorAt);
         source.load(chunk);
     }
     return source;
+}
+
+function cornersOf(chunk : ChunkData, isFloorAt : (tileX : number, tileY : number) => boolean) {
+    const corners : number[] = [];
+    const originX = chunk.cx * CHUNK_TILES, originY = chunk.cy * CHUNK_TILES;
+    for (let y = 0; y <= LAST_TILE; y++) {
+        for (let x = 0; x <= LAST_TILE; x++) {
+            if (isCornerVertex(isFloorAt, originX + x, originY + y)) {
+                corners.push((originX + x) * TILE_SIZE, (originY + y) * TILE_SIZE);
+            }
+        }
+    }
+    return new Float32Array(corners);
 }
 
 export function generatedChunks(seed : number, radiusInChunks : number) : FakeChunkSource {

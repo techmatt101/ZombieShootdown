@@ -10,6 +10,7 @@ export function recordingContext() {
     };
     const context = {
         fillStyle: '',
+        strokeStyle: '',
         globalCompositeOperation: 'source-over',
         imageSmoothingEnabled: true,
         globalAlpha: 1,
@@ -26,6 +27,8 @@ export function recordingContext() {
         moveTo: record('moveTo'),
         lineTo: record('lineTo'),
         fill: record('fill'),
+        stroke: record('stroke'),
+        strokeRect: record('strokeRect'),
         arc: record('arc'),
         clip: record('clip'),
         closePath: record('closePath'),

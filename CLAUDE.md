@@ -13,7 +13,7 @@ pnpm test         # vitest unit tests (*.test.ts next to the module)
 pnpm check        # typecheck + lint + tests; run before committing
 ```
 
-Set `debug: true` in `src/config.ts` for the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs, draw calls), collision boxes, and `window.game` / `window.debug` console access.
+Set `debug: true` in `src/config.ts` for the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs, draw calls, light points), collision boxes, each light's visibility rays and outline (cyan for sight, orange otherwise), and `window.game` / `window.debug` console access.
 
 ## Performance rules
 
@@ -86,7 +86,11 @@ The engine is entity/component based: entities are built from components, system
   - `gpu/TextureStore` uploads any `TextureSource` once (keyed by the source object), and `gpu/MaskTextures` keeps map-memory masks in sync by version. Shaders live in `gpu/shaders/*.wgsl`, imported with `?raw`.
   - HUD text, the perf overlay and every `drawDebug` draw on the transparent 2D `#hud` canvas stacked over `#game` (`HudCanvas`).
 - `src/lighting/`:
-  - `visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightField`.
+  - `visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightField`. `cornerSight` decides each corner's rays from the tiles around it:
+    - **hidden** (the tile in front of the corner is solid): no ray.
+    - **faced** (inside corners, or outer corners seen head-on): one ray.
+    - **grazed** (one side open, where a shadow edge starts): two rays just either side.
+    - **rim:** 24 extra rays, since the light falls off to nothing before its radius. Scratch angles are reused, so only the returned polygon is allocated.
   - `LightField.ts`: caches each light's visibility polygon, recomputing only when the light moves or the tiles change, and bumps `version` so the GPU re-uploads light fans (`fanTriangles.ts`) only then.
   - `MapMemory.ts`: Monaco-style map discovery. The player's sight light (`Light.isSight`) scanline-fills its polygon (`fillPolygon.ts`) into a low-res `Uint8Array` mask per chunk. Remembered areas are drawn dimly; never-seen areas stay black. Unloaded chunks keep their mask array.
 - `src/client/`:

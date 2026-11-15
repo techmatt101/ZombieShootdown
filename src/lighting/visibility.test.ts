@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { computeVisibilityPolygon } from './visibility';
+import { describe, expect, it, vi } from 'vitest';
+import { computeVisibilityPolygon, cornerSight, CornerSight } from './visibility';
 import { chunksFromRows, generatedChunks } from '../testing/worldFixtures';
 import { TILE_SIZE } from '../world/constants';
 import { TileMap } from '../world/TileMap';
@@ -12,7 +12,85 @@ function anglesOf(polygon : Float32Array, originX : number, originY : number) {
     return angles;
 }
 
+function isInside(polygon : Float32Array, x : number, y : number) {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 2; i < polygon.length; j = i, i += 2) {
+        const crosses = (polygon[i + 1] > y) !== (polygon[j + 1] > y)
+            && x < (polygon[j] - polygon[i]) * (y - polygon[i + 1]) / (polygon[j + 1] - polygon[i + 1]) + polygon[i];
+        if (crosses) inside = !inside;
+    }
+    return inside;
+}
+
+const roomWithPillar = [
+    '###########',
+    '#.........#',
+    '#.........#',
+    '#.........#',
+    '#...#.....#',
+    '#.........#',
+    '#.........#',
+    '#.........#',
+    '###########',
+];
+const LEFT_OF_PILLAR = { x: 1.5 * TILE_SIZE, y: 4.5 * TILE_SIZE };
+const RIM_RAYS = 24;
+
+describe('cornerSight', () => {
+    const tileMap = new TileMap(chunksFromRows(roomWithPillar));
+    const sightOf = (vertexX : number, vertexY : number) => {
+        const x = vertexX * TILE_SIZE, y = vertexY * TILE_SIZE;
+        return cornerSight(tileMap, x, y, x - LEFT_OF_PILLAR.x, y - LEFT_OF_PILLAR.y);
+    };
+
+    it('grazes the near corners of a pillar, where its shadow starts', () => {
+        expect(sightOf(4, 4)).toBe(CornerSight.GRAZED);
+        expect(sightOf(4, 5)).toBe(CornerSight.GRAZED);
+    });
+
+    it('cannot see the far corners of a pillar past the pillar itself', () => {
+        expect(sightOf(5, 4)).toBe(CornerSight.HIDDEN);
+        expect(sightOf(5, 5)).toBe(CornerSight.HIDDEN);
+    });
+
+    it('faces the inside corners of the room', () => {
+        expect(sightOf(1, 1)).toBe(CornerSight.FACED);
+        expect(sightOf(10, 8)).toBe(CornerSight.FACED);
+    });
+
+    it('treats a corner straight along a grid line as grazed, to be safe', () => {
+        expect(cornerSight(tileMap, 4 * TILE_SIZE, 4 * TILE_SIZE, 0, 10)).toBe(CornerSight.GRAZED);
+    });
+});
+
 describe('computeVisibilityPolygon', () => {
+    it('casts two rays past grazed corners, one at faced corners, none at hidden ones, plus the rim', () => {
+        const tileMap = new TileMap(chunksFromRows(roomWithPillar));
+        const raycast = vi.spyOn(tileMap, 'raycast');
+        const polygon = computeVisibilityPolygon(tileMap, LEFT_OF_PILLAR.x, LEFT_OF_PILLAR.y, 900);
+        const grazedRays = 2 * 2, facedRays = 4;
+        expect(raycast).toHaveBeenCalledTimes(grazedRays + facedRays + RIM_RAYS);
+        expect(polygon.length / 2).toBe(grazedRays + facedRays + RIM_RAYS);
+    });
+
+    it('casts a sharp shadow behind a pillar', () => {
+        const tileMap = new TileMap(chunksFromRows(roomWithPillar));
+        const polygon = computeVisibilityPolygon(tileMap, LEFT_OF_PILLAR.x, LEFT_OF_PILLAR.y, 900);
+        expect(isInside(polygon, 300, 130)).toBe(true);
+        expect(isInside(polygon, 300, 150)).toBe(false);
+        expect(isInside(polygon, 300, 228)).toBe(false);
+        expect(isInside(polygon, 300, 248)).toBe(true);
+        expect(isInside(polygon, 380, 189)).toBe(false);
+    });
+
+    it('casts the same rays however many times it is asked', () => {
+        const tileMap = new TileMap(generatedChunks(5, 2));
+        const spawn = tileMap.spawnPoint();
+        const first = computeVisibilityPolygon(tileMap, spawn.x, spawn.y, 500);
+        computeVisibilityPolygon(tileMap, spawn.x + 300, spawn.y, 600);
+        expect(computeVisibilityPolygon(tileMap, spawn.x, spawn.y, 500)).toEqual(first);
+    });
+
     it('stops at walls, reaching slightly into the lit surface', () => {
         const rows = ['#####', '#...#', '#...#', '#...#', '#####'];
         const tileMap = new TileMap(chunksFromRows(rows));

@@ -5,6 +5,7 @@ import { computeVisibilityPolygon } from './visibility';
 import { Light } from '../core/components/Light';
 import { Camera } from '../lib/Camera';
 import { Vector } from '../lib/geometry/Vector';
+import { recordingContext } from '../testing/fakeCanvas';
 import { chunksFromRows } from '../testing/worldFixtures';
 import { TileMap } from '../world/TileMap';
 import { TileType } from '../world/TileType';
@@ -97,5 +98,29 @@ describe('LightField', () => {
         expect(out).toEqual([map.remembered]);
         new LightField(new TileMap(chunksFromRows(['....']))).rememberedInView(camera, out);
         expect(out).toEqual([]);
+    });
+
+    it('counts the points of every lit area, for the perf overlay', () => {
+        const field = new LightField(new TileMap(chunksFromRows(['....'])));
+        field.setLights([new Light(new Vector(0, 0), { radius: 900 }), new Light(new Vector(5, 5), { radius: 600 })]);
+        expect(field.pointCount).toBe(0);
+        field.update(1);
+        expect(field.pointCount).toBe(6);
+    });
+
+    it('draws each lit area for debugging: its rays, its outline and its points, coloured by whether it is sight', () => {
+        const field = new LightField(new TileMap(chunksFromRows(['....'])));
+        field.setLights([new Light(new Vector(0, 0), { radius: 900, isSight: true }), new Light(new Vector(5, 5), { radius: 600 })]);
+        field.update(1);
+        const { context, calls, count } = recordingContext();
+        const strokedWith : string[] = [];
+        context.stroke = () => {
+            strokedWith.push(String(context.strokeStyle));
+        };
+        field.drawDebug(context);
+        expect(strokedWith).toEqual(['#0ff', '#0ff', '#fa0', '#fa0']);
+        expect(count('fillRect')).toBe(6);
+        expect(count('save')).toBe(count('restore'));
+        expect(calls.filter((call) => call.method === 'moveTo' && call.args[0] === 5 && call.args[1] === 5).length).toBe(3);
     });
 });

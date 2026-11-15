@@ -104,6 +104,9 @@ export abstract class Game {
         if (Config.debug) {
             this.debugSystem = new DebugSystem(this.camera);
             this.systems.schedule(this.debugSystem);
+            if (this.lighting !== undefined) {
+                this.debugSystem.addOverlay(this.lighting);
+            }
         }
         this.level = new TopDownLevel(this.chunks, this.tileMap, this.camera, this.systems);
         const doorSpawner = new DoorSpawner(this.level);
@@ -168,6 +171,7 @@ export abstract class Game {
             this.perf.count('chunks pending', this.chunks.pendingCount);
             this.perf.count('collision pairs', this.collisionSystem.pairsTested);
             this.perf.count('draw calls', this.renderer.drawCalls);
+            this.perf.count('light points', this.lighting?.pointCount ?? 0);
             this.#perfOverlay.paint(ctx);
         }
     }

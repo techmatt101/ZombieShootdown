@@ -240,7 +240,7 @@ function isSurroundedByFloor(plan : FloorPlan, x : number, y : number) {
     return true;
 }
 
-function isCornerVertex(letsLightThrough : (x : number, y : number) => boolean, vx : number, vy : number) {
+export function isCornerVertex(letsLightThrough : (x : number, y : number) => boolean, vx : number, vy : number) {
     const topLeft = letsLightThrough(vx - 1, vy - 1);
     const topRight = letsLightThrough(vx, vy - 1);
     const bottomLeft = letsLightThrough(vx - 1, vy);

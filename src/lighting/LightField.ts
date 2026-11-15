@@ -7,6 +7,10 @@ import type { IUpdate } from '../lib/IUpdate';
 import type { TileMap } from '../world/TileMap';
 
 const MIN_LIGHT_MOVEMENT = 0.5;
+const SIGHT_DEBUG_COLOUR = '#0ff';
+const LIGHT_DEBUG_COLOUR = '#fa0';
+const RAY_DEBUG_ALPHA = 0.2;
+const POINT_DEBUG_SIZE = 4;
 
 export interface RememberedMap {
     reveal(polygon : Float32Array) : void;
@@ -64,7 +68,23 @@ export class LightField implements IUpdate, LightReceiver {
         this.#memory.rememberedInView(camera, out);
     }
 
+    get pointCount() {
+        let points = 0;
+        const lights = this.#lights;
+        for (let i = 0; i < lights.length; i++) {
+            points += (this.#litAreas.get(lights[i])?.polygon.length ?? 0) / 2;
+        }
+        return points;
+    }
+
     drawDebug(ctx : CanvasRenderingContext2D) {
+        const lights = this.#lights;
+        for (let i = 0; i < lights.length; i++) {
+            const area = this.#litAreas.get(lights[i]);
+            if (area !== undefined) {
+                drawLitAreaDebug(ctx, area, lights[i].isSight ? SIGHT_DEBUG_COLOUR : LIGHT_DEBUG_COLOUR);
+            }
+        }
     }
 
     #refreshLitArea(light : Light) {
@@ -82,4 +102,35 @@ export class LightField implements IUpdate, LightReceiver {
             this.#memory?.reveal(polygon);
         }
     }
+}
+
+function drawLitAreaDebug(ctx : CanvasRenderingContext2D, area : LitArea, colour : string) {
+    const polygon = area.polygon;
+    if (polygon.length < 2) return;
+    ctx.save();
+    ctx.strokeStyle = colour;
+    ctx.fillStyle = colour;
+
+    ctx.globalAlpha = RAY_DEBUG_ALPHA;
+    ctx.beginPath();
+    for (let i = 0; i < polygon.length; i += 2) {
+        ctx.moveTo(area.x, area.y);
+        ctx.lineTo(polygon[i], polygon[i + 1]);
+    }
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.moveTo(polygon[0], polygon[1]);
+    for (let i = 2; i < polygon.length; i += 2) {
+        ctx.lineTo(polygon[i], polygon[i + 1]);
+    }
+    ctx.closePath();
+    ctx.stroke();
+
+    const halfPoint = POINT_DEBUG_SIZE / 2;
+    for (let i = 0; i < polygon.length; i += 2) {
+        ctx.fillRect(polygon[i] - halfPoint, polygon[i + 1] - halfPoint, POINT_DEBUG_SIZE, POINT_DEBUG_SIZE);
+    }
+    ctx.restore();
 }
