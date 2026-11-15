@@ -10,9 +10,9 @@ export interface GameConfig {
 }
 
 export const Config : GameConfig = {
-    debug: true,
+    debug: false,
     sound: false,
-    lighting: false,
+    lighting: true,
     skipMenu: false,
 
     keyMappings: {

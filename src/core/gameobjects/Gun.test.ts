@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Gun } from './Gun';
+import { Gun, WeaponEvent } from './Gun';
 import { WeaponHolder } from '../components/WeaponHolder';
 import { Entity } from '../Entity';
 import { Box } from '../../lib/geometry/Box';
@@ -39,5 +39,17 @@ describe('Gun', () => {
         gun.update(1.5);
         holder.attack();
         expect(bullets.length).toBe(2);
+    });
+
+    it('announces each shot it actually fires', () => {
+        const { gun, holder } = armedPlayer();
+        let shots = 0;
+        gun.on(WeaponEvent.FIRED, () => shots++);
+        holder.attack();
+        holder.attack();
+        expect(shots).toBe(1);
+        gun.update(1.5);
+        holder.attack();
+        expect(shots).toBe(2);
     });
 });

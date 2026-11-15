@@ -45,6 +45,7 @@ describe('spawnPlayer', () => {
         expect(player.getComponent('interactor').behaviours.openDoor?.dominant).toBe(true);
         expect(player.getComponent('collision').behaviours.zombieDamage?.passive).toBe(true);
         expect(player.getComponent('health').value).toBe(400);
+        expect(player.getComponent('light')).toMatchObject({ pos: player.pos, radius: 900, intensity: 1, behindWalls: 0.5 });
     });
 });
 

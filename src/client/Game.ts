@@ -10,6 +10,7 @@ import { Systems } from '../core/Systems';
 import { DoorSpawner } from '../core/level/DoorSpawner';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
 import { InteractionSystem } from '../core/systems/InteractionSystem';
+import { LightingSystem } from '../core/systems/LightingSystem';
 import { DebugSystem } from '../core/systems/DebugSystem';
 import { LogicSystem } from '../core/systems/LogicSystem';
 import { RenderSystem } from '../core/systems/RenderSystem';
@@ -91,6 +92,9 @@ export abstract class Game {
 
         this.systems = new Systems<Entity>();
         this.systems.schedule(new LogicSystem());
+        if (this.lighting !== undefined) {
+            this.systems.schedule(new LightingSystem(this.lighting));
+        }
         this.collisionSystem = new CollisionSystem(this.tileMap);
         this.systems.schedule(this.collisionSystem);
         this.systems.schedule(new InteractionSystem());

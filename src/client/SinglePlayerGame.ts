@@ -4,7 +4,7 @@ import { giveGun } from '../core/decorators/WeaponiseDecorator';
 import type { Entity } from '../core/Entity';
 import { spawnPointer } from '../core/factories/InterfaceFactory';
 import { spawnPlayer } from '../core/factories/PlayerFactory';
-import { spawnBullet, spawnGun } from '../core/factories/WeaponFactory';
+import { spawnBullet, spawnGun, spawnMuzzleFlash } from '../core/factories/WeaponFactory';
 import type { TopDownLevel } from '../core/level/TopDownLevel';
 import { AISystem } from '../core/systems/AISystem';
 import { Pool } from '../lib/Pool';
@@ -43,11 +43,11 @@ export class SinglePlayerGame extends Game {
 
                 this.level.addEntity(this.player);
                 this.level.addEntity(gun);
+                this.level.addEntity(spawnMuzzleFlash(gun, this.player));
             })
             .add('Level Tweaks', () => {
                 this.level.setObjectToFollow(this.player);
                 this.camera.jumpToTarget();
-                this.lighting?.setLightSource(this.player.pos);
             });
 
         return super.load();

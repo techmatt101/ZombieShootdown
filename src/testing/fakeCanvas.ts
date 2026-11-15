@@ -15,6 +15,7 @@ export function recordingContext() {
         fillStyle: '',
         globalCompositeOperation: 'source-over',
         imageSmoothingEnabled: true,
+        globalAlpha: 1,
         clearRect: record('clearRect'),
         fillRect: record('fillRect'),
         drawImage: record('drawImage'),
@@ -28,6 +29,10 @@ export function recordingContext() {
         moveTo: record('moveTo'),
         lineTo: record('lineTo'),
         fill: record('fill'),
+        arc: record('arc'),
+        clip: record('clip'),
+        createRadialGradient: () => ({ addColorStop() {} }),
+        createLinearGradient: () => ({ addColorStop() {} }),
     };
     const count = (method : string) => {
         let total = 0;

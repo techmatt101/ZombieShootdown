@@ -4,6 +4,7 @@ import { Collision, CollisionLayer } from '../components/Collision';
 import { Health } from '../components/Health';
 import { InputControl } from '../components/InputControl';
 import { Interactor } from '../components/Interactor';
+import { Light } from '../components/Light';
 import { Material } from '../components/Material';
 import { Movement } from '../components/Movement';
 import { Entity } from '../Entity';
@@ -15,6 +16,9 @@ import { Vector } from '../../lib/geometry/Vector';
 import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
+const VISION_RADIUS = 900;
+const SEEN_BEHIND_WALLS = 0.5;
+
 export function spawnPlayer(position : IVector, input : InputState) {
     const player = new Entity('Player', new Point(position.x, position.y, 0), new Box(48, 48));
 
@@ -24,6 +28,7 @@ export function spawnPlayer(position : IVector, input : InputState) {
     const collision = player.addComponent(new Collision(player.geometry, CollisionLayer.PLAYER, CollisionLayer.ENEMY));
 
     const material = player.addComponent(new Material());
+    player.addComponent(new Light(player.pos, { radius: VISION_RADIUS, behindWalls: SEEN_BEHIND_WALLS }));
 
     const health = player.addComponent(new Health(400));
 
