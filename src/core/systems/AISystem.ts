@@ -1,4 +1,9 @@
-class AISystem implements ISystem<Entity> {
+import { AI } from '../components/AI';
+import { Entity } from '../Entity';
+import { MapManager } from '../level/MapManager';
+import type { ISystem } from './ISystem';
+
+export class AISystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
     private _map : MapManager;
     private _index = 0;

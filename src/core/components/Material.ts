@@ -1,4 +1,9 @@
-class Material implements IComponent {
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+import { ZIndexLayer } from '../level/ZIndexLayer';
+import { Texture } from '../../lib/Texture';
+
+export class Material implements IComponent {
     active : boolean;
     texture : Texture = null;
     zIndex = ZIndexLayer.FOREGROUND;

@@ -1,4 +1,7 @@
-class SpriteAnimation {
+import type { ISpriteAnimationSequence } from './ISpriteAnimationSequence';
+import { Texture } from '../../lib/Texture';
+
+export class SpriteAnimation {
     private _step = 0;
     private _time = 0;
     private _length = 0;

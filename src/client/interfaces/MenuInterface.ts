@@ -1,4 +1,8 @@
-class MenuInterface implements IUI {
+import { bunnyTestSetup, singlePlayerGameSetup } from '../../app';
+import type { IUI } from './IUI';
+import { Config } from '../../config';
+
+export class MenuInterface implements IUI {
 
     constructor() {
         var play = document.getElementById('play');

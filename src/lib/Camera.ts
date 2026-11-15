@@ -1,4 +1,9 @@
-class Camera implements IUpdate {
+import { Canvas } from './Canvas';
+import { Box } from './geometry/Box';
+import { Vector } from './geometry/Vector';
+import type { IUpdate } from './IUpdate';
+
+export class Camera implements IUpdate {
     public pos : Vector;
     public size : Vector;
     public viewport : Box;

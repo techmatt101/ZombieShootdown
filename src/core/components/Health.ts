@@ -1,8 +1,12 @@
-enum HealthEvent {
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+import { EventHandler, type IObserver } from '../../lib/EventHandler';
+
+export enum HealthEvent {
     DEATH
 }
 
-class Health implements IComponent, IObserver {
+export class Health implements IComponent, IObserver {
     active : boolean;
     value : number;
     isDead = false;

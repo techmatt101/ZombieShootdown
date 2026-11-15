@@ -1,4 +1,15 @@
-var Config = {
+export interface GameConfig {
+    debug : boolean;
+    sound : boolean;
+    lighting : boolean;
+    skipMenu : boolean;
+    keyMappings : Record<number, string>;
+    // Referenced by Game.ts but not currently defined, so controllers receive no mappings.
+    gamepadKeyMappings? : Record<number, string>;
+    mouseKeyMappings? : Record<number, string>;
+}
+
+export const Config : GameConfig = {
     debug: true,
     sound: false,
     lighting: false,

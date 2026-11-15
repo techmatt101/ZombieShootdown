@@ -1,4 +1,10 @@
-class MapGenerator {
+import { Grid } from './Grid';
+import { Room } from './Room';
+import { TileType } from './Tile';
+import { Vector } from '../../lib/geometry/Vector';
+import { randInt } from '../../lib/helpers';
+
+export class MapGenerator {
     private _grid = new Grid();
     private _rooms : Room[] = [];
 

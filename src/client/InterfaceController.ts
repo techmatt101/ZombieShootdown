@@ -1,4 +1,10 @@
-class InterfaceController implements IUpdate {
+import { Game } from './Game';
+import { GameInterface } from './interfaces/GameInterface';
+import type { IUI } from './interfaces/IUI';
+import { MenuInterface } from './interfaces/MenuInterface';
+import type { IUpdate } from '../lib/IUpdate';
+
+export class InterfaceController implements IUpdate {
     private _ui : IUI;
     private _game : Game;
 

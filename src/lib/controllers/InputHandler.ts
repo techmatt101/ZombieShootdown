@@ -1,9 +1,13 @@
-class InputHandler implements IUpdate {
+import type { IInputController } from './IInputController';
+import { InputState } from './InputState';
+import type { IUpdate } from '../IUpdate';
+
+export class InputHandler implements IUpdate {
     private _controllers : IInputController[] = [];
     private _inputState : InputState;
 
 
-    constructor(inputActions : Object) {
+    constructor(inputActions : object) {
         this._inputState = new InputState(inputActions);
 
         // rest buttons on lose focus of window

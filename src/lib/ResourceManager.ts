@@ -1,4 +1,4 @@
-class ResourceManager {
+export class ResourceManager {
     private static _pendingResource = 0;
     private static _assetPath = 'assets/';
     private static _cache = {};

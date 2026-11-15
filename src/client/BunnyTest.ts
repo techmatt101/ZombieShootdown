@@ -1,4 +1,4 @@
-class BunnyTest {
+export class BunnyTest {
     fps = 1000;
     fpsBuffer = [];
     bunnies = [];

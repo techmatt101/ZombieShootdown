@@ -1,4 +1,8 @@
-class DebugSystem implements ISystem<Entity> {
+import { Entity } from '../Entity';
+import type { ISystem } from './ISystem';
+import { Camera } from '../../lib/Camera';
+
+export class DebugSystem implements ISystem<Entity> {
     private _enmities : Entity[] = [];
     private _camera : Camera;
 

@@ -1,13 +1,19 @@
-declare var Config : any;
-var ui : InterfaceController = null;
-var game : any = null;
-var debug : DebugTool = null;
+import './styles/style.css';
+import { BunnyTesterGame } from './client/BunnyTesterGame';
+import { DebugTool } from './client/DebugTool';
+import { InterfaceController } from './client/InterfaceController';
+import { SinglePlayerGame } from './client/SinglePlayerGame';
+import { Config } from './config';
+
+export var ui : InterfaceController = null;
+export var game : any = null;
+export var debug : DebugTool = null;
 
 window.addEventListener('load',() => {
     ui = new InterfaceController();
 });
 
-function singlePlayerGameSetup () {
+export function singlePlayerGameSetup () {
     console.time("GameSetup");
     game = new SinglePlayerGame();
     console.timeEnd("GameSetup");
@@ -18,7 +24,7 @@ function singlePlayerGameSetup () {
     }
 }
 
-function bunnyTestSetup() {
+export function bunnyTestSetup() {
     game = new BunnyTesterGame();
     game.load();
 }

@@ -1,4 +1,4 @@
-interface IBehavior {
+export interface IBehavior {
     dominant : boolean
     passive : boolean
 

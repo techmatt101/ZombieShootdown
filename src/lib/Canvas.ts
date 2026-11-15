@@ -1,6 +1,6 @@
-/// <reference path="geometry/Vector" />
+import { Vector } from './geometry/Vector';
 
-class Canvas {
+export class Canvas {
     element : HTMLCanvasElement;
     center : Vector;
     width : number;

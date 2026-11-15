@@ -1,4 +1,9 @@
-class Movement implements IComponent {
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+import { Point } from '../../lib/geometry/Point';
+import { Vector } from '../../lib/geometry/Vector';
+
+export class Movement implements IComponent {
     active = true;
     speed : number;
     friction : number;

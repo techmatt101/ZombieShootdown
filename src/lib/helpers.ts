@@ -1,4 +1,4 @@
-function fastAtan2(x, y) {
+export function fastAtan2(x, y) {
     if (x == 0 && y == 0) {
         return 0.00;
     }
@@ -9,7 +9,7 @@ function fastAtan2(x, y) {
     return radian;
 }
 
-function insertionSort(ary) {
+export function insertionSort(ary) {
     for (var i = 1, l = ary.length; i < l; i++) {
         var value = ary[i];
         for (var j = i - 1; j >= 0; j--) {
@@ -23,6 +23,6 @@ function insertionSort(ary) {
     return ary;
 }
 
-function randInt(min : number, max : number) {
+export function randInt(min : number, max : number) {
     return ~~(Math.random() * (max - min + 1) + min);
 }

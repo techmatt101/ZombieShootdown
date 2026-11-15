@@ -1,4 +1,7 @@
-class Grid {
+import { Tile, TileType } from './Tile';
+import { Vector } from '../../lib/geometry/Vector';
+
+export class Grid {
     private _grid : Array<Tile[]> = [];
     width : number;
     height : number;

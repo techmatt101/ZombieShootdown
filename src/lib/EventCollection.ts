@@ -1,4 +1,4 @@
-class EventCollection {
+export class EventCollection {
     private _totalEvents = 0;
     private _activeEvents = 0;
     private _onComplete : () => void;

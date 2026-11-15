@@ -1,4 +1,17 @@
-class TileFactory {
+import { Collision } from '../components/Collision';
+import { Material } from '../components/Material';
+import { Entity } from '../Entity';
+import { ZIndexLayer } from '../level/ZIndexLayer';
+import { Tile, TileType } from '../tilemap/Tile';
+import { Wall } from '../tilemap/Wall';
+import { Box } from '../../lib/geometry/Box';
+import { Point } from '../../lib/geometry/Point';
+import { Vector } from '../../lib/geometry/Vector';
+import { randInt } from '../../lib/helpers';
+import { ResourceManager } from '../../lib/ResourceManager';
+import { Texture } from '../../lib/Texture';
+
+export class TileFactory {
 
     static spawnTile(pos : Vector, tileSize : Vector, tileData : Tile) {
         var tile = new Entity(TileType[tileData.type] + ' Tile', new Point(0, 0, 0).copyVector(pos), new Box(tileSize.x, tileSize.y));

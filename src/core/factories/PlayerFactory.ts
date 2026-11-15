@@ -1,4 +1,19 @@
-class PlayerFactory {
+import { DamageCollisionBehavior } from '../behaviours/DamageCollisionBehavior';
+import { Collision } from '../components/Collision';
+import { Health } from '../components/Health';
+import { InputControl } from '../components/InputControl';
+import { Material } from '../components/Material';
+import { Movement } from '../components/Movement';
+import { Entity } from '../Entity';
+import { Room } from '../tilemap/Room';
+import { InputState } from '../../lib/controllers/InputState';
+import { Box } from '../../lib/geometry/Box';
+import { Point } from '../../lib/geometry/Point';
+import { Vector } from '../../lib/geometry/Vector';
+import { ResourceManager } from '../../lib/ResourceManager';
+import { Texture } from '../../lib/Texture';
+
+export class PlayerFactory {
 
     static spawnPlayer(room : Room, input : InputState) {
         var player = new Entity('Player', new Point(room.pos.x + room.width / 2, room.pos.y + room.height / 2, 0), new Box(48, 48));

@@ -1,8 +1,8 @@
-enum Sound {
+export enum Sound {
     AMBIENT
 }
 
-class SoundController {
+export class SoundController {
     private _audioClips : {[index : string] : HTMLAudioElement} = {};
 
 

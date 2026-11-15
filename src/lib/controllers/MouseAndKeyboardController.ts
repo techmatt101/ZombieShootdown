@@ -1,4 +1,8 @@
-class MouseAndKeyboardController {
+import { InputState } from './InputState';
+import { KeyMapper } from './KeyMapper';
+import { Vector } from '../geometry/Vector';
+
+export class MouseAndKeyboardController {
     pointerPos = new Vector(0, 0);
 
     private _keys = {};
@@ -60,7 +64,7 @@ class MouseAndKeyboardController {
         }
     }
 
-    loadKeyMappings(mappings : Object) {
+    loadKeyMappings(mappings : object) {
         KeyMapper.loadKeyMappings(this._keys, mappings, this._inputState.inputActions);
     }
 
@@ -73,10 +77,9 @@ class MouseAndKeyboardController {
         }
         else {
             this._pointerLockEnabled = false;
-            window.addEventListener('click', function() {
+            window.addEventListener('click', () => {
                 self._canvas.requestPointerLock();
-                window.removeEventListener('click', this);
-            });
+            }, { once: true });
         }
     }
 }

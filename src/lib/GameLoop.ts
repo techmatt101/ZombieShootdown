@@ -1,4 +1,4 @@
-class GameLoop {
+export class GameLoop {
     private _lastGameLoopFrame = 0;
     private _requestedAnimationFrame = 0;
     private _update : (dt : number) => void;

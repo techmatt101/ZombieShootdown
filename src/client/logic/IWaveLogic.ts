@@ -1,4 +1,6 @@
-interface IWaveLogic {
+import { Entity } from '../../core/Entity';
+
+export interface IWaveLogic {
     score : number
     wave : number
 

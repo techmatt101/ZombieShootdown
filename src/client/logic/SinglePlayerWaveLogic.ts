@@ -1,4 +1,15 @@
-class SinglePlayerWaveLogic implements IWaveLogic {
+import type { IWaveLogic } from './IWaveLogic';
+import { HealthEvent } from '../../core/components/Health';
+import { Entity } from '../../core/Entity';
+import { EnemyFactory } from '../../core/factories/EnemyFactory';
+import { TopDownLevel } from '../../core/level/TopDownLevel';
+import { MapGenerator } from '../../core/tilemap/MapGenerator';
+import { EventCollection } from '../../lib/EventCollection';
+import { Box } from '../../lib/geometry/Box';
+import { randInt } from '../../lib/helpers';
+import { Pool } from '../../lib/Pool';
+
+export class SinglePlayerWaveLogic implements IWaveLogic {
     score = 0;
     wave = 0;
 

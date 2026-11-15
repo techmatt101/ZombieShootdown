@@ -1,4 +1,16 @@
-class WeaponFactory {
+import { DamageCollisionBehavior } from '../behaviours/DamageCollisionBehavior';
+import { Collision, CollisionEvent } from '../components/Collision';
+import { Damage } from '../components/Damage';
+import { Material } from '../components/Material';
+import { Movement } from '../components/Movement';
+import { Entity } from '../Entity';
+import { Gun } from '../gameobjects/Gun';
+import { ZIndexLayer } from '../level/ZIndexLayer';
+import { Box } from '../../lib/geometry/Box';
+import { Point } from '../../lib/geometry/Point';
+import { Pool } from '../../lib/Pool';
+
+export class WeaponFactory {
 
     static spawnBullet() {
         var bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));

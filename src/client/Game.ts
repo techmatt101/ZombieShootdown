@@ -1,4 +1,33 @@
-class Game {
+import { ui } from '../app';
+import type { IWaveLogic } from './logic/IWaveLogic';
+import { Config } from '../config';
+import { Entity } from '../core/Entity';
+import { MapManager } from '../core/level/MapManager';
+import { TopDownLevel } from '../core/level/TopDownLevel';
+import { CanvasRenderer } from '../core/render/CanvasRenderer';
+import { LightFilter } from '../core/render/filters/LightFilter';
+import { PixelFilter } from '../core/render/filters/PixelFilter';
+import { Systems } from '../core/Systems';
+import { CollisionSystem } from '../core/systems/CollisionSystem';
+import { DebugSystem } from '../core/systems/DebugSystem';
+import { LogicSystem } from '../core/systems/LogicSystem';
+import { RenderSystem } from '../core/systems/RenderSystem';
+import { Camera } from '../lib/Camera';
+import { Canvas } from '../lib/Canvas';
+import { GamepadAdaptor } from '../lib/controllers/GamepadAdaptor';
+import { GamepadController } from '../lib/controllers/GamepadController';
+import { InputAction } from '../lib/controllers/InputAction';
+import { InputHandler } from '../lib/controllers/InputHandler';
+import { InputState } from '../lib/controllers/InputState';
+import { MouseAndKeyboardAdaptor } from '../lib/controllers/MouseAndKeyboardAdaptor';
+import { MouseAndKeyboardController } from '../lib/controllers/MouseAndKeyboardController';
+import { Sound, SoundController } from '../lib/controllers/SoundController';
+import { GameLoop } from '../lib/GameLoop';
+import { Vector } from '../lib/geometry/Vector';
+import { ResourceManager } from '../lib/ResourceManager';
+import { TaskCollection } from '../lib/TaskCollection';
+
+export class Game {
     loop : GameLoop;
     canvas : Canvas;
     input : InputHandler;

@@ -1,4 +1,11 @@
-class Entity implements IUpdate, IPool {
+import type { IComponent } from './components/IComponent';
+import type { IComponentDirectory } from './components/IComponentDirectory';
+import { Box } from '../lib/geometry/Box';
+import { Point } from '../lib/geometry/Point';
+import type { IUpdate } from '../lib/IUpdate';
+import type { IPool } from '../lib/Pool';
+
+export class Entity implements IUpdate, IPool {
     id = Date.now().toString(32) + (~~(Math.random() * 10000000)).toString(32);
     type : string;
     pos : Point;

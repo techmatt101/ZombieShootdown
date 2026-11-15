@@ -1,4 +1,8 @@
-class PixelFilter implements IFilter {
+import type { IFilter } from './IFilter';
+import { Camera } from '../../../lib/Camera';
+import { Canvas } from '../../../lib/Canvas';
+
+export class PixelFilter implements IFilter {
     init(ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
         canvas.context.imageSmoothingEnabled = false;
         canvas.context.msImageSmoothingEnabled = false;

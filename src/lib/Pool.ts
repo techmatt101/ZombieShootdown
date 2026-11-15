@@ -1,9 +1,9 @@
-interface IPool {
-    available : Boolean;
+export interface IPool {
+    available : boolean;
     reset()
 }
 
-class Pool <T> {
+export class Pool <T> {
     private _factory : () => IPool;
     private _objects = [];
     private _available = [];

@@ -1,4 +1,11 @@
-class MouseAndKeyboardAdaptor implements IInputController {
+import { Camera } from '../Camera';
+import type { IInputController } from './IInputController';
+import { InputAction } from './InputAction';
+import { InputState } from './InputState';
+import { MouseAndKeyboardController } from './MouseAndKeyboardController';
+import { Vector } from '../geometry/Vector';
+
+export class MouseAndKeyboardAdaptor implements IInputController {
     private _mouseAndKeyboardController : MouseAndKeyboardController;
     private _lastPos = new Vector(0,0);
     private _camera : Camera;
@@ -15,7 +22,7 @@ class MouseAndKeyboardAdaptor implements IInputController {
         this._mouseAndKeyboardController.load(inputState);
     }
 
-    loadKeyMappings(mappings : Object) {
+    loadKeyMappings(mappings : object) {
         this._mouseAndKeyboardController.loadKeyMappings(mappings);
     }
 

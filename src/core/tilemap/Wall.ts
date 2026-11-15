@@ -1,4 +1,8 @@
-class Wall {
+import { Direction } from './Direction';
+import { Tile, TileType } from './Tile';
+import { Vector } from '../../lib/geometry/Vector';
+
+export class Wall {
     pos : Vector;
     tile : Tile;
     direction : Direction;

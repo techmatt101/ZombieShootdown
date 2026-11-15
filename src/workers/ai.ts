@@ -1,4 +1,5 @@
-importScripts('helpers.js', 'raytracing.js');
+import { fastAtan2, findDistance } from './helpers';
+import { getIntersection } from './raytracing';
 
 self.addEventListener('message', function (e) {
 

@@ -1,12 +1,14 @@
-class InputState {
+import { Vector } from '../geometry/Vector';
+
+export class InputState {
     movementCoordinates = new Vector(0, 0);
     directionCoordinates = new Vector(0, 0);
-    inputActions : Object;
+    inputActions : object;
 
     private _pressed : {[action : number] : boolean} = {};
 
 
-    constructor(inputActions : Object) {
+    constructor(inputActions : object) {
         this.inputActions = inputActions;
 
         // load all possible actions to prevent undefined on lookups

@@ -1,4 +1,10 @@
-class CanvasRenderer {
+import { Material } from '../components/Material';
+import { Entity } from '../Entity';
+import type { IFilter } from './filters/IFilter';
+import { Camera } from '../../lib/Camera';
+import { Canvas } from '../../lib/Canvas';
+
+export class CanvasRenderer {
     protected _ctx : CanvasRenderingContext2D;
     protected _canvas : Canvas;
     protected _camera : Camera;

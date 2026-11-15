@@ -1,5 +1,5 @@
-class KeyMapper {
-    static loadKeyMappings(keys : Object, mappings : Object, inputActions : Object) {
+export class KeyMapper {
+    static loadKeyMappings(keys : object, mappings : object, inputActions : object) {
         for (var mapper in mappings) {
             var mappedInputAction = inputActions[mappings[mapper]];
             if (typeof mappedInputAction !== 'undefined') {

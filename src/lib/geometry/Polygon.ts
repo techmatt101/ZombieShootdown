@@ -1,6 +1,7 @@
-/// <reference path="Vector" />
+import type { IShape } from './IShape';
+import { Vector } from './Vector';
 
-class Polygon implements IShape {
+export class Polygon implements IShape {
     constructor(public pos : Vector,
                 public points : Vector[]) {
     }

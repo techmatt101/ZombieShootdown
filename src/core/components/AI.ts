@@ -1,4 +1,8 @@
-class AI implements IComponent {
+import type { IAI } from '../ai/IAI';
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+
+export class AI implements IComponent {
     active = true;
 
     private _ai : IAI;

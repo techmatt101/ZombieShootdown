@@ -1,6 +1,7 @@
-/// <reference path="geometry/Box" />
+import { Box } from './geometry/Box';
+import { Vector } from './geometry/Vector';
 
-class Texture extends Box {
+export class Texture extends Box {
     img : HTMLImageElement;
     sourcePos : Vector;
     sourceWidth : number;

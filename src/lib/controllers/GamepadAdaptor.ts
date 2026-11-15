@@ -1,4 +1,9 @@
-class GamepadAdaptor implements IInputController {
+import { Camera } from '../Camera';
+import { GamepadController } from './GamepadController';
+import type { IInputController } from './IInputController';
+import { InputState } from './InputState';
+
+export class GamepadAdaptor implements IInputController {
     private _gamepadController : GamepadController;
     private _camera : Camera;
     private _inputState : InputState;
@@ -14,7 +19,7 @@ class GamepadAdaptor implements IInputController {
         this._gamepadController.load(inputState);
     }
 
-    loadKeyMappings(mappings : Object) {
+    loadKeyMappings(mappings : object) {
         this._gamepadController.loadKeyMappings(mappings);
     }
 

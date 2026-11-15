@@ -1,4 +1,5 @@
-importScripts('helpers.js', 'raytracing.js');
+import { fastAtan2 } from './helpers';
+import { getIntersection } from './raytracing';
 
 self.addEventListener('message', function (e) {
 
@@ -35,7 +36,7 @@ function getSightPolygon (sightX, sightY, segments) {
     }
 
     // Get all angles
-    var uniqueAngles = [];
+    var uniqueAngles : number[] = [];
     for (var j = 0; j < uniquePoints.length; j++) {
         var uniquePoint = uniquePoints[j];
         var angle = fastAtan2(uniquePoint.x - sightX, uniquePoint.y - sightY);

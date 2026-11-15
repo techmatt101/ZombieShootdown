@@ -1,6 +1,10 @@
-/// <reference path="Level" />
+import { Entity } from '../Entity';
+import { Level } from './Level';
+import { MapManager } from './MapManager';
+import { Systems } from '../Systems';
+import { Camera } from '../../lib/Camera';
 
-class TopDownLevel extends Level {
+export class TopDownLevel extends Level {
     private _camera : Camera;
     private _map : MapManager;
 

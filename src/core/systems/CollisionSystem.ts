@@ -1,4 +1,9 @@
-class CollisionSystem implements ISystem<Entity> {
+import { Collision } from '../components/Collision';
+import { Movement } from '../components/Movement';
+import { Entity } from '../Entity';
+import type { ISystem } from './ISystem';
+
+export class CollisionSystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
 
 

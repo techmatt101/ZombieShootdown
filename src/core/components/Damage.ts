@@ -1,4 +1,7 @@
-class Damage implements IComponent {
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+
+export class Damage implements IComponent {
     active : boolean;
     value : number;
 

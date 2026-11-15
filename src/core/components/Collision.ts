@@ -1,15 +1,22 @@
-enum CollisionEvent {
+import type { IBehavior } from '../behaviours/IBehavior';
+import { CollisionBehaviourList } from '../CollisionBehaviourList';
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+import { EventHandler, type IObserver } from '../../lib/EventHandler';
+import { Box } from '../../lib/geometry/Box';
+
+export enum CollisionEvent {
     COLLIDE
 }
 
-class Collision implements IComponent, IObserver {
+export class Collision implements IComponent, IObserver {
     active = true;
     behaviours = new CollisionBehaviourList();
 
     private _box : Box;
     private _isTouching = false;
     private _eventHandler = new EventHandler<CollisionEvent>();
-    private _behaviourList : Array<(behaviours) => IBehavior> = [];
+    private _behaviourList : Array<(behaviours : CollisionBehaviourList) => IBehavior> = [];
 
     static reference(components : IComponentDirectory) {
         return components.collision;
@@ -50,8 +57,8 @@ class Collision implements IComponent, IObserver {
 
     buildBehaviours() {
         this._behaviourList = [];
-        for (var key in this.behaviours) {
-            this._behaviourList.push(<(behaviours : any) => IBehavior> new Function('b', 'return b.' + key + ';'));
+        for (const key in this.behaviours) {
+            this._behaviourList.push((b) => b[key]);
         }
     }
 

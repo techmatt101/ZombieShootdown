@@ -1,9 +1,11 @@
-// <reference path="IPoint" />
-// <reference path="Vector" />
+import type { IPoint } from './IPoint';
+import type { IVector } from './IVector';
+import { Vector } from './Vector';
+import { fastAtan2 } from '../helpers';
 
-class Point extends Vector {
-    x : number;
-    y : number;
+export class Point extends Vector {
+    declare x : number;
+    declare y : number;
     direction : number;
 
     constructor(x : number, y : number, direction : number) {

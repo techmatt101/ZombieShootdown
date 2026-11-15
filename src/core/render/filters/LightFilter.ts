@@ -1,9 +1,17 @@
-class LightFilter implements IUpdate, IFilter {
+import { MapManager } from '../../level/MapManager';
+import type { IFilter } from './IFilter';
+import { Camera } from '../../../lib/Camera';
+import { Canvas } from '../../../lib/Canvas';
+import { Vector } from '../../../lib/geometry/Vector';
+import type { IUpdate } from '../../../lib/IUpdate';
+import { ResourceManager } from '../../../lib/ResourceManager';
+
+export class LightFilter implements IUpdate, IFilter {
     private _map : MapManager;
     private _lightSource = new Vector(0, 0);
     private _polygons = [];
 
-    private _worker = new Worker("workers/lighting.js");
+    private _worker = new Worker(new URL("../../../workers/lighting.ts", import.meta.url), { type: "module" });
     private _workerWorking = false;
 
     private _visionImage : HTMLImageElement;

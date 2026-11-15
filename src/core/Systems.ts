@@ -1,4 +1,6 @@
-class Systems<T> {
+import type { ISystem } from './systems/ISystem';
+
+export class Systems<T> {
     private _systems : ISystem<T>[] = [];
 
 

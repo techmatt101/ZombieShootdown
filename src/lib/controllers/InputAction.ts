@@ -1,4 +1,4 @@
-enum InputAction {
+export enum InputAction {
     UP,
     DOWN,
     LEFT,

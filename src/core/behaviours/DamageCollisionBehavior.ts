@@ -1,4 +1,8 @@
-class DamageCollisionBehavior implements IBehavior {
+import type { IBehavior } from './IBehavior';
+import { Damage } from '../components/Damage';
+import { Health } from '../components/Health';
+
+export class DamageCollisionBehavior implements IBehavior {
     dominant = false;
     passive = false;
 

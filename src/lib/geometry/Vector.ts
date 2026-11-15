@@ -1,6 +1,6 @@
-// <reference path="IVector" />
+import type { IVector } from './IVector';
 
-class Vector implements IVector {
+export class Vector implements IVector {
     x : number;
     y : number;
 

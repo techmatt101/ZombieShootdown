@@ -1,4 +1,7 @@
-class DebugTool {
+import { Game } from './Game';
+import { Entity } from '../core/Entity';
+
+export class DebugTool {
     private _game : Game;
 
     constructor(game : Game) {

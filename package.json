@@ -1,31 +1,27 @@
 {
-  "name": "ZombieShootout",
+  "name": "zombie-shootdown",
   "version": "0.1.0",
-  "description": "ZombieShootout",
+  "private": true,
+  "description": "A 2D top-down horror survival zombie shooter.",
   "author": "Matthew Kemp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/techmatt101/ZombieShootout.git"
+    "url": "https://github.com/techmatt101/ZombieShootdown.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
   },
   "scripts": {
-    "build": "gulp"
-  },
-  "dependencies": {
-    "ws": "^0.6.3"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src"
   },
   "devDependencies": {
-    "chalk": "^1.1.0",
-    "del": "^1.2.0",
-    "gulp": "^3.9.0",
-    "gulp-if": "^1.2.5",
-    "gulp-less": "^3.0.5",
-    "gulp-load-plugins": "^0.10.0",
-    "gulp-minify-css": "^1.2.2",
-    "gulp-minify-html": "^1.0.4",
-    "gulp-size": "^1.2.3",
-    "gulp-sourcemaps": "^1.5.2",
-    "gulp-typescript": "^2.8.0",
-    "gulp-uglify": "^1.2.0",
-    "gulp-util": "^3.0.6"
+    "oxlint": "^1.93.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
   }
 }

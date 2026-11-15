@@ -1,5 +1,5 @@
 // Find intersection of RAY & SEGMENT
-function getIntersection (ray, segment) {
+export function getIntersection (ray, segment) {
 
     // RAY in parametric: Point + Delta*T1
     var rpx = ray.a.x;

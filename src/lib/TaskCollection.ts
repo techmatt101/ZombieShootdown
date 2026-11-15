@@ -1,4 +1,4 @@
-class TaskCollection { //TODO: better name?
+export class TaskCollection { //TODO: better name?
     name : string;
     active = 0;
 

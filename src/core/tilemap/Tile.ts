@@ -1,11 +1,11 @@
-enum TileType {
+export enum TileType {
     EMPTY,
     WALL,
     DOOR,
     FLOOR
 }
 
-class Tile {
+export class Tile {
     type : TileType;
     data : any = null;
 

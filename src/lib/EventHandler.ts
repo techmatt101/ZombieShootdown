@@ -1,9 +1,9 @@
-interface IObserver {
+export interface IObserver {
     on (event_type, callback)
     off ()
 }
 
-class EventHandler<T> {
+export class EventHandler<T> {
     private _listeners = [];
 
     fire(key : T, data?) {

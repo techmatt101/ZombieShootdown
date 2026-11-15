@@ -1,4 +1,10 @@
-class GameInterface implements IUI {
+import { game } from '../../app';
+import { Game } from '../Game';
+import type { IUI } from './IUI';
+import { Entity } from '../../core/Entity';
+import { InputAction } from '../../lib/controllers/InputAction';
+
+export class GameInterface implements IUI {
     private _game : Game;
     private _paused = false;
     private _lastHealth = 0;

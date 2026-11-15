@@ -1,5 +1,7 @@
-interface IInputController {
+import { InputState } from './InputState';
+
+export interface IInputController {
     load(inputState : InputState);
-    loadKeyMappings(mappings : Object);
+    loadKeyMappings(mappings : object);
     update(dt : number);
 }

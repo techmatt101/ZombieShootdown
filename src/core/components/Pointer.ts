@@ -1,4 +1,11 @@
-class Pointer implements IComponent {
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+import { Material } from './Material';
+import { Camera } from '../../lib/Camera';
+import { InputState } from '../../lib/controllers/InputState';
+import { Vector } from '../../lib/geometry/Vector';
+
+export class Pointer implements IComponent {
     active = true;
     private _input : InputState;
     private _pos : Vector;

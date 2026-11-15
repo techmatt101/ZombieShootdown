@@ -1,4 +1,11 @@
-class Gun extends Entity implements IWeapon {
+import { Entity } from '../Entity';
+import type { IWeapon } from './IWeapon';
+import { Box } from '../../lib/geometry/Box';
+import { Point } from '../../lib/geometry/Point';
+import { Vector } from '../../lib/geometry/Vector';
+import { Pool } from '../../lib/Pool';
+
+export class Gun extends Entity implements IWeapon {
     placementOffset = new Vector(32, 0);
     private _bulletPool : Pool<Entity>;
     private _coolDown = 1.5;

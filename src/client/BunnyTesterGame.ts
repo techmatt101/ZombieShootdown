@@ -1,4 +1,23 @@
-class BunnyTesterGame {
+import { BunnyTest } from './BunnyTest';
+import { Collision } from '../core/components/Collision';
+import { Material } from '../core/components/Material';
+import { Movement } from '../core/components/Movement';
+import { Entity } from '../core/Entity';
+import { Level } from '../core/level/Level';
+import { CanvasRenderer } from '../core/render/CanvasRenderer';
+import { Systems } from '../core/Systems';
+import { CollisionSystem } from '../core/systems/CollisionSystem';
+import { LogicSystem } from '../core/systems/LogicSystem';
+import { RenderSystem } from '../core/systems/RenderSystem';
+import { Camera } from '../lib/Camera';
+import { Canvas } from '../lib/Canvas';
+import { GameLoop } from '../lib/GameLoop';
+import { Box } from '../lib/geometry/Box';
+import { Point } from '../lib/geometry/Point';
+import { Vector } from '../lib/geometry/Vector';
+import { Texture } from '../lib/Texture';
+
+export class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
     renderer : CanvasRenderer;

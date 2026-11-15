@@ -1,4 +1,7 @@
-class LogicSystem implements ISystem<Entity> {
+import { Entity } from '../Entity';
+import type { ISystem } from './ISystem';
+
+export class LogicSystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
 
 

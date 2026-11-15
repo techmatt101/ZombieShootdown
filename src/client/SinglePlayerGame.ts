@@ -1,7 +1,15 @@
-/// <reference path="Game" />
+import { Game } from './Game';
+import { SinglePlayerWaveLogic } from './logic/SinglePlayerWaveLogic';
+import { WeaponiseDecorator } from '../core/decorators/WeaponiseDecorator';
+import { Entity } from '../core/Entity';
+import { InterfaceFactory } from '../core/factories/InterfaceFactory';
+import { PlayerFactory } from '../core/factories/PlayerFactory';
+import { WeaponFactory } from '../core/factories/WeaponFactory';
+import { AISystem } from '../core/systems/AISystem';
+import { Pool } from '../lib/Pool';
 
-class SinglePlayerGame extends Game {
-    player : Entity;
+export class SinglePlayerGame extends Game {
+    declare player : Entity;
 
     constructor() {
         super();

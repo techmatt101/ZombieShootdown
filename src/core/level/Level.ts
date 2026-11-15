@@ -1,4 +1,8 @@
-class Level {
+import { Entity } from '../Entity';
+import { Systems } from '../Systems';
+import type { IUpdate } from '../../lib/IUpdate';
+
+export class Level {
     protected _entities : Entity[] = [];
     protected _systems : Systems<IUpdate>;
 

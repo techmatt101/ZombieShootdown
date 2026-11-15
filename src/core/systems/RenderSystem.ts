@@ -1,4 +1,9 @@
-class RenderSystem implements ISystem<Entity> {
+import { Material } from '../components/Material';
+import { Entity } from '../Entity';
+import { CanvasRenderer } from '../render/CanvasRenderer';
+import type { ISystem } from './ISystem';
+
+export class RenderSystem implements ISystem<Entity> {
     private _entities : Entity[] = [];
     private _renderer : CanvasRenderer;
 

@@ -1,4 +1,12 @@
-class InputControl implements IComponent {
+import type { IComponent } from './IComponent';
+import type { IComponentDirectory } from './IComponentDirectory';
+import { WeaponHolder } from './WeaponHolder';
+import { Entity } from '../Entity';
+import { InputAction } from '../../lib/controllers/InputAction';
+import { InputState } from '../../lib/controllers/InputState';
+import { fastAtan2 } from '../../lib/helpers';
+
+export class InputControl implements IComponent {
     active = true;
 
     private _entity : Entity;

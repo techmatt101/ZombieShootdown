@@ -1,11 +1,16 @@
-enum GamepadAxe {
+import type { IInputController } from './IInputController';
+import { InputState } from './InputState';
+import { KeyMapper } from './KeyMapper';
+import { Vector } from '../geometry/Vector';
+
+export enum GamepadAxe {
     LEFT_ANALOGUE_HORIZONTAL = 0,
     LEFT_ANALOGUE_VERTICAL = 1,
     RIGHT_ANALOGUE_HORIZONTAL = 2,
     RIGHT_ANALOGUE_VERTICAL = 3
 }
 
-class GamepadController implements IInputController {
+export class GamepadController implements IInputController {
     private _keys = {};
     private _inputState : InputState;
     private _lastButtonState : boolean[] = [];
@@ -19,13 +24,13 @@ class GamepadController implements IInputController {
         this._inputState = inputState;
     }
 
-    loadKeyMappings(mappings : Object) {
+    loadKeyMappings(mappings : object) {
         KeyMapper.loadKeyMappings(this._keys, mappings, this._inputState.inputActions);
     }
 
     update(dt : number) {
         this._gamepad = navigator.getGamepads()[0];
-        if (typeof this._gamepad === 'undefined') {
+        if (!this._gamepad) {
             return;
         }
 
@@ -46,7 +51,7 @@ class GamepadController implements IInputController {
         }
 
         // Buttons
-        if (typeof this._lastButtonState === "undefined") {
+        if (this._lastButtonState.length === 0) {
             for (var i = 0; i < this._gamepad.buttons.length; i++) {
                 this._lastButtonState.push(this._gamepad.buttons[i].pressed);
             }

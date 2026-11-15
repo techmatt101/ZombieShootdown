@@ -1,12 +1,18 @@
-//var aiWorker = new Worker("workers/ai.js"); //TODO: UBER HACK!!!!
+import type { IAI } from './IAI';
+import { Movement } from '../components/Movement';
+import { Entity } from '../Entity';
+import { Vector } from '../../lib/geometry/Vector';
+import { randInt } from '../../lib/helpers';
 
-class ZombieAI implements IAI {
+//var aiWorker = new Worker(new URL("../../workers/ai.ts", import.meta.url), { type: "module" }); //TODO: UBER HACK!!!!
+
+export class ZombieAI implements IAI {
     private _zombie : Entity;
     private _player : Entity;
 
     private _canSeePlayer = false;
 
-    //private _worker = new Worker("workers/ai.js");
+    //private _worker = new Worker(new URL("../../workers/ai.ts", import.meta.url), { type: "module" });
     private _workerWorking = false;
 
     private _headingLocation = new Vector(40, 40);

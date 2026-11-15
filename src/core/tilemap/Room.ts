@@ -1,4 +1,10 @@
-class Room extends Box {
+import { Direction } from './Direction';
+import { Tile, TileType } from './Tile';
+import { Wall } from './Wall';
+import { Box } from '../../lib/geometry/Box';
+import { Vector } from '../../lib/geometry/Vector';
+
+export class Room extends Box {
     tiles : Array<Tile[]> = [];
     walls : Wall[] = [];
     solidWalls : Wall[] = [];

@@ -1,33 +1,18 @@
-#################
-## PHP Storm
-#################
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# Editors
 .idea/
 
-#############
-## Windows detritus
-#############
-
-# Windows image file caches
+# OS
+.DS_Store
 Thumbs.db
 ehthumbs.db
-
-# Folder config file
 Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Mac crap
-.DS_Store
-
-# Node
-node_modules
-npm-debug.log
-
-# Build
-build/
-bin/
-
-src/core-ref.ts
-src/client-ref.ts
-src/server-ref.ts

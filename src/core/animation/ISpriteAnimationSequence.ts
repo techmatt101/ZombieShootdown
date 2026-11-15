@@ -1,4 +1,4 @@
-interface ISpriteAnimationSequence {
+export interface ISpriteAnimationSequence {
     x : number
     y : number
     width : number

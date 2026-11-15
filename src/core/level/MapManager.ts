@@ -1,4 +1,12 @@
-class MapManager extends Box implements IUpdate {
+import { TileFactory } from '../factories/TileFactory';
+import { MapGenerator } from '../tilemap/MapGenerator';
+import { Tile, TileType } from '../tilemap/Tile';
+import { Canvas } from '../../lib/Canvas';
+import { Box } from '../../lib/geometry/Box';
+import { Vector } from '../../lib/geometry/Vector';
+import type { IUpdate } from '../../lib/IUpdate';
+
+export class MapManager extends Box implements IUpdate {
     mapGenerator : MapGenerator;
     segments = [];
     private _canvas : Canvas;
