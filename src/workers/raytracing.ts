@@ -1,5 +1,13 @@
+import type { Segment } from '../lib/geometry/Segment';
+
+export interface Intersection {
+    x : number;
+    y : number;
+    param : number;
+}
+
 // Find intersection of RAY & SEGMENT
-export function getIntersection (ray, segment) {
+export function getIntersection (ray : Segment, segment : Segment) : Intersection | null {
 
     // RAY in parametric: Point + Delta*T1
     var rpx = ray.a.x;

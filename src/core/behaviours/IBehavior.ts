@@ -1,7 +1,7 @@
 export interface IBehavior {
-    dominant : boolean
-    passive : boolean
+    dominant : boolean;
+    passive : boolean;
 
-    action(opposingBehavior : IBehavior)
-    reaction(data)
+    action(opposingBehavior : IBehavior) : void;
+    reaction(data : number) : void;
 }

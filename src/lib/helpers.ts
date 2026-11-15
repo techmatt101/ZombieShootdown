@@ -1,4 +1,4 @@
-export function fastAtan2(x, y) {
+export function fastAtan2(x : number, y : number) {
     if (x == 0 && y == 0) {
         return 0.00;
     }
@@ -9,7 +9,7 @@ export function fastAtan2(x, y) {
     return radian;
 }
 
-export function insertionSort(ary) {
+export function insertionSort<T>(ary : T[]) {
     for (var i = 1, l = ary.length; i < l; i++) {
         var value = ary[i];
         for (var j = i - 1; j >= 0; j--) {

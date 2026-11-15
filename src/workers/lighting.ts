@@ -1,7 +1,17 @@
 import { fastAtan2 } from './helpers';
-import { getIntersection } from './raytracing';
+import { getIntersection, type Intersection } from './raytracing';
+import type { IVector } from '../lib/geometry/IVector';
+import type { Segment } from '../lib/geometry/Segment';
 
-self.addEventListener('message', function (e) {
+export interface LightRequest {
+    x : number;
+    y : number;
+    s : Segment[];
+}
+
+type AngledIntersection = Intersection & { angle : number };
+
+self.addEventListener('message', function (e : MessageEvent<LightRequest>) {
 
     //var fuzzyRadius = 10;
     //var numberOfRays = 6;
@@ -17,15 +27,15 @@ self.addEventListener('message', function (e) {
     self.postMessage(polygons);
 });
 
-function getSightPolygon (sightX, sightY, segments) {
+function getSightPolygon (sightX : number, sightY : number, segments : Segment[]) : AngledIntersection[] {
     // Get all unique points
-    var points = [];
+    var points : IVector[] = [];
     for (var i = 0; i < segments.length; i++) {
         points.push(segments[i].a, segments[i].b);
     }
 
-    var uniquePoints = [];
-    var set = {}, key = '';
+    var uniquePoints : IVector[] = [];
+    var set : Record<string, boolean> = {}, key = '';
     for (var i = 0; i < points.length; i++) {
         key = points[i].x + "," + points[i].y;
         if (typeof set[key] !== 'undefined') {
@@ -40,12 +50,11 @@ function getSightPolygon (sightX, sightY, segments) {
     for (var j = 0; j < uniquePoints.length; j++) {
         var uniquePoint = uniquePoints[j];
         var angle = fastAtan2(uniquePoint.x - sightX, uniquePoint.y - sightY);
-        uniquePoint.angle = angle;
         uniqueAngles.push(angle - 0.00001, angle, angle + 0.00001);
     }
 
     // RAYS IN ALL DIRECTIONS
-    var intersects = [];
+    var intersects : AngledIntersection[] = [];
     for (var j = 0; j < uniqueAngles.length; j++) {
         var angle = uniqueAngles[j];
 
@@ -60,7 +69,7 @@ function getSightPolygon (sightX, sightY, segments) {
         };
 
         // Find CLOSEST intersection
-        var closestIntersect = null;
+        var closestIntersect : Intersection | null = null;
         for (var i = 0; i < segments.length; i++) {
             var intersect = getIntersection(ray, segments[i]);
             if (!intersect) continue;
@@ -71,10 +80,9 @@ function getSightPolygon (sightX, sightY, segments) {
 
         // Intersect angle
         if (!closestIntersect) continue;
-        closestIntersect.angle = angle;
 
         // Add to list of intersects
-        intersects.push(closestIntersect);
+        intersects.push({ ...closestIntersect, angle: angle });
     }
 
     // Sort intersects by angle

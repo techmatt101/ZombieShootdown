@@ -6,25 +6,25 @@ import { Point } from '../../lib/geometry/Point';
 export class WeaponHolder implements IComponent {
     active = true;
 
-    private _pos : Point;
-    private _weapon : IWeapon;
+    #pos : Point;
+    #weapon : IWeapon;
 
     static reference(components : IComponentDirectory) {
         return components.weaponHolder;
     }
 
     constructor(pos : Point, weapon : IWeapon) {
-        this._pos = pos;
-        this._weapon = weapon;
+        this.#pos = pos;
+        this.#weapon = weapon;
     }
 
     attack() {
-        this._weapon.attack();
+        this.#weapon.attack();
     }
 
     update(dt : number) : void {
-        this._weapon.pos.copy(this._pos).offset(this._weapon.placementOffset);
-        this._weapon.pos.rotate(this._pos);
+        this.#weapon.pos.copy(this.#pos).offset(this.#weapon.placementOffset);
+        this.#weapon.pos.rotate(this.#pos);
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

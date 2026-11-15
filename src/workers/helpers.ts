@@ -1,4 +1,4 @@
-export function fastAtan2(x, y) {
+export function fastAtan2(x : number, y : number) {
     if (x == 0 && y == 0) {
         return 0.00;
     }
@@ -9,6 +9,6 @@ export function fastAtan2(x, y) {
     return radian;
 }
 
-export function findDistance(ax, ay, bx, by) {
+export function findDistance(ax : number, ay : number, bx : number, by : number) {
     return Math.sqrt((ax -= bx) * ax + (ay -= by) * ay);
 }

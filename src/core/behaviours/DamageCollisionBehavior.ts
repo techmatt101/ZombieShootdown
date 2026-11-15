@@ -6,29 +6,31 @@ export class DamageCollisionBehavior implements IBehavior {
     dominant = false;
     passive = false;
 
-    private _damage : Damage;
-    private _heath : Health;
+    #damage : Damage | null = null;
+    #heath : Health | null = null;
 
 
     inflictDamage(damage : Damage) {
-        this._damage = damage;
+        this.#damage = damage;
         this.dominant = true;
 
         return this;
     }
 
     acceptDamage(health : Health) {
-        this._heath = health;
+        this.#heath = health;
         this.passive = true;
 
         return this;
     }
 
     action(opposingBehavior : IBehavior) {
-        opposingBehavior.reaction(this._damage.value);
+        if (this.#damage !== null) {
+            opposingBehavior.reaction(this.#damage.value);
+        }
     }
 
-    reaction(damage) {
-        this._heath.take(damage);
+    reaction(damage : number) {
+        this.#heath?.take(damage);
     }
 }

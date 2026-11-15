@@ -1,8 +1,9 @@
+import type { Segment } from './Segment';
 import type { IShape } from './IShape';
 import { Vector } from './Vector';
 
 export class Box implements IShape {
-    private _offset = new Vector(0, 0);
+    #offset = new Vector(0, 0);
 
     constructor(public width : number,
                 public height : number,
@@ -29,16 +30,16 @@ export class Box implements IShape {
     }
 
     getIntersectionDepth(rectB : Box) {
-        this._offset.x = this.pos.x - rectB.pos.x;
-        this._offset.x = ((this._offset.x > 0) ? 1 : -1) * ((this.width + rectB.width) / 2) - this._offset.x;
+        this.#offset.x = this.pos.x - rectB.pos.x;
+        this.#offset.x = ((this.#offset.x > 0) ? 1 : -1) * ((this.width + rectB.width) / 2) - this.#offset.x;
 
-        this._offset.y = this.pos.y - rectB.pos.y;
-        this._offset.y = ((this._offset.y > 0) ? 1 : -1) * ((this.height + rectB.height) / 2) - this._offset.y;
+        this.#offset.y = this.pos.y - rectB.pos.y;
+        this.#offset.y = ((this.#offset.y > 0) ? 1 : -1) * ((this.height + rectB.height) / 2) - this.#offset.y;
 
-        return this._offset;
+        return this.#offset;
     }
 
-    toPolygon() {
+    toPolygon() : Segment[] {
         var x = this.pos.x - this.width / 2;
         var y = this.pos.y - this.height / 2;
         var width = this.pos.x + this.width / 2;

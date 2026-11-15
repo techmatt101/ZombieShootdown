@@ -4,20 +4,29 @@ import { Tile, TileType } from '../tilemap/Tile';
 import { Canvas } from '../../lib/Canvas';
 import { Box } from '../../lib/geometry/Box';
 import { Vector } from '../../lib/geometry/Vector';
+import type { Segment } from '../../lib/geometry/Segment';
 import type { IUpdate } from '../../lib/IUpdate';
+import type { Level } from './Level';
 
 export class MapManager extends Box implements IUpdate {
-    mapGenerator : MapGenerator;
-    segments = [];
-    private _canvas : Canvas;
+    mapGenerator : MapGenerator | null = null;
+    segments : Segment[] = [];
+    #canvas : Canvas;
 
 
-    constructor(pos : Vector, width, height, canvas : Canvas) {
+    constructor(pos : Vector, width : number, height : number, canvas : Canvas) {
         super(width, height, pos);
-        this._canvas = canvas;
+        this.#canvas = canvas;
     }
 
-    loadMap(level) {
+    getGenerator() : MapGenerator {
+        if (this.mapGenerator === null) {
+            throw new Error('Map has not been loaded');
+        }
+        return this.mapGenerator;
+    }
+
+    loadMap(level : Level) {
         var mg = new MapGenerator();
         mg.generate(new Vector(42, 42), new Vector(this.width, this.height), 8, 4);
         this.mapGenerator = mg;
@@ -30,7 +39,7 @@ export class MapManager extends Box implements IUpdate {
             { a: { x: 0, y: this.height }, b: { x: 0, y: 0 } },
         ];
 
-        this.mapGenerator.getGird().loopThrough((tile : Tile, pos : Vector, tileSize : Vector) => {
+        mg.getGird().loopThrough((tile : Tile, pos : Vector, tileSize : Vector) => {
             if (tile.type !== TileType.EMPTY) {
                 var entityTile = TileFactory.spawnTile(pos, tileSize, tile);
                 level.addEntity(entityTile);

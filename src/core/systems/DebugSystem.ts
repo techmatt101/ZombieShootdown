@@ -3,15 +3,15 @@ import type { ISystem } from './ISystem';
 import { Camera } from '../../lib/Camera';
 
 export class DebugSystem implements ISystem<Entity> {
-    private _enmities : Entity[] = [];
-    private _camera : Camera;
+    #enmities : Entity[] = [];
+    #camera : Camera;
 
     constructor(camera : Camera) {
-        this._camera = camera;
+        this.#camera = camera;
     }
 
     add(entity : Entity) {
-        this._enmities.push(entity);
+        this.#enmities.push(entity);
     }
 
     update(dt : number) {
@@ -19,14 +19,14 @@ export class DebugSystem implements ISystem<Entity> {
     }
 
     paint(ctx : CanvasRenderingContext2D) {
-        ctx.scale(this._camera.zoom, this._camera.zoom);
-        ctx.translate(~~-this._camera.viewport.pos.x, ~~-this._camera.viewport.pos.y);
-        for (var i = 0; i < this._enmities.length; i++) {
+        ctx.scale(this.#camera.zoom, this.#camera.zoom);
+        ctx.translate(~~-this.#camera.viewport.pos.x, ~~-this.#camera.viewport.pos.y);
+        for (var i = 0; i < this.#enmities.length; i++) {
             ctx.save();
-            this._enmities[i].drawDebug(ctx);
+            this.#enmities[i].drawDebug(ctx);
             ctx.restore();
         }
-        ctx.translate(~~this._camera.viewport.pos.x, ~~this._camera.viewport.pos.y);
-        ctx.scale(1 / this._camera.zoom, 1 / this._camera.zoom);
+        ctx.translate(~~this.#camera.viewport.pos.x, ~~this.#camera.viewport.pos.y);
+        ctx.scale(1 / this.#camera.zoom, 1 / this.#camera.zoom);
     }
 }

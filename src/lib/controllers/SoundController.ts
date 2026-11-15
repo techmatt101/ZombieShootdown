@@ -3,11 +3,11 @@ export enum Sound {
 }
 
 export class SoundController {
-    private _audioClips : {[index : string] : HTMLAudioElement} = {};
+    #audioClips : {[index : string] : HTMLAudioElement} = {};
 
 
     load(name : Sound, audio : HTMLAudioElement) {
-        this._audioClips[name] = audio;
+        this.#audioClips[name] = audio;
     }
 
     play(key : Sound) {
@@ -17,8 +17,8 @@ export class SoundController {
     }
 
     pauseAll() {
-        for (var key in this._audioClips) {
-            this._audioClips[key].pause();
+        for (var key in this.#audioClips) {
+            this.#audioClips[key].pause();
         }
     }
 }

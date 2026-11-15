@@ -3,21 +3,21 @@ import { Systems } from '../Systems';
 import type { IUpdate } from '../../lib/IUpdate';
 
 export class Level {
-    protected _entities : Entity[] = [];
-    protected _systems : Systems<IUpdate>;
+    #entities : Entity[] = [];
+    #systems : Systems<IUpdate>;
 
 
     constructor(systems : Systems<Entity>) {
-        this._systems = systems;
+        this.#systems = systems;
     }
 
     getEntities() {
-        return this._entities;
+        return this.#entities;
     }
 
     addEntity(entity : Entity) {
-        this._entities.push(entity);
-        this._systems.add(entity); //TODO: hmmm....
+        this.#entities.push(entity);
+        this.#systems.add(entity); //TODO: hmmm....
     }
 
     addEntities(entities : Entity[]) {

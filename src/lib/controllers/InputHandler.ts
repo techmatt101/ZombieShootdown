@@ -1,41 +1,42 @@
 import type { IInputController } from './IInputController';
 import { InputState } from './InputState';
+import type { InputActions } from './KeyMapper';
 import type { IUpdate } from '../IUpdate';
 
 export class InputHandler implements IUpdate {
-    private _controllers : IInputController[] = [];
-    private _inputState : InputState;
+    #controllers : IInputController[] = [];
+    #inputState : InputState;
 
 
-    constructor(inputActions : object) {
-        this._inputState = new InputState(inputActions);
+    constructor(inputActions : InputActions) {
+        this.#inputState = new InputState(inputActions);
 
         // rest buttons on lose focus of window
         window.addEventListener('blur', () => {
-            this._inputState.reset();
+            this.#inputState.reset();
         });
     }
 
     getState() {
-        return this._inputState;
+        return this.#inputState;
     }
 
     loadController(controller : IInputController) {
-        this._controllers.push(controller);
+        this.#controllers.push(controller);
     }
 
     load() {
-        for (var i = 0; i < this._controllers.length; i++) {
-            this._controllers[i].load(this._inputState);
+        for (var i = 0; i < this.#controllers.length; i++) {
+            this.#controllers[i].load(this.#inputState);
         }
     }
 
     update(dt : number) {
-        this._inputState.movementCoordinates.reset();
-        this._inputState.directionCoordinates.reset();
+        this.#inputState.movementCoordinates.reset();
+        this.#inputState.directionCoordinates.reset();
 
-        for (var i = 0; i < this._controllers.length; i++) {
-            this._controllers[i].update(dt);
+        for (var i = 0; i < this.#controllers.length; i++) {
+            this.#controllers[i].update(dt);
         }
     }
 

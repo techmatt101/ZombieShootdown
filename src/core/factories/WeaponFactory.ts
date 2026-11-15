@@ -15,20 +15,20 @@ export class WeaponFactory {
     static spawnBullet() {
         var bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));
 
-        bullet.addComponent(new Material());
-        bullet.addComponent(new Collision(bullet.geometry));
+        const material = bullet.addComponent(new Material());
+        const collision = bullet.addComponent(new Collision(bullet.geometry));
         bullet.addComponent(new Movement(bullet.pos, 80));
-        bullet.addComponent(new Damage(30));
+        const damage = bullet.addComponent(new Damage(30));
 
-        bullet.components.collision.behaviours.playerDamage = new DamageCollisionBehavior()
-            .inflictDamage(bullet.components.damage);
+        collision.behaviours.playerDamage = new DamageCollisionBehavior()
+            .inflictDamage(damage);
 
-        bullet.components.collision.on(CollisionEvent.COLLIDE, () => {
+        collision.on(CollisionEvent.COLLIDE, () => {
             bullet.available = true;
             bullet.active = false;
         });
 
-        bullet.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
+        material.zIndex = ZIndexLayer.FOREGROUND + 1;
 
         bullet.build();
 
@@ -38,9 +38,9 @@ export class WeaponFactory {
     static spawnGun(bulletPool : Pool<Entity>) {
         var gun = new Gun('Gun', new Point(0, 0, 0), new Box(14, 5), bulletPool);
 
-        gun.addComponent(new Material());
+        const material = gun.addComponent(new Material());
 
-        gun.components.material.zIndex = ZIndexLayer.FOREGROUND + 1;
+        material.zIndex = ZIndexLayer.FOREGROUND + 1;
 
         gun.build();
 

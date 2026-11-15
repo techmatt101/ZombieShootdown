@@ -5,44 +5,44 @@ import { Vector } from '../../lib/geometry/Vector';
 import { randInt } from '../../lib/helpers';
 
 export class MapGenerator {
-    private _grid = new Grid();
-    private _rooms : Room[] = [];
+    #grid = new Grid();
+    #rooms : Room[] = [];
 
     getGird() {
-        return this._grid;
+        return this.#grid;
     }
 
     getMainRoom() {
-        return this._rooms[1];
+        return this.#rooms[1];
     }
 
     getRooms() {
-        return this._rooms;
+        return this.#rooms;
     }
 
     getRandomRoom() {
-        return this._rooms[randInt(0, this._rooms.length - 1)];
+        return this.#rooms[randInt(0, this.#rooms.length - 1)];
     }
 
     getTileSize() {
-        return this._grid.tileSize;
+        return this.#grid.tileSize;
     }
 
     generate(tileSize : Vector, gridSize : Vector, maxRoomSize : number, minRoomSize : number) {
-        this._grid.tileSize = tileSize;
+        this.#grid.tileSize = tileSize;
         gridSize.divide(tileSize);
 
-        this._grid.createEmptyGrid(gridSize, TileType.EMPTY);
-        this._rooms = [];
+        this.#grid.createEmptyGrid(gridSize, TileType.EMPTY);
+        this.#rooms = [];
 
-        this._grid.width = this._grid.getGird().length;
-        this._grid.height = this._grid.getGird()[0].length;
+        this.#grid.width = this.#grid.getGird().length;
+        this.#grid.height = this.#grid.getGird()[0].length;
 
         var pos = new Vector(0, 0);
-        var gridBoundary = new Vector(this._grid.width, this._grid.height);  //TODO: hmmm...
+        var gridBoundary = new Vector(this.#grid.width, this.#grid.height);  //TODO: hmmm...
 
         var col = [];
-        var lastRoom : Room = null;
+        var lastRoom : Room | null = null;
         var maxout = 0;
         var isGirdFilled = false;
 
@@ -51,7 +51,7 @@ export class MapGenerator {
         while (!isGirdFilled) {
             maxout++;
             pos.y = 0;
-            while (pos.y + minRoomSize < this._grid.height) {
+            while (pos.y + minRoomSize < this.#grid.height) {
                 var roomSizeMax = new Vector(maxRoomSize, maxRoomSize);
                 gridPos.copy(gridBoundary).sub(pos);
 
@@ -83,7 +83,7 @@ export class MapGenerator {
                     continue;
                 }
 
-                this.addRoom(room);
+                this.#addRoom(room);
                 pos.y += room.height;
 
                 //Add connection rooms
@@ -125,32 +125,32 @@ export class MapGenerator {
 
 
         //TODO: hmmm...
-        for (var i = 0; i < this._rooms.length; i++) {
-            this._rooms[i].pos.multiply(this._grid.tileSize);
-            this._rooms[i].width *= this._grid.tileSize.x;
-            this._rooms[i].height *= this._grid.tileSize.y;
+        for (var i = 0; i < this.#rooms.length; i++) {
+            this.#rooms[i].pos.multiply(this.#grid.tileSize);
+            this.#rooms[i].width *= this.#grid.tileSize.x;
+            this.#rooms[i].height *= this.#grid.tileSize.y;
         }
 
         //TODO: add some monsters, items, and gold in random areas of the map.
     }
 
-    private addRoom(room : Room) {
-        room.tiles = this._grid.fill(new Vector(room.width, room.height), TileType.FLOOR); //TODO: hmmm....
+    #addRoom(room : Room) {
+        room.tiles = this.#grid.fill(new Vector(room.width, room.height), TileType.FLOOR); //TODO: hmmm....
         room.build();
 
-        this.placeRoom(room, room.pos);
-        this._rooms.push(room);
+        this.#placeRoom(room, room.pos);
+        this.#rooms.push(room);
 
         return room;
     }
 
-    private placeRoom(room : Room, position : Vector) {
+    #placeRoom(room : Room, position : Vector) {
         room.pos.copy(position).floor();
         var tx = 0, ty = 0;
         //copy the tiles from the room onto the grid
         for (var x = room.pos.x; x < (room.pos.x + room.width); ++x) {
             for (var y = room.pos.y; y < (room.pos.y + room.height); ++y) {
-                this._grid.getGird()[x][y] = room.tiles[tx][ty];
+                this.#grid.getGird()[x][y] = room.tiles[tx][ty];
                 ty++;
             }
             tx++;

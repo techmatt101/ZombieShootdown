@@ -20,17 +20,17 @@ export class PlayerFactory {
 
         player.addComponent(new InputControl(player, input));
         player.addComponent(new Movement(player.pos, 30, 1));
-        player.addComponent(new Collision(player.geometry));
+        const collision = player.addComponent(new Collision(player.geometry));
 
-        player.addComponent(new Material());
+        const material = player.addComponent(new Material());
 
-        player.addComponent(new Health(400));
+        const health = player.addComponent(new Health(400));
 
-        player.components.collision.behaviours.zombieDamage = new DamageCollisionBehavior()
-            .acceptDamage(player.components.health);
+        collision.behaviours.zombieDamage = new DamageCollisionBehavior()
+            .acceptDamage(health);
 
         ResourceManager.retrieveImage('player', (img : HTMLImageElement) => {
-            player.components.material.setTexture(new Texture(img, new Vector(0, 0), 78, 46, new Vector(0, 72), 30, 17));
+            material.setTexture(new Texture(img, new Vector(0, 0), 78, 46, new Vector(0, 72), 30, 17));
         });
 
         player.build();

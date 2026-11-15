@@ -9,16 +9,16 @@ export class Camera implements IUpdate {
     public viewport : Box;
     public viewportOffset : Vector;
     public zoom = 1;
-    public boundary : Box = null;
-    public target : Vector = null;
-    private _smoothing : Vector;
+    public boundary : Box | null = null;
+    public target : Vector | null = null;
+    #smoothing : Vector;
 
 
     constructor(canvas : Canvas) {
         this.pos = new Vector(canvas.center.x, canvas.center.y);
         this.size = new Vector(canvas.center.x, canvas.center.y);
         this.viewportOffset = canvas.center;
-        this._smoothing = new Vector(0.00001, 0.00001);
+        this.#smoothing = new Vector(0.00001, 0.00001);
         this.viewport = new Box(0, 0);
     }
 
@@ -31,10 +31,11 @@ export class Camera implements IUpdate {
     }
 
     setSmoothing(smoothing : Vector) {
-        this._smoothing = smoothing;
+        this.#smoothing = smoothing;
     }
 
     jumpToTarget() {
+        if (this.target === null) return;
         this.pos.x = this.target.x;
         this.pos.y = this.target.y;
         this.retainInBoundary();
@@ -61,14 +62,15 @@ export class Camera implements IUpdate {
     }
 
     update(dt : number) {
+        if (this.target === null) return;
         var distanceToTravelX = this.target.x - this.pos.x;
         var distanceToTravelY = this.target.y - this.pos.y;
 
         var x = distanceToTravelX * distanceToTravelX * distanceToTravelX;
         var y = distanceToTravelY * distanceToTravelY * distanceToTravelY;
 
-        this.pos.x += x * this._smoothing.x;
-        this.pos.y += y * this._smoothing.y;
+        this.pos.x += x * this.#smoothing.x;
+        this.pos.y += y * this.#smoothing.y;
 
         this.retainInBoundary();
 

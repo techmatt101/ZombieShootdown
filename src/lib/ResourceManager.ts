@@ -1,68 +1,68 @@
 export class ResourceManager {
-    private static _pendingResource = 0;
-    private static _assetPath = 'assets/';
-    private static _cache = {};
-    private static _callback : () => void = null;
+    static #pendingResource = 0;
+    static #assetPath = 'assets/';
+    static #cache : Record<string, HTMLImageElement | HTMLAudioElement> = {};
+    static #callback : (() => void) | null = null;
 
 
-    private static _startRequest(name) {
+    static #startRequest(name : string) {
         console.info("Loading " + name);
-        ResourceManager._pendingResource++;
+        ResourceManager.#pendingResource++;
     }
 
-    private static _endRequest() {
-        ResourceManager._pendingResource--;
-        if (ResourceManager._callback !== null && ResourceManager._pendingResource <= 0) {
-            ResourceManager._runCallback();
+    static #endRequest() {
+        ResourceManager.#pendingResource--;
+        if (ResourceManager.#callback !== null && ResourceManager.#pendingResource <= 0) {
+            ResourceManager.#runCallback();
         }
     }
 
-    private static _runCallback() {
+    static #runCallback() {
         setTimeout(() => {
-            if (ResourceManager._pendingResource <= 0) {
-                ResourceManager._callback();
-                ResourceManager._callback = null;
+            if (ResourceManager.#pendingResource <= 0 && ResourceManager.#callback !== null) {
+                ResourceManager.#callback();
+                ResourceManager.#callback = null;
             }
         }, 0);
     }
 
-    static waitForPendingResources(callback) {
-        ResourceManager._callback = callback;
-        ResourceManager._runCallback()
+    static waitForPendingResources(callback : () => void) {
+        ResourceManager.#callback = callback;
+        ResourceManager.#runCallback()
     }
 
-    static retrieveImage(name, callback : (image : HTMLImageElement) => void) {
-        var cache = ResourceManager._cache[name + '_img'];
-        if (typeof cache !== 'undefined') {
+    static retrieveImage(name : string, callback : (image : HTMLImageElement) => void) {
+        var cache = ResourceManager.#cache[name + '_img'];
+        if (cache instanceof HTMLImageElement) {
             callback(cache);
             return;
         }
 
         var img = new Image();
         img.addEventListener('load', () => {
-            ResourceManager._endRequest();
+            ResourceManager.#endRequest();
             callback(img);
         });
-        img.src = ResourceManager._assetPath + 'img/' + name + '.png';
-        ResourceManager._cache[name + '_img'] = img;
-        ResourceManager._startRequest(name + ' Image');
+        img.src = ResourceManager.#assetPath + 'img/' + name + '.png';
+        ResourceManager.#cache[name + '_img'] = img;
+        ResourceManager.#startRequest(name + ' Image');
     }
 
-    static retrieveSound(name, callback : (image : HTMLAudioElement) => void) {
-        var cache = ResourceManager._cache[name + '_audio'];
-        if (typeof cache !== 'undefined') {
+    static retrieveSound(name : string, callback : (audio : HTMLAudioElement) => void) {
+        var cache = ResourceManager.#cache[name + '_audio'];
+        if (cache instanceof HTMLAudioElement) {
             callback(cache);
             return;
         }
 
-        var sound = new Audio(ResourceManager._assetPath + 'audio/' + name + '.mp3');
+        var sound = new Audio(ResourceManager.#assetPath + 'audio/' + name + '.mp3');
         sound.addEventListener('canplaythrough', () => {
-            ResourceManager._endRequest();
+            ResourceManager.#endRequest();
             callback(sound);
         });
 
-        ResourceManager._cache[name + '_audio'] = sound;
-        ResourceManager._startRequest(name + ' Audio');
+        ResourceManager.#cache[name + '_audio'] = sound;
+        ResourceManager.#startRequest(name + ' Audio');
     }
 
     //static retrieveJson(name, callback : (jsonResponse : Object) => void) {

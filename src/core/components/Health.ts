@@ -1,17 +1,17 @@
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
-import { EventHandler, type IObserver } from '../../lib/EventHandler';
+import { EventHandler, type IObserver, type Listener } from '../../lib/EventHandler';
 
 export enum HealthEvent {
     DEATH
 }
 
-export class Health implements IComponent, IObserver {
-    active : boolean;
+export class Health implements IComponent, IObserver<HealthEvent> {
+    active = false; // activated by Entity.build()
     value : number;
     isDead = false;
 
-    private _eventHandler = new EventHandler<HealthEvent>();
+    #eventHandler = new EventHandler<HealthEvent>();
 
     static reference(components : IComponentDirectory) {
         return components.health;
@@ -34,7 +34,7 @@ export class Health implements IComponent, IObserver {
 
         if (this.value <= 0 && !this.isDead) {
             this.isDead = true;
-            this._eventHandler.fire(HealthEvent.DEATH);
+            this.#eventHandler.fire(HealthEvent.DEATH);
         }
     }
 
@@ -49,8 +49,8 @@ export class Health implements IComponent, IObserver {
         components.health = this;
     }
 
-    on(event_type : HealthEvent, callback) {
-        this._eventHandler.add(event_type, callback);
+    on(event_type : HealthEvent, callback : Listener) {
+        this.#eventHandler.add(event_type, callback);
     }
 
     off() {

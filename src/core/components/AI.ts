@@ -5,22 +5,22 @@ import type { IComponentDirectory } from './IComponentDirectory';
 export class AI implements IComponent {
     active = true;
 
-    private _ai : IAI;
+    #ai : IAI;
 
     static reference(components : IComponentDirectory) {
         return components.ai;
     }
 
     constructor(ai : IAI) {
-        this._ai = ai;
+        this.#ai = ai;
     }
 
     getAI() {
-        return this._ai;
+        return this.#ai;
     }
 
     update(dt : number) {
-        this._ai.update(dt);
+        this.#ai.update(dt);
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

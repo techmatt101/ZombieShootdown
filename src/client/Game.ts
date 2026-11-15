@@ -24,27 +24,29 @@ import { MouseAndKeyboardController } from '../lib/controllers/MouseAndKeyboardC
 import { Sound, SoundController } from '../lib/controllers/SoundController';
 import { GameLoop } from '../lib/GameLoop';
 import { Vector } from '../lib/geometry/Vector';
+import { byId } from '../lib/dom';
 import { ResourceManager } from '../lib/ResourceManager';
 import { TaskCollection } from '../lib/TaskCollection';
 
-export class Game {
+export abstract class Game {
     loop : GameLoop;
     canvas : Canvas;
     input : InputHandler;
     inputState : InputState;
     sound : SoundController;
-    lighting : LightFilter;
+    lighting? : LightFilter;
     renderer : CanvasRenderer;
     systems : Systems<Entity>;
-    debugSystem : DebugSystem;
+    debugSystem? : DebugSystem;
 
     map : MapManager;
     camera : Camera;
     level : TopDownLevel;
-    logic : IWaveLogic;
+    abstract logic : IWaveLogic;
 
-    player : Entity;
-    pointer : Entity;
+    // Spawned by the level setup tasks, before the game loop starts.
+    player! : Entity;
+    pointer! : Entity;
 
     levelSetupTasks : TaskCollection;
 
@@ -55,7 +57,7 @@ export class Game {
             game.update(dt);
         });
 
-        this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
+        this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
 
         this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
         this.camera = new Camera(this.canvas);
@@ -63,6 +65,7 @@ export class Game {
 
         this.sound = new SoundController();
         this.input = new InputHandler(InputAction);
+        this.inputState = this.input.getState();
 
         var mouseAndKeyboardController = new MouseAndKeyboardController(this.canvas.element);
         var mouseAndKeyboardControllerAdaptor = new MouseAndKeyboardAdaptor(mouseAndKeyboardController, this.camera);
@@ -96,7 +99,6 @@ export class Game {
         })
             .add(function Controllers() {
                 game.input.load(); //TODO: hmm...
-                game.inputState = game.input.getState();
 
                 gamepadController.loadKeyMappings(Config.gamepadKeyMappings);
                 mouseAndKeyboardController.loadKeyMappings(Config.mouseKeyMappings);
@@ -115,15 +117,13 @@ export class Game {
         this.input.update(dt);
         this.systems.update(dt);
         this.camera.update(dt);
-        if (Config.lighting) {
-            this.lighting.update(dt);
-        }
+        this.lighting?.update(dt);
         ui.update(dt);
         this.renderer.paint();
 
         if(Config.debug) {
             var ctx = this.renderer.getCtx();
-            this.debugSystem.paint(ctx);
+            this.debugSystem?.paint(ctx);
             this.camera.drawDebug(ctx);
             ui.drawDebug(ctx);
         }
@@ -137,7 +137,7 @@ export class Game {
     }
 
     load() {
-        this.levelSetupTasks.addAsync(function LoadingResources(callback) {
+        this.levelSetupTasks.addAsync(function LoadingResources(callback : () => void) {
             ResourceManager.waitForPendingResources(callback)
         }).run();
     }

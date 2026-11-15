@@ -16,9 +16,9 @@ export class TileFactory {
     static spawnTile(pos : Vector, tileSize : Vector, tileData : Tile) {
         var tile = new Entity(TileType[tileData.type] + ' Tile', new Point(0, 0, 0).copyVector(pos), new Box(tileSize.x, tileSize.y));
 
-        tile.addComponent(new Material());
+        const material = tile.addComponent(new Material());
 
-        var texturePos : Vector, tileImageSize = 8;
+        var texturePos = new Vector(0, 0), tileImageSize = 8;
 
         switch (tileData.type) {
             case TileType.WALL:
@@ -52,10 +52,10 @@ export class TileFactory {
 
         texturePos.scale(tileImageSize);
         ResourceManager.retrieveImage('tiles', (img : HTMLImageElement) => {
-            tile.components.material.setTexture(new Texture(img, new Vector(0, 0), tileSize.x, tileSize.y, texturePos, 8, 8));
+            material.setTexture(new Texture(img, new Vector(0, 0), tileSize.x, tileSize.y, texturePos, 8, 8));
         });
 
-        tile.components.material.zIndex = ZIndexLayer.BACKGROUND;
+        material.zIndex = ZIndexLayer.BACKGROUND;
 
         tile.build();
 

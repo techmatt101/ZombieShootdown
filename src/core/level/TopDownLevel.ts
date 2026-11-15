@@ -5,21 +5,21 @@ import { Systems } from '../Systems';
 import { Camera } from '../../lib/Camera';
 
 export class TopDownLevel extends Level {
-    private _camera : Camera;
-    private _map : MapManager;
+    #camera : Camera;
+    #map : MapManager;
 
 
     constructor(map : MapManager, camera : Camera, systems : Systems<Entity>) {
         super(systems);
-        this._map = map;
-        this._camera = camera;
+        this.#map = map;
+        this.#camera = camera;
     }
 
     getMap() {
-        return this._map;
+        return this.#map;
     }
 
     setObjectToFollow(obj : Entity) {
-        this._camera.setTarget(obj.pos);
+        this.#camera.setTarget(obj.pos);
     }
 }

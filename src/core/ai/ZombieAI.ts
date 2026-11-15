@@ -3,25 +3,26 @@ import { Movement } from '../components/Movement';
 import { Entity } from '../Entity';
 import { Vector } from '../../lib/geometry/Vector';
 import { randInt } from '../../lib/helpers';
+import type { Segment } from '../../lib/geometry/Segment';
 
 //var aiWorker = new Worker(new URL("../../workers/ai.ts", import.meta.url), { type: "module" }); //TODO: UBER HACK!!!!
 
 export class ZombieAI implements IAI {
-    private _zombie : Entity;
-    private _player : Entity;
+    #zombie : Entity;
+    #player : Entity;
 
-    private _canSeePlayer = false;
+    #canSeePlayer = false;
 
     //private _worker = new Worker(new URL("../../workers/ai.ts", import.meta.url), { type: "module" });
-    private _workerWorking = false;
+    #workerWorking = false;
 
-    private _headingLocation = new Vector(40, 40);
-    private _id = randInt(0, 1000);
+    #headingLocation = new Vector(40, 40);
+    #id = randInt(0, 1000);
 
 
     constructor(entity : Entity, player : Entity) {
-        this._zombie = entity;
-        this._player = player;
+        this.#zombie = entity;
+        this.#player = player;
 
         //this._worker.onmessage = (e) => {
         //    self._workerWorking = false;
@@ -36,7 +37,7 @@ export class ZombieAI implements IAI {
         //});
     }
 
-    updatePathFind(segments) {
+    updatePathFind(segments : Segment[]) {
         //if (!this._workerWorking) {
         //    aiWorker.postMessage({
         //        id: this._id,
@@ -49,18 +50,19 @@ export class ZombieAI implements IAI {
     }
 
     update(dt : number) {
-        if (this._zombie.hasActiveComponent(Movement)) {
+        const movement = this.#zombie.components.movement;
+        if (movement && this.#zombie.hasActiveComponent(Movement)) {
             var pos : Vector;
-            if (this._canSeePlayer) {
-                pos = this._player.pos;
-                this._zombie.components.movement.speed = 15;
+            if (this.#canSeePlayer) {
+                pos = this.#player.pos;
+                movement.speed = 15;
             } else {
-                this._zombie.components.movement.speed = 3;
-                pos = this._headingLocation;
+                movement.speed = 3;
+                pos = this.#headingLocation;
             }
 
-            this._zombie.pos.rotateDirection(pos);
-            this._zombie.components.movement.direction.copy(pos).sub(this._zombie.pos);
+            this.#zombie.pos.rotateDirection(pos);
+            movement.direction.copy(pos).sub(this.#zombie.pos);
         }
     }
 }

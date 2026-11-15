@@ -5,26 +5,38 @@ import { InterfaceController } from './client/InterfaceController';
 import { SinglePlayerGame } from './client/SinglePlayerGame';
 import { Config } from './config';
 
-export var ui : InterfaceController = null;
-export var game : any = null;
-export var debug : DebugTool = null;
+declare global {
+    interface Window {
+        /** Console access to the running game when `Config.debug` is on. */
+        game? : SinglePlayerGame | BunnyTesterGame;
+        debug? : DebugTool;
+    }
+}
 
-window.addEventListener('load',() => {
+// Created on window load, before any game can start.
+export let ui! : InterfaceController;
+
+window.addEventListener('load', () => {
     ui = new InterfaceController();
 });
 
-export function singlePlayerGameSetup () {
+export function singlePlayerGameSetup() {
     console.time("GameSetup");
-    game = new SinglePlayerGame();
+    const game = new SinglePlayerGame();
     console.timeEnd("GameSetup");
     game.load();
 
-    if(Config.debug) {
-        debug = new DebugTool(game);
+    if (Config.debug) {
+        window.game = game;
+        window.debug = new DebugTool(game);
     }
 }
 
 export function bunnyTestSetup() {
-    game = new BunnyTesterGame();
+    const game = new BunnyTesterGame();
     game.load();
+
+    if (Config.debug) {
+        window.game = game;
+    }
 }

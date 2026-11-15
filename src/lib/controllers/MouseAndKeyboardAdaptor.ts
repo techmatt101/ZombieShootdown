@@ -2,64 +2,66 @@ import { Camera } from '../Camera';
 import type { IInputController } from './IInputController';
 import { InputAction } from './InputAction';
 import { InputState } from './InputState';
+import type { KeyMappings } from './KeyMapper';
 import { MouseAndKeyboardController } from './MouseAndKeyboardController';
 import { Vector } from '../geometry/Vector';
 
 export class MouseAndKeyboardAdaptor implements IInputController {
-    private _mouseAndKeyboardController : MouseAndKeyboardController;
-    private _lastPos = new Vector(0,0);
-    private _camera : Camera;
-    private _inputState : InputState;
+    #mouseAndKeyboardController : MouseAndKeyboardController;
+    #lastPos = new Vector(0,0);
+    #camera : Camera;
+    #inputState! : InputState; // set in load()
 
 
     constructor(mouseAndKeyboardController : MouseAndKeyboardController, camera : Camera) {
-        this._mouseAndKeyboardController = mouseAndKeyboardController;
-        this._camera = camera;
+        this.#mouseAndKeyboardController = mouseAndKeyboardController;
+        this.#camera = camera;
     }
 
     load(inputState : InputState) {
-        this._inputState = inputState;
-        this._mouseAndKeyboardController.load(inputState);
+        this.#inputState = inputState;
+        this.#mouseAndKeyboardController.load(inputState);
     }
 
-    loadKeyMappings(mappings : object) {
-        this._mouseAndKeyboardController.loadKeyMappings(mappings);
+    loadKeyMappings(mappings : KeyMappings | undefined) {
+        this.#mouseAndKeyboardController.loadKeyMappings(mappings);
     }
 
     update(dt : number) {
-        if (this._inputState.isKeyDown(InputAction.LEFT)) this._inputState.movementCoordinates.x -= 1;
-        if (this._inputState.isKeyDown(InputAction.RIGHT)) this._inputState.movementCoordinates.x += 1;
-        if (this._inputState.isKeyDown(InputAction.UP)) this._inputState.movementCoordinates.y -= 1;
-        if (this._inputState.isKeyDown(InputAction.DOWN)) this._inputState.movementCoordinates.y += 1;
+        if (this.#inputState.isKeyDown(InputAction.LEFT)) this.#inputState.movementCoordinates.x -= 1;
+        if (this.#inputState.isKeyDown(InputAction.RIGHT)) this.#inputState.movementCoordinates.x += 1;
+        if (this.#inputState.isKeyDown(InputAction.UP)) this.#inputState.movementCoordinates.y -= 1;
+        if (this.#inputState.isKeyDown(InputAction.DOWN)) this.#inputState.movementCoordinates.y += 1;
 
-        if(!this._lastPos.equal(this._mouseAndKeyboardController.pointerPos)) {
+        if(!this.#lastPos.equal(this.#mouseAndKeyboardController.pointerPos)) {
             var pointOnCanvas = new Vector(
-                this._mouseAndKeyboardController.pointerPos.x + this._camera.pos.x - this._camera.viewportOffset.x,
-                this._mouseAndKeyboardController.pointerPos.y + this._camera.pos.y - this._camera.viewportOffset.y
+                this.#mouseAndKeyboardController.pointerPos.x + this.#camera.pos.x - this.#camera.viewportOffset.x,
+                this.#mouseAndKeyboardController.pointerPos.y + this.#camera.pos.y - this.#camera.viewportOffset.y
             );
 
-            if (pointOnCanvas.x > this._camera.viewport.width) {
-                this._mouseAndKeyboardController.pointerPos.x -= pointOnCanvas.x - this._camera.viewport.width;
-                pointOnCanvas.x = this._camera.viewport.width;
-            } else if (pointOnCanvas.x < this._camera.viewport.pos.x) {
-                this._mouseAndKeyboardController.pointerPos.x += this._camera.viewport.pos.x - pointOnCanvas.x;
-                pointOnCanvas.x = this._camera.viewport.pos.x;
+            if (pointOnCanvas.x > this.#camera.viewport.width) {
+                this.#mouseAndKeyboardController.pointerPos.x -= pointOnCanvas.x - this.#camera.viewport.width;
+                pointOnCanvas.x = this.#camera.viewport.width;
+            } else if (pointOnCanvas.x < this.#camera.viewport.pos.x) {
+                this.#mouseAndKeyboardController.pointerPos.x += this.#camera.viewport.pos.x - pointOnCanvas.x;
+                pointOnCanvas.x = this.#camera.viewport.pos.x;
             }
 
-            if (pointOnCanvas.y > this._camera.viewport.height) {
-                this._mouseAndKeyboardController.pointerPos.y -= pointOnCanvas.y - this._camera.viewport.height;
-                pointOnCanvas.y = this._camera.viewport.height;
-            } else if (pointOnCanvas.y < this._camera.viewport.pos.y) {
-                this._mouseAndKeyboardController.pointerPos.y += this._camera.viewport.pos.y - pointOnCanvas.y;
-                pointOnCanvas.y = this._camera.viewport.pos.y;
+            if (pointOnCanvas.y > this.#camera.viewport.height) {
+                this.#mouseAndKeyboardController.pointerPos.y -= pointOnCanvas.y - this.#camera.viewport.height;
+                pointOnCanvas.y = this.#camera.viewport.height;
+            } else if (pointOnCanvas.y < this.#camera.viewport.pos.y) {
+                this.#mouseAndKeyboardController.pointerPos.y += this.#camera.viewport.pos.y - pointOnCanvas.y;
+                pointOnCanvas.y = this.#camera.viewport.pos.y;
             }
 
-            this._inputState.directionCoordinates.x = pointOnCanvas.x - this._camera.target.x;
-            this._inputState.directionCoordinates.y = pointOnCanvas.y - this._camera.target.y;
+            var target = this.#camera.target ?? this.#camera.pos;
+            this.#inputState.directionCoordinates.x = pointOnCanvas.x - target.x;
+            this.#inputState.directionCoordinates.y = pointOnCanvas.y - target.y;
 
-            this._inputState.directionCoordinates.scale(1 / this._camera.zoom);
+            this.#inputState.directionCoordinates.scale(1 / this.#camera.zoom);
 
-            this._lastPos.copy(this._mouseAndKeyboardController.pointerPos);
+            this.#lastPos.copy(this.#mouseAndKeyboardController.pointerPos);
         }
     }
 }

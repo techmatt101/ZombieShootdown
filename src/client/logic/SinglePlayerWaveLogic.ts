@@ -13,41 +13,41 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
     score = 0;
     wave = 0;
 
-    private _level : TopDownLevel;
-    private _player : Entity;
-    private _zombieEventCollection : EventCollection;
-    private _zombiePool : Pool<Entity>;
+    #level : TopDownLevel;
+    #player! : Entity; // set in start(), before any zombie is spawned
+    #zombieEventCollection : EventCollection;
+    #zombiePool : Pool<Entity>;
 
 
     constructor(level : TopDownLevel) {
-        this._level = level;
+        this.#level = level;
 
-        this._zombieEventCollection = new EventCollection(() => {
+        this.#zombieEventCollection = new EventCollection(() => {
             this.spawnWave();
             this.score += 100;
         }, () => {
             this.score += 10;
         });
 
-        this._zombiePool = new Pool<Entity>(() => {
-            var zombie = EnemyFactory.spawnZombie(this._player);
-            zombie.components.health.on(HealthEvent.DEATH, this._zombieEventCollection.listen(() => {
+        this.#zombiePool = new Pool<Entity>(() => {
+            var zombie = EnemyFactory.spawnZombie(this.#player);
+            zombie.getComponent('health').on(HealthEvent.DEATH, this.#zombieEventCollection.listen(() => {
                 zombie.active = false; //TODO: hack
                 zombie.available = true;
                 var deadZombie = EnemyFactory.spawnDeadZombie();
                 deadZombie.pos.copy(zombie.pos);
                 level.addEntity(deadZombie);
             }));
-            this._level.addEntity(zombie);
+            this.#level.addEntity(zombie);
 
             return zombie;
         });
     }
 
     start(player : Entity) {
-        this._player = player;
+        this.#player = player;
 
-        this._player.components.health.on(HealthEvent.DEATH, () => {
+        this.#player.getComponent('health').on(HealthEvent.DEATH, () => {
             console.log("GAME OVER MAN!");
         });
         this.spawnWave();
@@ -59,12 +59,12 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
         var numberOfZombies = ~~(this.wave * 1.5 + 3);
         //var numberOfZombies = 1;
         for (var i = 0; i < numberOfZombies; i++) {
-            var zombie = this._zombiePool.acquire();
-            zombie.components.health.set(100); //TODO: hack
-            this.placeInRoom(zombie.geometry, this._level.getMap().mapGenerator);
+            var zombie = this.#zombiePool.acquire();
+            zombie.getComponent('health').set(100); //TODO: hack
+            this.placeInRoom(zombie.geometry, this.#level.getMap().getGenerator());
         }
 
-        this._zombieEventCollection.reset(numberOfZombies);
+        this.#zombieEventCollection.reset(numberOfZombies);
 
         console.log("WAVE " + this.wave + " HAS BEGUN! SPAWNED " + numberOfZombies + " ZOMBIES");
     }

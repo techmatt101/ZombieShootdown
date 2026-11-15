@@ -1,38 +1,38 @@
 export class EventCollection {
-    private _totalEvents = 0;
-    private _activeEvents = 0;
-    private _onComplete : () => void;
-    private _onEventComplete : () => void;
+    #totalEvents = 0;
+    #activeEvents = 0;
+    #onComplete : () => void;
+    #onEventComplete? : () => void;
 
 
     constructor(onComplete : () => void, onEventComplete? : () => void) {
-        this._onComplete = onComplete;
-        this._onEventComplete = onEventComplete;
+        this.#onComplete = onComplete;
+        this.#onEventComplete = onEventComplete;
     }
 
-    listen(action?) {
-        this._activeEvents++;
-        this._totalEvents++;
+    listen(action? : () => void) {
+        this.#activeEvents++;
+        this.#totalEvents++;
 
         return () => {
             if (typeof action !== 'undefined') {
                 action();
             }
-            if (typeof this._onEventComplete !== 'undefined') {
-                this._onEventComplete();
+            if (typeof this.#onEventComplete !== 'undefined') {
+                this.#onEventComplete();
             }
-            this.testForComplete();
+            this.#testForComplete();
         };
     }
 
-    reset(overrideTotalEvents?) {
-        this._activeEvents = overrideTotalEvents || this._totalEvents;
+    reset(overrideTotalEvents? : number) {
+        this.#activeEvents = overrideTotalEvents || this.#totalEvents;
     }
 
-    private testForComplete() {
-        this._activeEvents--;
-        if (this._activeEvents === 0) {
-            this._onComplete();
+    #testForComplete() {
+        this.#activeEvents--;
+        if (this.#activeEvents === 0) {
+            this.#onComplete();
         }
     }
 }

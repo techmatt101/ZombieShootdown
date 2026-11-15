@@ -1,4 +1,4 @@
 export interface IUpdate {
-    update (dt : number)
-    drawDebug(ctx : CanvasRenderingContext2D)
+    update(dt : number) : void;
+    drawDebug(ctx : CanvasRenderingContext2D) : void;
 }

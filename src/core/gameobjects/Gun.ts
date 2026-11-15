@@ -7,29 +7,29 @@ import { Pool } from '../../lib/Pool';
 
 export class Gun extends Entity implements IWeapon {
     placementOffset = new Vector(32, 0);
-    private _bulletPool : Pool<Entity>;
-    private _coolDown = 1.5;
-    private _activeCoolDown = 0;
+    #bulletPool : Pool<Entity>;
+    #coolDown = 1.5;
+    #activeCoolDown = 0;
 
 
     constructor(id : string, point: Point, geometry : Box, bulletPool : Pool<Entity>) {
         super(id, point, geometry);
-        this._bulletPool = bulletPool;
+        this.#bulletPool = bulletPool;
     }
 
     update(dt : number) {
         super.update(dt);
-        if (this._activeCoolDown > 0) {
-            this._activeCoolDown -= dt;
+        if (this.#activeCoolDown > 0) {
+            this.#activeCoolDown -= dt;
         } else {
-            this._activeCoolDown = 0;
+            this.#activeCoolDown = 0;
         }
     }
 
     attack() {
-        if (this._activeCoolDown === 0) {
-            this._bulletPool.acquire().pos.copy(this.pos);
-            this._activeCoolDown = this._coolDown;
+        if (this.#activeCoolDown === 0) {
+            this.#bulletPool.acquire().pos.copy(this.pos);
+            this.#activeCoolDown = this.#coolDown;
         }
     }
 }

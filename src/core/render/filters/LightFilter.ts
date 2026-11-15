@@ -6,31 +6,36 @@ import { Vector } from '../../../lib/geometry/Vector';
 import type { IUpdate } from '../../../lib/IUpdate';
 import { ResourceManager } from '../../../lib/ResourceManager';
 
+import type { IVector } from '../../../lib/geometry/IVector';
+
+/** Visible-area outline computed by the lighting worker. */
+export type LightPolygon = IVector[];
+
 export class LightFilter implements IUpdate, IFilter {
-    private _map : MapManager;
-    private _lightSource = new Vector(0, 0);
-    private _polygons = [];
+    #map : MapManager;
+    #lightSource = new Vector(0, 0);
+    #polygons : LightPolygon[] = [];
 
-    private _worker = new Worker(new URL("../../../workers/lighting.ts", import.meta.url), { type: "module" });
-    private _workerWorking = false;
+    #worker = new Worker(new URL("../../../workers/lighting.ts", import.meta.url), { type: "module" });
+    #workerWorking = false;
 
-    private _visionImage : HTMLImageElement;
+    #visionImage : HTMLImageElement | null = null;
 
     constructor(map : MapManager) { //TODO: hmmm.. just only segments will do?
-        this._map = map;
+        this.#map = map;
 
-        this._worker.onmessage = (e) => {
-            this._workerWorking = false;
-            this._polygons = e.data;
+        this.#worker.onmessage = (e : MessageEvent<LightPolygon[]>) => {
+            this.#workerWorking = false;
+            this.#polygons = e.data;
         };
 
         ResourceManager.retrieveImage('vision', (img : HTMLImageElement) => {
-            this._visionImage = img;
+            this.#visionImage = img;
         });
     }
 
     setLightSource(lightSource : Vector) {
-        this._lightSource = lightSource;
+        this.#lightSource = lightSource;
     }
 
     init(ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
@@ -46,13 +51,13 @@ export class LightFilter implements IUpdate, IFilter {
     }
 
     update(dt : number) {
-        if (!this._workerWorking) {
-            this._worker.postMessage({
-                x: this._lightSource.x,
-                y: this._lightSource.y,
-                s: this._map.segments
+        if (!this.#workerWorking) {
+            this.#worker.postMessage({
+                x: this.#lightSource.x,
+                y: this.#lightSource.y,
+                s: this.#map.segments
             });
-            this._workerWorking = true;
+            this.#workerWorking = true;
         }
     }
 
@@ -60,18 +65,19 @@ export class LightFilter implements IUpdate, IFilter {
     }
 
     draw(ctx : CanvasRenderingContext2D) {
-        for (var i = 1; i < this._polygons.length; i++) {
-            this.drawPolygon(this._polygons[i], ctx, "rgba(0,0,0,0.2)");
+        for (var i = 1; i < this.#polygons.length; i++) {
+            this.#drawPolygon(this.#polygons[i], ctx, "rgba(0,0,0,0.2)");
         }
-        if (this._polygons.length > 0) { //TODO: hmmm...
-            this.drawPolygon(this._polygons[0], ctx, "#000");
+        if (this.#polygons.length > 0) { //TODO: hmmm...
+            this.#drawPolygon(this.#polygons[0], ctx, "#000");
         }
 
+        if (this.#visionImage === null) return;
         ctx.globalCompositeOperation = 'source-in';
-        ctx.drawImage(this._visionImage, this._lightSource.x - 900, this._lightSource.y - 900, 1800, 1800); //TODO: better scale vision
+        ctx.drawImage(this.#visionImage, this.#lightSource.x - 900, this.#lightSource.y - 900, 1800, 1800); //TODO: better scale vision
     }
 
-    private drawPolygon(polygon, ctx, fillStyle) { //TODO: hmmm....
+    #drawPolygon(polygon : LightPolygon, ctx : CanvasRenderingContext2D, fillStyle : string) { //TODO: hmmm....
         ctx.fillStyle = fillStyle;
         ctx.beginPath();
         ctx.moveTo(polygon[0].x, polygon[0].y);

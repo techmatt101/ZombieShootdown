@@ -1,40 +1,45 @@
 import type { ISpriteAnimationSequence } from './ISpriteAnimationSequence';
+
+export interface ISpriteAnimationData {
+    animationTime : number;
+    spriteSequence : ISpriteAnimationSequence[];
+}
 import { Texture } from '../../lib/Texture';
 
 export class SpriteAnimation {
-    private _step = 0;
-    private _time = 0;
-    private _length = 0;
-    private _sequence : ISpriteAnimationSequence[] = [];
+    #step = 0;
+    #time = 0;
+    #length = 0;
+    #sequence : ISpriteAnimationSequence[] = [];
 
 
-    constructor(aniamtion) {
-        this._length = aniamtion.animationTime;
-        this._sequence = aniamtion.spriteSequence;
+    constructor(animation : ISpriteAnimationData) {
+        this.#length = animation.animationTime;
+        this.#sequence = animation.spriteSequence;
 
     }
 
     update(dt : number, texture : Texture) {
-        this._time += dt;
+        this.#time += dt;
 
-        if (this._time > this._length) {
-            this._time = 0;
-            this._step = 0;
+        if (this.#time > this.#length) {
+            this.#time = 0;
+            this.#step = 0;
 
-            texture.sourcePos.x = this._sequence[this._step].x;
-            texture.sourcePos.y = this._sequence[this._step].y;
-            texture.sourceWidth = this._sequence[this._step].width;
-            texture.sourceHeight = this._sequence[this._step].height;
+            texture.sourcePos.x = this.#sequence[this.#step].x;
+            texture.sourcePos.y = this.#sequence[this.#step].y;
+            texture.sourceWidth = this.#sequence[this.#step].width;
+            texture.sourceHeight = this.#sequence[this.#step].height;
 
         } else {
-            if (this._time > this._sequence[this._step].time) {
-                while (this._time > this._sequence[this._step].time) {
-                    this._step++;
+            if (this.#time > this.#sequence[this.#step].time) {
+                while (this.#time > this.#sequence[this.#step].time) {
+                    this.#step++;
                 }
-                texture.sourcePos.x = this._sequence[this._step].x;
-                texture.sourcePos.y = this._sequence[this._step].y;
-                texture.sourceWidth = this._sequence[this._step].width;
-                texture.sourceHeight = this._sequence[this._step].height;
+                texture.sourcePos.x = this.#sequence[this.#step].x;
+                texture.sourcePos.y = this.#sequence[this.#step].y;
+                texture.sourceWidth = this.#sequence[this.#step].width;
+                texture.sourceHeight = this.#sequence[this.#step].height;
             }
         }
 

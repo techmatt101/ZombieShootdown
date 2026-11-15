@@ -1,6 +1,6 @@
 import type { IInputController } from './IInputController';
 import { InputState } from './InputState';
-import { KeyMapper } from './KeyMapper';
+import { KeyMapper, type KeyBindings, type KeyMappings } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
 
 export enum GamepadAxe {
@@ -11,61 +11,61 @@ export enum GamepadAxe {
 }
 
 export class GamepadController implements IInputController {
-    private _keys = {};
-    private _inputState : InputState;
-    private _lastButtonState : boolean[] = [];
-    private _gamepad : Gamepad;
-    private _axisThreshold = 0.3;
+    #keys : KeyBindings = {};
+    #inputState! : InputState; // set in load()
+    #lastButtonState : boolean[] = [];
+    #gamepad : Gamepad | null = null;
+    #axisThreshold = 0.3;
     public leftAxes = new Vector(0 ,0);
     public rightAxes = new Vector(0 ,0);
 
 
     load(inputState : InputState) {
-        this._inputState = inputState;
+        this.#inputState = inputState;
     }
 
-    loadKeyMappings(mappings : object) {
-        KeyMapper.loadKeyMappings(this._keys, mappings, this._inputState.inputActions);
+    loadKeyMappings(mappings : KeyMappings | undefined) {
+        KeyMapper.loadKeyMappings(this.#keys, mappings, this.#inputState.inputActions);
     }
 
     update(dt : number) {
-        this._gamepad = navigator.getGamepads()[0];
-        if (!this._gamepad) {
+        this.#gamepad = navigator.getGamepads()[0];
+        if (!this.#gamepad) {
             return;
         }
 
         // Sticks
-        var leftAxes = new Vector(this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_HORIZONTAL], this._gamepad.axes[GamepadAxe.LEFT_ANALOGUE_VERTICAL]);
-        var rightAxes = new Vector(this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL], this._gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL]);
+        var leftAxes = new Vector(this.#gamepad.axes[GamepadAxe.LEFT_ANALOGUE_HORIZONTAL], this.#gamepad.axes[GamepadAxe.LEFT_ANALOGUE_VERTICAL]);
+        var rightAxes = new Vector(this.#gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_HORIZONTAL], this.#gamepad.axes[GamepadAxe.RIGHT_ANALOGUE_VERTICAL]);
 
-        if(leftAxes.len() > this._axisThreshold) {
+        if(leftAxes.len() > this.#axisThreshold) {
             this.leftAxes.copy(leftAxes);
         } else {
             this.leftAxes.reset();
         }
 
-        if(rightAxes.len() > this._axisThreshold) {
+        if(rightAxes.len() > this.#axisThreshold) {
             this.rightAxes.copy(rightAxes);
         } else {
             this.rightAxes.reset();
         }
 
         // Buttons
-        if (this._lastButtonState.length === 0) {
-            for (var i = 0; i < this._gamepad.buttons.length; i++) {
-                this._lastButtonState.push(this._gamepad.buttons[i].pressed);
+        if (this.#lastButtonState.length === 0) {
+            for (var i = 0; i < this.#gamepad.buttons.length; i++) {
+                this.#lastButtonState.push(this.#gamepad.buttons[i].pressed);
             }
         }
 
-        for (var i = 0; i < this._gamepad.buttons.length; i++) {
-            if (this._gamepad.buttons[i].pressed !== this._lastButtonState[i]) {
-                if (this._gamepad.buttons[i].pressed) {
-                    this._inputState.setKeyPress(this._keys[i]);
+        for (var i = 0; i < this.#gamepad.buttons.length; i++) {
+            if (this.#gamepad.buttons[i].pressed !== this.#lastButtonState[i]) {
+                if (this.#gamepad.buttons[i].pressed) {
+                    this.#inputState.setKeyPress(this.#keys[i]);
                 } else {
-                    this._inputState.setKeyRelease(this._keys[i]);
+                    this.#inputState.setKeyRelease(this.#keys[i]);
                 }
             }
-            this._lastButtonState[i] = this._gamepad.buttons[i].pressed;
+            this.#lastButtonState[i] = this.#gamepad.buttons[i].pressed;
         }
     }
 }

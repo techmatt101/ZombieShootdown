@@ -1,59 +1,59 @@
 export interface IPool {
     available : boolean;
-    reset()
+    reset() : void;
 }
 
-export class Pool <T> {
-    private _factory : () => IPool;
-    private _objects = [];
-    private _available = [];
-    private _nextAvailableId = 0;
+export class Pool <T extends IPool> {
+    #factory : () => T;
+    #objects : T[] = [];
+    #available : T[] = [];
+    #nextAvailableId = 0;
 
 
-    constructor(factory : () => IPool, prepopulate = 0) {
-        this._factory = factory;
+    constructor(factory : () => T, prepopulate = 0) {
+        this.#factory = factory;
 
         for (var i = 0; i < prepopulate; i++) {
-            this.buildNew();
+            this.#buildNew();
         }
-        this.updateAvailability();
+        this.#updateAvailability();
     }
 
     getSize() {
-        return this._objects.length;
+        return this.#objects.length;
     }
 
     acquire() : T {
-        var obj;
-        if (this._nextAvailableId === -1) {
-            this.updateAvailability();
+        var obj : T;
+        if (this.#nextAvailableId === -1) {
+            this.#updateAvailability();
         }
-        if (this._nextAvailableId === -1) {
-            obj = this.buildNew();
+        if (this.#nextAvailableId === -1) {
+            obj = this.#buildNew();
         } else {
-            obj = this._available[this._nextAvailableId];
-            this._nextAvailableId--;
+            obj = this.#available[this.#nextAvailableId];
+            this.#nextAvailableId--;
         }
         obj.reset();
         obj.available = false;
         return obj;
     }
 
-    private buildNew() {
-        var newObj = this._factory();
-        this._objects.push(newObj);
+    #buildNew() {
+        var newObj = this.#factory();
+        this.#objects.push(newObj);
 
         return newObj;
     }
 
-    private updateAvailability() {
-        this._available = [];
-        var objectLength = this._objects.length;
+    #updateAvailability() {
+        this.#available = [];
+        var objectLength = this.#objects.length;
         for (var i = 0; i < objectLength; i++) {
-            if (this._objects[i].available) {
-                this._available.push(this._objects[i]);
+            if (this.#objects[i].available) {
+                this.#available.push(this.#objects[i]);
             }
         }
-        this._nextAvailableId = this._available.length - 1;
+        this.#nextAvailableId = this.#available.length - 1;
     }
 }

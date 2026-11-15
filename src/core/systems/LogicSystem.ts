@@ -2,16 +2,16 @@ import { Entity } from '../Entity';
 import type { ISystem } from './ISystem';
 
 export class LogicSystem implements ISystem<Entity> {
-    private _entities : Entity[] = [];
+    #entities : Entity[] = [];
 
 
     add(entity : Entity) {
-        this._entities.push(entity);
+        this.#entities.push(entity);
     }
 
     update(dt : number) {
-        for (var i = 0; i < this._entities.length; i++) {
-            this._entities[i].update(dt);
+        for (var i = 0; i < this.#entities.length; i++) {
+            this.#entities[i].update(dt);
         }
     }
 }

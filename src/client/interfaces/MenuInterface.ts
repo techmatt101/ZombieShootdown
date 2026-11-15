@@ -1,30 +1,22 @@
 import { bunnyTestSetup, singlePlayerGameSetup } from '../../app';
 import type { IUI } from './IUI';
 import { Config } from '../../config';
+import { byId } from '../../lib/dom';
 
 export class MenuInterface implements IUI {
 
     constructor() {
-        var play = document.getElementById('play');
-        var menu = document.getElementById('interface');
-        var about = document.getElementById('about');
-        var option = document.getElementById('option');
-        var view = document.getElementById('game-container');
+        var play = byId('play');
+        var menu = byId('interface');
+        var about = byId('about');
+        var option = byId('option');
+        var view = byId('game-container');
 
-        function launchIntoFullScreen(element) {
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) {
-                element.msRequestFullscreen();
-            }
-
+        function launchIntoFullScreen(element : HTMLElement) {
+            element.requestFullscreen();
 
             setTimeout(function() {
-                var g = <any>document.getElementById('game');
+                var g = byId<HTMLCanvasElement>('game');
                 var r = element.getBoundingClientRect();
                 g.width = r.width;
                 g.height = r.height;

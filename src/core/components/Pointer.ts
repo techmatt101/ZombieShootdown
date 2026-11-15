@@ -7,26 +7,28 @@ import { Vector } from '../../lib/geometry/Vector';
 
 export class Pointer implements IComponent {
     active = true;
-    private _input : InputState;
-    private _pos : Vector;
-    private _camera : Camera;
-    private _material : Material;
+    #input : InputState;
+    #pos : Vector;
+    #camera : Camera;
+    #material : Material;
 
     static reference(components : IComponentDirectory) {
         return components.pointer;
     }
 
     constructor(pos : Vector, material : Material, input : InputState, camera : Camera) {
-        this._pos = pos;
-        this._material = material;
-        this._input = input;
-        this._camera = camera;
+        this.#pos = pos;
+        this.#material = material;
+        this.#input = input;
+        this.#camera = camera;
     }
 
     update(dt : number) : void {
-        this._pos.copy(this._camera.target);
-        this._pos.add(this._input.directionCoordinates);
-        this._material.active = Math.abs(this._input.directionCoordinates.x) > 10 || Math.abs(this._input.directionCoordinates.y) > 10; //TODO: hmmm... could be better
+        if (this.#camera.target !== null) {
+            this.#pos.copy(this.#camera.target);
+        }
+        this.#pos.add(this.#input.directionCoordinates);
+        this.#material.active = Math.abs(this.#input.directionCoordinates.x) > 10 || Math.abs(this.#input.directionCoordinates.y) > 10; //TODO: hmmm... could be better
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

@@ -6,8 +6,8 @@ import { Material } from './Material';
 export class SpriteAnimator implements IComponent {
     active = true;
 
-    private _material : Material;
-    private _animations : SpriteAnimation;
+    #material : Material;
+    #animations : SpriteAnimation;
     //private _textures : Texture[];
 
     static reference(components : IComponentDirectory) {
@@ -15,9 +15,9 @@ export class SpriteAnimator implements IComponent {
     }
 
     constructor(material : Material) {
-        this._material = material;
+        this.#material = material;
 
-        this._animations = new SpriteAnimation({
+        this.#animations = new SpriteAnimation({
             "animationTime": 4,
             "spriteSequence": [
                 {
@@ -42,8 +42,8 @@ export class SpriteAnimator implements IComponent {
     //}
 
     update(dt : number) : void {
-        if (this._material.texture !== null) { //TODO: hack
-            this._animations.update(dt, this._material.texture);
+        if (this.#material.texture !== null) { //TODO: hack
+            this.#animations.update(dt, this.#material.texture);
         }
     }
 

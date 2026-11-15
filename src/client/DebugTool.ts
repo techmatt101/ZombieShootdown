@@ -2,18 +2,18 @@ import { Game } from './Game';
 import { Entity } from '../core/Entity';
 
 export class DebugTool {
-    private _game : Game;
+    #game : Game;
 
     constructor(game : Game) {
-        this._game = game;
+        this.#game = game;
     }
 
     noClip() {
-        this._game.player.components.collision.active = false;
+        this.#game.player.getComponent('collision').active = false;
     }
 
     takeControl(entity : Entity) {
-        (<any>this._game.player.components.controller)._entity = entity;
-        entity.components.ai.active = false;
+        this.#game.player.getComponent('controller').setEntity(entity);
+        entity.getComponent('ai').active = false;
     }
 }

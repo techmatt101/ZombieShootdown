@@ -4,25 +4,25 @@ import { CanvasRenderer } from '../render/CanvasRenderer';
 import type { ISystem } from './ISystem';
 
 export class RenderSystem implements ISystem<Entity> {
-    private _entities : Entity[] = [];
-    private _renderer : CanvasRenderer;
+    #entities : Entity[] = [];
+    #renderer : CanvasRenderer;
 
 
     constructor(renderer : CanvasRenderer) {
-        this._renderer = renderer;
+        this.#renderer = renderer;
     }
 
     add(entity : Entity) {
         if (entity.hasComponent(Material)) {
-            this._entities.push(entity);
+            this.#entities.push(entity);
         }
     }
 
     update(dt : number) {
-        this._entities.sort((a : Entity, b : Entity) => { //TODO: hmmm... could be optimized
-            return a.components.material.zIndex - b.components.material.zIndex;
+        this.#entities.sort((a : Entity, b : Entity) => { //TODO: hmmm... could be optimized
+            return a.components.material!.zIndex - b.components.material!.zIndex; // add() only accepts entities with a Material
         });
 
-        this._renderer.render(this._entities);
+        this.#renderer.render(this.#entities);
     }
 }

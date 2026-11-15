@@ -1,7 +1,8 @@
-import { InputState } from './InputState';
+import type { InputState } from './InputState';
+import type { KeyMappings } from './KeyMapper';
 
 export interface IInputController {
-    load(inputState : InputState);
-    loadKeyMappings(mappings : object);
-    update(dt : number);
+    load(inputState : InputState) : void;
+    loadKeyMappings(mappings : KeyMappings | undefined) : void;
+    update(dt : number) : void;
 }

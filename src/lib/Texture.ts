@@ -12,8 +12,8 @@ export class Texture extends Box {
                 width : number,
                 height : number,
                 sourcePos = new Vector(0, 0),
-                sourceWidth?,
-                sourceHeight?) {
+                sourceWidth? : number,
+                sourceHeight? : number) {
 
         super(width, height, pos);
         this.img = img;

@@ -1,49 +1,49 @@
 import { InputState } from './InputState';
-import { KeyMapper } from './KeyMapper';
+import { KeyMapper, type KeyBindings, type KeyMappings } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
 
 export class MouseAndKeyboardController {
     pointerPos = new Vector(0, 0);
 
-    private _keys = {};
-    private _inputState : InputState;
-    private _canvas : HTMLCanvasElement;
-    private _lastPointerPos = new Vector(0, 0);
-    private _pointerLockEnabled = false;
+    #keys : KeyBindings = {};
+    #inputState! : InputState; // set in load()
+    #canvas : HTMLCanvasElement;
+    #lastPointerPos = new Vector(0, 0);
+    #pointerLockEnabled = false;
 
 
     constructor(canvas : HTMLCanvasElement) {
-        this._canvas = canvas;
+        this.#canvas = canvas;
     }
 
     load(inputState : InputState) {
-        this._inputState = inputState;
+        this.#inputState = inputState;
 
         // Key Presses
         window.addEventListener('keyup', (e : KeyboardEvent) => {
-            this._inputState.setKeyRelease(this._keys[e.keyCode]);
+            this.#inputState.setKeyRelease(this.#keys[e.keyCode]);
         }, false);
 
         window.addEventListener('keydown', (e : KeyboardEvent) => {
-            this._inputState.setKeyPress(this._keys[e.keyCode]);
+            this.#inputState.setKeyPress(this.#keys[e.keyCode]);
         }, false);
 
         window.addEventListener('mousedown', (e : MouseEvent) => {
-            this._inputState.setKeyPress(this._keys[e.button]);
+            this.#inputState.setKeyPress(this.#keys[e.button]);
         }, false);
 
         window.addEventListener('mouseup', (e : MouseEvent) => {
-            this._inputState.setKeyRelease(this._keys[e.button]);
+            this.#inputState.setKeyRelease(this.#keys[e.button]);
         }, false);
 
         // Disable right click context menu from appearing
-        this._canvas.addEventListener('contextmenu', (e : MouseEvent) => {
+        this.#canvas.addEventListener('contextmenu', (e : MouseEvent) => {
             e.preventDefault();
         }, false);
 
         // Mouse Movement
-        this._canvas.addEventListener('mousemove', (e : MouseEvent) => {
-            if (this._pointerLockEnabled) {
+        this.#canvas.addEventListener('mousemove', (e : MouseEvent) => {
+            if (this.#pointerLockEnabled) {
                 this.pointerPos.x += e.movementX || (<any>e).mozMovementX || (<any>e).webkitMovementX || 0;
                 this.pointerPos.y += e.movementY || (<any>e).mozMovementY || (<any>e).webkitMovementY || 0;
             } else {
@@ -53,32 +53,31 @@ export class MouseAndKeyboardController {
         }, false);
 
         // Pointer Lock
-        this._canvas.requestPointerLock = this._canvas.requestPointerLock || (<any>this._canvas).mozRequestPointerLock || (<any>this._canvas).webkitRequestPointerLock || null;
+        this.#canvas.requestPointerLock = this.#canvas.requestPointerLock || (<any>this.#canvas).mozRequestPointerLock || (<any>this.#canvas).webkitRequestPointerLock || null;
         var pointerLockChangeEventName = ("onpointerlockchange" in document) ? 'pointerlockchange' :
             ("onmozpointerlockchange" in document) ? 'mozpointerlockchange' :
                 ("onwebkitpointerlockchange" in document) ? 'webkitpointerlockchange' : null;
 
-        if (this._canvas.requestPointerLock !== null && pointerLockChangeEventName !== null) {
-            document.addEventListener(pointerLockChangeEventName, this.pointerLockEvent.bind(this), false);
-            this.pointerLockEvent();
+        if (this.#canvas.requestPointerLock !== null && pointerLockChangeEventName !== null) {
+            document.addEventListener(pointerLockChangeEventName, this.#pointerLockEvent.bind(this), false);
+            this.#pointerLockEvent();
         }
     }
 
-    loadKeyMappings(mappings : object) {
-        KeyMapper.loadKeyMappings(this._keys, mappings, this._inputState.inputActions);
+    loadKeyMappings(mappings : KeyMappings | undefined) {
+        KeyMapper.loadKeyMappings(this.#keys, mappings, this.#inputState.inputActions);
     }
 
-    private pointerLockEvent() {
-        var self = this;
-        if (document.pointerLockElement === this._canvas ||
-            (<any>document).mozPointerLockElement === this._canvas ||
-            (<any>document).webkitPointerLockElement === this._canvas) {
-            this._pointerLockEnabled = true;
+    #pointerLockEvent() {
+        if (document.pointerLockElement === this.#canvas ||
+            (<any>document).mozPointerLockElement === this.#canvas ||
+            (<any>document).webkitPointerLockElement === this.#canvas) {
+            this.#pointerLockEnabled = true;
         }
         else {
-            this._pointerLockEnabled = false;
+            this.#pointerLockEnabled = false;
             window.addEventListener('click', () => {
-                self._canvas.requestPointerLock();
+                this.#canvas.requestPointerLock();
             }, { once: true });
         }
     }

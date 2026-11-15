@@ -1,12 +1,14 @@
+import type { KeyMappings } from './lib/controllers/KeyMapper';
+
 export interface GameConfig {
     debug : boolean;
     sound : boolean;
     lighting : boolean;
     skipMenu : boolean;
-    keyMappings : Record<number, string>;
+    keyMappings : KeyMappings;
     // Referenced by Game.ts but not currently defined, so controllers receive no mappings.
-    gamepadKeyMappings? : Record<number, string>;
-    mouseKeyMappings? : Record<number, string>;
+    gamepadKeyMappings? : KeyMappings;
+    mouseKeyMappings? : KeyMappings;
 }
 
 export const Config : GameConfig = {

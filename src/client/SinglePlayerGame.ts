@@ -9,7 +9,7 @@ import { AISystem } from '../core/systems/AISystem';
 import { Pool } from '../lib/Pool';
 
 export class SinglePlayerGame extends Game {
-    declare player : Entity;
+    logic : SinglePlayerWaveLogic;
 
     constructor() {
         super();
@@ -37,7 +37,7 @@ export class SinglePlayerGame extends Game {
                 });
 
                 var gun = WeaponFactory.spawnGun(bulletPool);
-                game.player = PlayerFactory.spawnPlayer(game.map.mapGenerator.getMainRoom(), game.inputState);
+                game.player = PlayerFactory.spawnPlayer(game.map.getGenerator().getMainRoom(), game.inputState);
                 WeaponiseDecorator.giveGun(game.player, gun);
 
                 game.level.addEntity(game.player);
@@ -45,9 +45,7 @@ export class SinglePlayerGame extends Game {
             })
             .add(function LevelTweaks() {
                 game.level.setObjectToFollow(game.player);
-                if (typeof game.lighting !== 'undefined') {
-                    game.lighting.setLightSource(game.player.pos);
-                }
+                game.lighting?.setLightSource(game.player.pos);
             });
 
         super.load();

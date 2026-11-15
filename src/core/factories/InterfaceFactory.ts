@@ -14,14 +14,13 @@ export class InterfaceFactory {
 
     static spawnPointer(input : InputState, camera : Camera) {
         var pointer = new Entity('Pointer', new Point(0, 0, 0), new Box(0, 0));
-        var martial = new Material();
-        pointer.addComponent(martial);
-        pointer.addComponent(new Pointer(pointer.pos, martial, input, camera));
+        const material = pointer.addComponent(new Material());
+        pointer.addComponent(new Pointer(pointer.pos, material, input, camera));
 
-        pointer.components.material.zIndex = ZIndexLayer.OVERLAY;
+        material.zIndex = ZIndexLayer.OVERLAY;
 
         ResourceManager.retrieveImage('crosshair', (img : HTMLImageElement) => {
-            martial.setTexture(new Texture(img, new Vector(-16, -16), 32, 32));
+            material.setTexture(new Texture(img, new Vector(-16, -16), 32, 32));
         });
 
         pointer.build();

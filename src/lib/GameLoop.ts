@@ -1,31 +1,31 @@
 export class GameLoop {
-    private _lastGameLoopFrame = 0;
-    private _requestedAnimationFrame = 0;
-    private _update : (dt : number) => void;
+    #lastGameLoopFrame = 0;
+    #requestedAnimationFrame = 0;
+    #update : (dt : number) => void;
 
 
     constructor(update : (dt : number) => void) {
-        this._update = update;
+        this.#update = update;
     }
 
     start() {
-        this._lastGameLoopFrame = new Date().getTime();
+        this.#lastGameLoopFrame = new Date().getTime();
         window.requestAnimationFrame(this.loop.bind(this));
     }
 
     loop() {
         var now = new Date().getTime(),
-            dt = (now - this._lastGameLoopFrame) / 100;
+            dt = (now - this.#lastGameLoopFrame) / 100;
         if (dt > 1) {// Prevent fast-forwarding by limiting the length of a single frame. //todo: needed?
             dt = 1;
         }
-        this._requestedAnimationFrame = window.requestAnimationFrame(this.loop.bind(this));
-        this._lastGameLoopFrame = now;
-        this._update(dt);
+        this.#requestedAnimationFrame = window.requestAnimationFrame(this.loop.bind(this));
+        this.#lastGameLoopFrame = now;
+        this.#update(dt);
     }
 
     pause() {
-        window.cancelAnimationFrame(this._requestedAnimationFrame);
+        window.cancelAnimationFrame(this.#requestedAnimationFrame);
     }
 
     lag() {

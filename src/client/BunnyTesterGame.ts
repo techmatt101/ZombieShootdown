@@ -15,18 +15,19 @@ import { GameLoop } from '../lib/GameLoop';
 import { Box } from '../lib/geometry/Box';
 import { Point } from '../lib/geometry/Point';
 import { Vector } from '../lib/geometry/Vector';
+import { byId } from '../lib/dom';
 import { Texture } from '../lib/Texture';
 
 export class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
     renderer : CanvasRenderer;
-    systems : Systems<any>;
+    systems : Systems<Entity>;
 
     camera : Camera;
     level : Level;
 
-    bunnyTest : BunnyTest;
+    bunnyTest : BunnyTest<Entity>;
 
 
     constructor() {
@@ -34,7 +35,7 @@ export class BunnyTesterGame {
             this.update(dt);
         });
 
-        this.canvas = new Canvas(<HTMLCanvasElement> document.getElementById('game'));
+        this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
 
         this.camera = new Camera(this.canvas);
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
@@ -44,16 +45,16 @@ export class BunnyTesterGame {
         this.systems.schedule(new CollisionSystem());
         this.systems.schedule(new RenderSystem(this.renderer));
 
-        //this.level = new Level(this.systems);
+        this.level = new Level(this.systems);
 
         this.bunnyTest = new BunnyTest((bunnyData) => {
             var bunny = new Entity('Bunny', new Point(0, 0, 0), new Box(bunnyData.width, bunnyData.height));
-            bunny.addComponent(new Material());
+            const material = bunny.addComponent(new Material());
             bunny.addComponent(new Movement(bunny.pos));
             bunny.addComponent(new Collision(bunny.geometry));
             bunny.build();
 
-            bunny.components.material.setTexture(new Texture(bunnyData.img, new Vector(0, 0), bunnyData.width, bunnyData.height));
+            material.setTexture(new Texture(bunnyData.img, new Vector(0, 0), bunnyData.width, bunnyData.height));
 
             this.level.addEntity(bunny);
 

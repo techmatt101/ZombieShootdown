@@ -1,72 +1,72 @@
-import { game } from '../../app';
 import { Game } from '../Game';
 import type { IUI } from './IUI';
 import { Entity } from '../../core/Entity';
 import { InputAction } from '../../lib/controllers/InputAction';
+import { byId } from '../../lib/dom';
 
 export class GameInterface implements IUI {
-    private _game : Game;
-    private _paused = false;
-    private _lastHealth = 0;
-    private _overlayElement;
-    private _selectedEntity : Entity = null;
+    #game : Game;
+    #paused = false;
+    #lastHealth = 0;
+    #overlayElement : HTMLElement;
+    #selectedEntity : Entity | null = null;
 
     //private _fps = 0;
     //private _fpsBuffer = [];
 
 
     constructor(game : Game) {
-        this._game = game;
-        this._overlayElement = document.getElementById('overlay');
-        this._overlayElement.hidden = true;
+        this.#game = game;
+        this.#overlayElement = byId('overlay');
+        this.#overlayElement.hidden = true;
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
             if (e.keyCode === 27) {
-                if (this._paused) {
+                if (this.#paused) {
                     this.hide();
-                    this._game.loop.start();
-                    this._paused = false;
+                    this.#game.loop.start();
+                    this.#paused = false;
                 } else {
                     this.pause();
-                    this._game.loop.pause();
-                    this._game.sound.pauseAll();
-                    this._paused = true;
+                    this.#game.loop.pause();
+                    this.#game.sound.pauseAll();
+                    this.#paused = true;
                 }
             }
         });
 
-        this._game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
+        this.#game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                var length = this._game.level.getEntities().length;
+                var length = this.#game.level.getEntities().length;
                 for (var i = length - 1; i >= 0; i--) {
-                    var entity = this._game.level.getEntities()[i];
-                    if ((entity.geometry).isBoundingBoxWith(this._game.pointer.geometry)) {
-                        this._selectedEntity = entity;
+                    var entity = this.#game.level.getEntities()[i];
+                    if ((entity.geometry).isBoundingBoxWith(this.#game.pointer.geometry)) {
+                        this.#selectedEntity = entity;
                         console.log(entity);
                         return;
                     }
                 }
-                this._selectedEntity = null;
+                this.#selectedEntity = null;
             }
         });
     }
 
     pause() {
-        this._overlayElement.hidden = false;
-        this._overlayElement.innerHTML = 'Paused';
+        this.#overlayElement.hidden = false;
+        this.#overlayElement.innerHTML = 'Paused';
     }
 
     hide() {
-        this._overlayElement.hidden = true;
+        this.#overlayElement.hidden = true;
     }
 
     update(dt : number) {
-        if(this._game.inputState.isKeyDown(InputAction.ZOOM_IN)) {
-            this._game.camera.zoom += 0.1 * dt;
+        if(this.#game.inputState.isKeyDown(InputAction.ZOOM_IN)) {
+            this.#game.camera.zoom += 0.1 * dt;
         }
 
-        if(this._game.inputState.isKeyDown(InputAction.ZOOM_OUT)) {
-            this._game.camera.zoom -= 0.1 * dt;
+        if(this.#game.inputState.isKeyDown(InputAction.ZOOM_OUT)) {
+            this.#game.camera.zoom -= 0.1 * dt;
         }
 
 //            if(this.fpsBuffer.length > 15){
@@ -86,39 +86,41 @@ export class GameInterface implements IUI {
 
         var lineHeight = 25, line = 1, margin = 20;
 
-        if (this._lastHealth !== this._game.player.components.health.value) {
+        var health = this.#game.player.getComponent('health').value;
+        if (this.#lastHealth !== health) {
             ctx.fillStyle = '#f00';
-            this._lastHealth = this._game.player.components.health.value;
+            this.#lastHealth = health;
         }
-        ctx.fillText('Health: ' + this._game.player.components.health.value, margin, this._game.canvas.height - lineHeight * line++);
+        ctx.fillText('Health: ' + health, margin, this.#game.canvas.height - lineHeight * line++);
 
         ctx.fillStyle = '#fff';
 
-        ctx.fillText('Score: ' + game.logic.score, margin, this._game.canvas.height - lineHeight * line++);
-        ctx.fillText('Wave: ' + game.logic.wave, margin, this._game.canvas.height - lineHeight * line++);
+        ctx.fillText('Score: ' + this.#game.logic.score, margin, this.#game.canvas.height - lineHeight * line++);
+        ctx.fillText('Wave: ' + this.#game.logic.wave, margin, this.#game.canvas.height - lineHeight * line++);
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) {
-        if (this._selectedEntity !== null) {
+        const selected = this.#selectedEntity;
+        if (selected !== null) {
             ctx.fillStyle = '#fff';
             ctx.font = '10pt visitor';
-            ctx.fillText('ID: ' + this._selectedEntity.id + ' Type: ' + this._selectedEntity.type + ' Instance: ' + (<any>this._selectedEntity).constructor.name, 5, 10);
+            ctx.fillText('ID: ' + selected.id + ' Type: ' + selected.type + ' Instance: ' + selected.constructor.name, 5, 10);
             var space = 5;
             var spaceGap = 5;
             var line = 20;
             var lineGap = 10;
-            loop(this._selectedEntity);
-            function loop(obj) {
-                for (var key in obj) {
-                    if (key[0] !== '_' && typeof obj[key] !== 'function' && !(obj[key] instanceof Image)) {
-                        if (typeof obj[key] === 'object') {
+            loop(selected);
+            function loop(obj : object) {
+                for (const [key, value] of Object.entries(obj)) {
+                    if (key[0] !== '_' && typeof value !== 'function' && !(value instanceof Image)) {
+                        if (typeof value === 'object' && value !== null) {
                             ctx.fillText(key + ':', space, line);
                             line += lineGap;
                             space += spaceGap;
-                            loop(obj[key]);
+                            loop(value);
                             space -= spaceGap;
                         } else {
-                            ctx.fillText(key + ': ' + obj[key], space, line);
+                            ctx.fillText(key + ': ' + value, space, line);
                             line += lineGap;
                         }
                     }
