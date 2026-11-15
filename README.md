@@ -1,10 +1,12 @@
-# Zombie Shootdown
+<h1 align="center">
+  <img src="public/assets/img/zombie-shootdown-logo.gif" alt="Zombie Shootdown" width="600">
+</h1>
 
-**[▶ Play in your browser](https://techmatt101.github.io/ZombieShootdown/)**
+<p align="center"><b><a href="https://techmatt101.github.io/ZombieShootdown/">▶ Play in your browser</a></b></p>
 
 A 2D top-down horror survival shooter. You're alone in an endless maze of dark rooms and corridors with a flickering torch, a gun, and a bigger zombie horde every wave. Survive as long as you can.
 
-![Zombie Shootdown: the player's torch lighting a corridor between red and blue lit rooms](docs/screenshot.png)
+![Zombie Shootdown: four zombies with glowing red eyes shuffle down a torch-lit corridor towards the player, between red and blue lit rooms](docs/screenshot.png)
 
 > [!IMPORTANT]
 > The game renders with **WebGPU**, so it needs a recent desktop version of **Google Chrome** (or another Chromium browser with WebGPU enabled).
