@@ -22,6 +22,7 @@
     "check": "tsc --noEmit && oxlint src && vitest run"
   },
   "devDependencies": {
+    "@webgpu/types": "^0.1.74",
     "oxlint": "^1.93.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",

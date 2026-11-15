@@ -1,6 +1,6 @@
 # Zombie Shootdown
 
-2D top-down zombie shooter on an endless, procedurally generated, chunk-streamed world. TypeScript 7 + Vite 8, Canvas 2D, no runtime dependencies.
+2D top-down zombie shooter on an endless, procedurally generated, chunk-streamed world. TypeScript 7 + Vite 8, WebGPU rendering (latest Chrome only) with a Canvas 2D HUD overlay, no runtime dependencies.
 
 ## Commands
 
@@ -13,7 +13,7 @@ pnpm test         # vitest unit tests (*.test.ts next to the module)
 pnpm check        # typecheck + lint + tests; run before committing
 ```
 
-Set `debug: true` in `src/config.ts` for the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs), collision boxes, and `window.game` / `window.debug` console access.
+Set `debug: true` in `src/config.ts` for the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs, draw calls), collision boxes, and `window.game` / `window.debug` console access.
 
 ## Performance rules
 
@@ -37,7 +37,8 @@ Write all code to be as fast as possible. The game loop runs every frame, so per
   - `chunksFromRows([...])` builds a tile world from ASCII (`#` wall, `.` floor, `D` door, space rock).
   - `generatedChunks(seed, radius)` builds a world from the real generator.
   - `levelOn(chunks)` assembles a `TopDownLevel` with a `TileMap` and `Camera`.
-  - `recordingContext()` / `fakeCanvas()` record canvas draw calls.
+  - `recordingContext()` records 2D canvas draw calls; `FakeOffscreenCanvas` stands in for `OffscreenCanvas`.
+  - `fakeGpu()` is a fake `GPUDevice`/canvas context that records render passes, pipelines and draws; call `stubGpuGlobals()` first for `GPUBufferUsage` / `GPUTextureUsage` / `GPUShaderStage`.
 - **Dependencies:** depend on interfaces (e.g. `ChunkSource`, not `ChunkStreamer`) so systems can be tested with fakes.
 
 ## Code style
@@ -55,27 +56,39 @@ The engine is entity/component based: entities are built from components, system
   - `generateChunk.ts`: a pure function of `(seed, cx, cy)` that returns a 16×16 tile chunk, with rooms, corridors, doorway openings, doors and zombie spawns. Shared chunk edges get deterministic openings, so chunks line up without seeing each other. Tuning constants live at the top of the file.
   - `ChunkStreamer.ts`: streams chunks around the camera via the `workers/worldgen.ts` worker (generation and bitmap rendering happen off the main thread), unloads far chunks (which regenerate identically from the seed), and fires `ChunkEvent.LOADED` / `UNLOADED` through `EventHandler`.
   - `TileMap.ts`: tile queries over the loaded chunks: `isSolidTile`, `setTile`, grid DDA `raycast` / `hasLineOfSight` (`raycast.ts`), corners, and open-floor lookups.
-  - `WorldLayer.ts`: draws only the visible chunk bitmaps.
+  - `WorldLayer.ts`: queues only the visible chunk bitmaps into the sprite batch, and releases a chunk's GPU texture when it unloads.
 - `src/core/`:
   - **Components:** `Collision`, `Movement`, `Health`, `Door`, `Interactor`, `Interactable`, …
   - **Systems:**
     - `CollisionSystem`: `SpatialHash` for entity pairs, plus tile lookups.
     - `InteractionSystem`: nearest `Interactable` in reach; when interact is pressed, runs the matching behaviours.
     - `AISystem`: a per-frame think budget; passes the `TileMap` to `IAI.think`.
-    - `LightingSystem`: hands every shining `Light` (player vision, muzzle flash) to `LightFilter`.
+    - `LightingSystem`: hands every shining `Light` (player vision, muzzle flash) to `LightField`.
     - `LogicSystem` and `RenderSystem`.
   - **Collision layers:** `Collision` has a `layer` and a `mask` (`CollisionLayer.PLAYER` / `ENEMY` / `PROJECTILE`). A pair only interacts when each mask includes the other's layer. Walls and closed doors block every moving entity.
-  - **Game lifecycle:** every DOM/window listener a game adds must pass `{ signal: game.signal }`. `Game.end()` (player died) freezes the game and shows the game-over screen. `Game.dispose()` (restart, main menu) aborts all listeners, stops sound and terminates the world worker, so a new game starts clean.
+  - **Game lifecycle:** every DOM/window listener a game adds must pass `{ signal: game.signal }`. `Game.end()` (player died) freezes the game and shows the game-over screen. `Game.dispose()` (restart, main menu) aborts all listeners, stops sound, terminates the world worker and frees its GPU resources, so a new game starts clean.
   - **Pooling:** pooled entities call `reset()` on every component when reused, so stateful components (AI, movement, damage cooldowns) implement `reset()`.
   - **Behaviours:** `behaviours/` with `CollisionBehaviourList` (damage) and `InteractionBehaviourList` (`openDoor`). Pairs fire when one side is dominant and the other passive.
   - **Doors:**
     - Entities from `factories/DoorFactory.ts` (`Material` + `Door` + `Interactable`), pooled and placed per chunk by `level/DoorSpawner.ts`, which also remembers open doors across unloads.
     - The `Door` component writes its tiles (door ↔ floor) into the `TileMap`, so collision, bullets, line of sight and light all respect it.
     - The player opens doors via `DoorInteractionBehavior` on its `Interactor`, bound to the `INTERACT` action (E / right click).
-  - `CanvasRenderer`: culls entities outside the camera view. Materials with `isHiddenOutOfSight` (zombies) are drawn clipped to the player's current view (`SightMask`), so they are cut by the same shadow edges as the floor.
+- `src/core/render/`: WebGPU rendering.
+  - `SpriteBatch`: one reused `Float32Array` of sprite instances (placement, rect, crop, tint), grouped into runs of the same texture and `SpriteKind` (`SCENE`, `SCENE_IN_SIGHT`, `ADDITIVE`). Each run is one instanced draw.
+  - `EntitySprites.ts`: culls entities outside the camera view and queues the rest in z order.
+  - `GpuRenderer`: fills the batch (world layer, then entities) each frame and hands it to `gpu/GpuPainter`. `init()` is async (`createGpuContext`), and `paint()` does nothing until it is ready.
+  - `gpu/GpuPainter`: per frame, a light pass adds remembered map and each light's visibility fan into an `r8unorm` light target. Then the scene pass:
+    1. sight fans write a stencil;
+    2. scene sprites draw, with `isHiddenOutOfSight` sprites (zombies) only inside the stencil;
+    3. a fullscreen pass multiplies everything by the light target;
+    4. warm glow and additive sprites are added on top.
+  - `gpu/GpuContext.ts`: one shared `GPUDevice` per page, reused across games, because Chrome can fail to create a fresh device right after destroying one. `dispose()` frees only the game's own textures and buffers.
+  - `gpu/TextureStore` uploads any `TextureSource` once (keyed by the source object), and `gpu/MaskTextures` keeps map-memory masks in sync by version. Shaders live in `gpu/shaders/*.wgsl`, imported with `?raw`.
+  - HUD text, the perf overlay and every `drawDebug` draw on the transparent 2D `#hud` canvas stacked over `#game` (`HudCanvas`).
 - `src/lighting/`:
-  - `visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightFilter`.
-  - `MapMemory.ts`: Monaco-style map discovery. The player's sight light (`Light.isSight`) paints its polygon into a low-res mask per chunk; `LightFilter` draws remembered areas dimly, never-seen areas stay black. Unloaded chunks keep their mask as a compact alpha `Uint8Array`.
+  - `visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightField`.
+  - `LightField.ts`: caches each light's visibility polygon, recomputing only when the light moves or the tiles change, and bumps `version` so the GPU re-uploads light fans (`fanTriangles.ts`) only then.
+  - `MapMemory.ts`: Monaco-style map discovery. The player's sight light (`Light.isSight`) scanline-fills its polygon (`fillPolygon.ts`) into a low-res `Uint8Array` mask per chunk. Remembered areas are drawn dimly; never-seen areas stay black. Unloaded chunks keep their mask array.
 - `src/client/`:
   - Game modes: `SinglePlayerGame` with `SinglePlayerWaveLogic` (Arcade) or `AmbientZombieLogic` (Dev Level).
   - HUD, menu, perf overlay.

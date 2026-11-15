@@ -4,7 +4,8 @@ import { Material } from '../core/components/Material';
 import { Movement } from '../core/components/Movement';
 import { Entity } from '../core/Entity';
 import { Level } from '../core/level/Level';
-import { CanvasRenderer } from '../core/render/CanvasRenderer';
+import { createGpuContext } from '../core/render/gpu/GpuContext';
+import { GpuRenderer } from '../core/render/GpuRenderer';
 import { Systems } from '../core/Systems';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
 import { LogicSystem } from '../core/systems/LogicSystem';
@@ -21,7 +22,7 @@ import { Texture } from '../lib/Texture';
 export class BunnyTesterGame {
     loop : GameLoop;
     canvas : Canvas;
-    renderer : CanvasRenderer;
+    renderer : GpuRenderer;
     systems : Systems<Entity>;
 
     camera : Camera;
@@ -38,7 +39,7 @@ export class BunnyTesterGame {
         this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
 
         this.camera = new Camera(this.canvas.center);
-        this.renderer = new CanvasRenderer(this.canvas, this.camera);
+        this.renderer = new GpuRenderer(this.camera);
 
         this.systems = new Systems();
         this.systems.schedule(new LogicSystem());
@@ -65,14 +66,17 @@ export class BunnyTesterGame {
     update(dt : number) {
         this.bunnyTest.update(dt);
         this.systems.update(dt);
+        this.renderer.paint();
     }
 
     dispose() {
         this.loop.pause();
         this.bunnyTest.stop();
+        this.renderer.dispose();
     }
 
-    load() {
+    async load() {
+        await this.renderer.init(await createGpuContext(this.canvas.element));
         this.bunnyTest.start();
         this.loop.start();
         console.log('GAME OVER MAN!');

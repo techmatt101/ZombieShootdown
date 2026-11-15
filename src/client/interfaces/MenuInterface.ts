@@ -21,13 +21,15 @@ export class MenuInterface implements IUI {
         const option = byId('option');
         const devLevel = byId('dev');
         const view = byId('game-container');
-        const canvas = byId<HTMLCanvasElement>('game');
+        const canvases = [byId<HTMLCanvasElement>('game'), byId<HTMLCanvasElement>('hud')];
 
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement === view) {
                 const { width, height } = view.getBoundingClientRect();
-                canvas.width = width;
-                canvas.height = height;
+                for (let i = 0; i < canvases.length; i++) {
+                    canvases[i].width = width;
+                    canvases[i].height = height;
+                }
             }
         });
 

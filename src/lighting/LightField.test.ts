@@ -1,0 +1,101 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LightField } from './LightField';
+import type { RememberedChunk } from './MapMemory';
+import { computeVisibilityPolygon } from './visibility';
+import { Light } from '../core/components/Light';
+import { Camera } from '../lib/Camera';
+import { Vector } from '../lib/geometry/Vector';
+import { chunksFromRows } from '../testing/worldFixtures';
+import { TileMap } from '../world/TileMap';
+import { TileType } from '../world/TileType';
+
+vi.mock('./visibility', () => ({ computeVisibilityPolygon: vi.fn(() => new Float32Array([0, 0, 10, 0, 10, 10])) }));
+
+beforeEach(() => {
+    vi.mocked(computeVisibilityPolygon).mockClear();
+});
+
+function rememberingMap() {
+    const revealed : Float32Array[] = [];
+    const remembered = { key: '0,0', left: 0, top: 0, mask: new Uint8Array(1), version: 1 };
+    return {
+        revealed,
+        remembered,
+        reveal: (polygon : Float32Array) => revealed.push(polygon),
+        rememberedInView: (camera : Camera, out : RememberedChunk[]) => {
+            out.length = 0;
+            out.push(remembered);
+        },
+    };
+}
+
+describe('LightField', () => {
+    it('recomputes each light only when that light moves or the tiles change', () => {
+        const tileMap = new TileMap(chunksFromRows(['....', '....']));
+        const field = new LightField(tileMap);
+        const playerLight = new Light(new Vector(10, 10), { radius: 900 });
+        const flashLight = new Light(new Vector(50, 50), { radius: 650 });
+        field.setLights([playerLight, flashLight]);
+
+        field.update(1);
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenCalledTimes(2);
+
+        (playerLight.pos as Vector).x += 0.2;
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenCalledTimes(2);
+
+        (playerLight.pos as Vector).x += 5;
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenCalledTimes(3);
+
+        tileMap.setTile(1, 1, TileType.WALL);
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenCalledTimes(5);
+    });
+
+    it('changes version only when a lit area is recomputed', () => {
+        const field = new LightField(new TileMap(chunksFromRows(['....'])));
+        const light = new Light(new Vector(10, 10), { radius: 900 });
+        field.setLights([light]);
+        field.update(1);
+        const afterFirst = field.version;
+        field.update(1);
+        expect(field.version).toBe(afterFirst);
+        (light.pos as Vector).x += 5;
+        field.update(1);
+        expect(field.version).toBeGreaterThan(afterFirst);
+    });
+
+    it('keeps the area each light reaches, around where it was computed', () => {
+        const field = new LightField(new TileMap(chunksFromRows(['....'])));
+        const light = new Light(new Vector(10, 12), { radius: 900 });
+        field.setLights([light]);
+        expect(field.litAreaOf(light)).toBeUndefined();
+        field.update(1);
+        expect(field.litAreaOf(light)).toMatchObject({ x: 10, y: 12, radius: 900, polygon: new Float32Array([0, 0, 10, 0, 10, 10]) });
+    });
+
+    it('reveals the remembered map with what the player sees, only when their view changes', () => {
+        const map = rememberingMap();
+        const field = new LightField(new TileMap(chunksFromRows(['....'])), map);
+        const eyes = new Light(new Vector(10, 10), { radius: 900, isSight: true });
+        field.setLights([eyes, new Light(new Vector(50, 50), { radius: 650 })]);
+        field.update(1);
+        field.update(1);
+        expect(map.revealed.length).toBe(1);
+        (eyes.pos as Vector).x += 5;
+        field.update(1);
+        expect(map.revealed.length).toBe(2);
+    });
+
+    it('lists the remembered places in view, or none without a map', () => {
+        const map = rememberingMap();
+        const camera = new Camera({ x: 600, y: 300 });
+        const out : RememberedChunk[] = [];
+        new LightField(new TileMap(chunksFromRows(['....'])), map).rememberedInView(camera, out);
+        expect(out).toEqual([map.remembered]);
+        new LightField(new TileMap(chunksFromRows(['....']))).rememberedInView(camera, out);
+        expect(out).toEqual([]);
+    });
+});

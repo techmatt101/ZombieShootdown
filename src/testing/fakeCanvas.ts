@@ -1,6 +1,3 @@
-import { Vector } from '../lib/geometry/Vector';
-import type { Canvas } from '../lib/Canvas';
-
 export interface RecordedCall {
     method : string;
     args : unknown[];
@@ -45,10 +42,6 @@ export function recordingContext() {
         return total;
     };
     return { context : context as unknown as CanvasRenderingContext2D, calls, count };
-}
-
-export function fakeCanvas(context : CanvasRenderingContext2D, width = 1200, height = 600) : Canvas {
-    return { element: {} as HTMLCanvasElement, context, width, height, center: new Vector(width / 2, height / 2) } as Canvas;
 }
 
 export class FakeOffscreenCanvas {

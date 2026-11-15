@@ -1,14 +1,17 @@
 import { Material } from '../components/Material';
 import type { Entity } from '../Entity';
-import type { CanvasRenderer } from '../render/CanvasRenderer';
 import type { ISystem } from './ISystem';
+
+export interface EntityRenderer {
+    render(entities : readonly Entity[]) : void;
+}
 
 export class RenderSystem implements ISystem<Entity> {
     #entities : Entity[] = [];
-    #renderer : CanvasRenderer;
+    #renderer : EntityRenderer;
 
 
-    constructor(renderer : CanvasRenderer) {
+    constructor(renderer : EntityRenderer) {
         this.#renderer = renderer;
     }
 

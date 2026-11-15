@@ -51,7 +51,13 @@ function startSinglePlayerGame(createLogic : LogicFactory) {
     const game = new SinglePlayerGame(worldSeed(), createLogic);
     replaceCurrentGame(game);
     restartCurrentGame = () => startSinglePlayerGame(createLogic);
-    void game.load();
+    game.load().catch((error : unknown) => showLoadFailure(overlay, error));
+}
+
+function showLoadFailure(overlay : HTMLElement, error : unknown) {
+    overlay.textContent = error instanceof Error ? error.message : String(error);
+    overlay.hidden = false;
+    console.error(error);
 }
 
 function arcadeGameSetup() {
@@ -66,7 +72,7 @@ function bunnyTestSetup() {
     const game = new BunnyTesterGame();
     replaceCurrentGame(game);
     restartCurrentGame = bunnyTestSetup;
-    game.load();
+    game.load().catch((error : unknown) => showLoadFailure(byId('overlay'), error));
 }
 
 function restartGame() {

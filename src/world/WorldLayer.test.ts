@@ -2,27 +2,45 @@ import { describe, expect, it } from 'vitest';
 import { CHUNK_SIZE } from './constants';
 import { generateChunk } from './generateChunk';
 import { WorldLayer } from './WorldLayer';
+import { FLOATS_PER_SPRITE, SpriteBatch, SpriteKind } from '../core/render/SpriteBatch';
 import { Camera } from '../lib/Camera';
 import { Vector } from '../lib/geometry/Vector';
-import { recordingContext } from '../testing/fakeCanvas';
+import type { TextureSource } from '../lib/Texture';
 import { FakeChunkSource } from '../testing/worldFixtures';
 
+function worldAround(released : TextureSource[] = []) {
+    const chunks = new FakeChunkSource();
+    for (let cx = -3; cx <= 3; cx++) {
+        const chunk = chunks.load(generateChunk(1, cx, 0));
+        chunk.bitmap = { cx, width: CHUNK_SIZE, height: CHUNK_SIZE } as unknown as ImageBitmap;
+    }
+    const camera = new Camera({ x: 600, y: 300 });
+    camera.setTarget(new Vector(CHUNK_SIZE / 2, CHUNK_SIZE / 2));
+    camera.jumpToTarget();
+    const layer = new WorldLayer(chunks, camera, { release: (source) => released.push(source) });
+    return { chunks, layer };
+}
+
 describe('WorldLayer', () => {
-    it('draws the bitmap of every chunk in view, and only those', () => {
-        const chunks = new FakeChunkSource();
-        for (let cx = -3; cx <= 3; cx++) {
-            const chunk = chunks.load(generateChunk(1, cx, 0));
-            chunk.bitmap = { cx } as unknown as ImageBitmap;
+    it('queues the bitmap of every chunk in view, and only those, covering the whole chunk', () => {
+        const { layer } = worldAround();
+        const batch = new SpriteBatch();
+        layer.queue(batch);
+        const placedAt : number[] = [];
+        for (let i = 0; i < batch.count; i++) {
+            const offset = i * FLOATS_PER_SPRITE;
+            placedAt.push(batch.data[offset]);
+            expect([...batch.data.subarray(offset + 1, offset + 8)]).toEqual([0, 0, 0, 0, 0, CHUNK_SIZE, CHUNK_SIZE]);
         }
-        const camera = new Camera({ x: 600, y: 300 });
-        camera.setTarget(new Vector(CHUNK_SIZE / 2, CHUNK_SIZE / 2));
-        camera.jumpToTarget();
-        const { context, calls } = recordingContext();
-        new WorldLayer(chunks, camera).draw(context);
-        const drawnAt : number[] = [];
-        for (let i = 0; i < calls.length; i++) {
-            drawnAt.push(calls[i].args[1] as number);
-        }
-        expect(drawnAt.sort((a, b) => a - b)).toEqual([-CHUNK_SIZE, 0, CHUNK_SIZE]);
+        expect(placedAt.sort((a, b) => a - b)).toEqual([-CHUNK_SIZE, 0, CHUNK_SIZE]);
+        expect(batch.run(0).kind).toBe(SpriteKind.SCENE);
+    });
+
+    it('releases a chunk bitmap texture when the chunk unloads', () => {
+        const released : TextureSource[] = [];
+        const { chunks } = worldAround(released);
+        const bitmap = chunks.chunkAt(2, 0)!.bitmap;
+        chunks.unload(2, 0);
+        expect(released).toEqual([bitmap]);
     });
 });

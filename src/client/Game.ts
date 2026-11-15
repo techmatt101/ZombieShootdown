@@ -3,20 +3,20 @@ import { GameLogicEvent, type IGameLogic } from './logic/IGameLogic';
 import { Config } from '../config';
 import type { Entity } from '../core/Entity';
 import { TopDownLevel } from '../core/level/TopDownLevel';
-import { CanvasRenderer } from '../core/render/CanvasRenderer';
-import { LightFilter } from '../core/render/filters/LightFilter';
-import { PixelFilter } from '../core/render/filters/PixelFilter';
+import { createGpuContext } from '../core/render/gpu/GpuContext';
+import { GpuRenderer } from '../core/render/GpuRenderer';
 import { Systems } from '../core/Systems';
 import { DoorSpawner } from '../core/level/DoorSpawner';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
 import { InteractionSystem } from '../core/systems/InteractionSystem';
 import { LightingSystem } from '../core/systems/LightingSystem';
+import { LightField } from '../lighting/LightField';
 import { MapMemory } from '../lighting/MapMemory';
 import { DebugSystem } from '../core/systems/DebugSystem';
 import { LogicSystem } from '../core/systems/LogicSystem';
 import { RenderSystem } from '../core/systems/RenderSystem';
 import { Camera } from '../lib/Camera';
-import { Canvas } from '../lib/Canvas';
+import { Canvas, HudCanvas } from '../lib/Canvas';
 import { GamepadAdaptor } from '../lib/controllers/GamepadAdaptor';
 import { GamepadController } from '../lib/controllers/GamepadController';
 import { InputHandler } from '../lib/controllers/InputHandler';
@@ -38,11 +38,12 @@ import { TaskCollection } from '../lib/TaskCollection';
 export abstract class Game {
     loop : GameLoop;
     canvas : Canvas;
+    hud : HudCanvas;
     input : InputHandler;
     inputState : InputState;
     sound : SoundController;
-    lighting? : LightFilter;
-    renderer : CanvasRenderer;
+    lighting? : LightField;
+    renderer : GpuRenderer;
     systems : Systems<Entity>;
     debugSystem? : DebugSystem;
 
@@ -66,6 +67,7 @@ export abstract class Game {
         this.loop = new GameLoop((dt) => this.update(dt));
 
         this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
+        this.hud = new HudCanvas(byId<HTMLCanvasElement>('hud'));
 
         this.chunks = new ChunkStreamer(seed);
         this.tileMap = new TileMap(this.chunks);
@@ -83,14 +85,12 @@ export abstract class Game {
         this.input.loadController(gamepadControllerAdaptor);
         this.input.loadController(mouseAndKeyboardControllerAdaptor);
 
-        this.renderer = new CanvasRenderer(this.canvas, this.camera);
-        this.renderer.setBackground(new WorldLayer(this.chunks, this.camera));
+        this.renderer = new GpuRenderer(this.camera);
+        this.renderer.setBackground(new WorldLayer(this.chunks, this.camera, this.renderer));
         if (Config.lighting) {
-            this.lighting = new LightFilter(this.tileMap, new MapMemory(this.chunks));
-            this.renderer.addFilter(this.lighting);
-            this.renderer.setSightMask(this.lighting);
+            this.lighting = new LightField(this.tileMap, new MapMemory(this.chunks));
+            this.renderer.setLighting(this.lighting);
         }
-        this.renderer.addFilter(new PixelFilter());
 
         this.systems = new Systems<Entity>();
         this.systems.schedule(new LogicSystem());
@@ -109,6 +109,9 @@ export abstract class Game {
         const doorSpawner = new DoorSpawner(this.level);
 
         this.levelSetupTasks = new TaskCollection('Level Setup')
+            .add('Renderer', async () => {
+                await this.renderer.init(await createGpuContext(this.canvas.element));
+            })
             .add('Controllers', () => {
                 this.input.load();
 
@@ -149,7 +152,8 @@ export abstract class Game {
         this.renderer.paint();
         this.perf.end('render');
 
-        const ctx = this.renderer.getCtx();
+        const ctx = this.hud.context;
+        this.hud.beginFrame();
         if (Config.debug) {
             this.debugSystem?.paint(ctx);
             this.camera.drawDebug(ctx);
@@ -163,6 +167,7 @@ export abstract class Game {
             this.perf.count('chunks', this.chunks.loadedCount);
             this.perf.count('chunks pending', this.chunks.pendingCount);
             this.perf.count('collision pairs', this.collisionSystem.pairsTested);
+            this.perf.count('draw calls', this.renderer.drawCalls);
             this.#perfOverlay.paint(ctx);
         }
     }
@@ -206,6 +211,7 @@ export abstract class Game {
         this.#lifetime.abort();
         this.sound.stopAll();
         this.chunks.stop();
+        this.renderer.dispose();
     }
 
     async load() {
