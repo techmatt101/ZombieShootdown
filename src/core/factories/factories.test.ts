@@ -11,7 +11,7 @@ import { InputState } from '../../lib/controllers/InputState';
 import { Vector } from '../../lib/geometry/Vector';
 import { Texture } from '../../lib/Texture';
 import { FakeOffscreenCanvas } from '../../testing/fakeCanvas';
-import { chunksFromRows } from '../../testing/worldFixtures';
+import { chunksFromRows, fakeTileAtlas } from '../../testing/worldFixtures';
 import { TILE_SIZE } from '../../world/constants';
 import { DoorSide, generateChunk } from '../../world/generateChunk';
 import { TileMap } from '../../world/TileMap';
@@ -127,7 +127,7 @@ describe('DoorFactory', () => {
         const chunk = { ...generateChunk(1, 0, 0), doors: [{ side: DoorSide.TOP, start: 4, width: 3 }] };
         const tileMap = new TileMap(chunksFromRows(['................']));
         const door = spawnDoor(tileMap);
-        fitDoor(door, chunk, chunk.doors[0], false, {} as CanvasImageSource);
+        fitDoor(door, chunk, chunk.doors[0], false, fakeTileAtlas());
         expect(door.geometry).toMatchObject({ width: 3 * TILE_SIZE, height: TILE_SIZE });
         expect(door.pos).toMatchObject({ x: 5.5 * TILE_SIZE, y: 0.5 * TILE_SIZE });
         expect(tileMap.tileAt(4, 0)).toBe(TileType.DOOR);
@@ -142,9 +142,29 @@ describe('DoorFactory', () => {
         for (let i = 0; i < 16; i++) rows.push('.');
         const tileMap = new TileMap(chunksFromRows(rows));
         const door = spawnDoor(tileMap);
-        fitDoor(door, chunk, chunk.doors[0], true, {} as CanvasImageSource);
+        fitDoor(door, chunk, chunk.doors[0], true, fakeTileAtlas());
         expect(door.geometry).toMatchObject({ width: TILE_SIZE, height: 2 * TILE_SIZE });
         expect(door.getComponent('door').isOpen).toBe(true);
         expect(tileMap.tileAt(0, 5)).toBe(TileType.FLOOR);
+    });
+
+    it('paints a normal map for each door, turned the same way as the door', () => {
+        const chunk = { ...generateChunk(1, 0, 0), doors: [{ side: DoorSide.LEFT, start: 5, width: 2 }, { side: DoorSide.TOP, start: 4, width: 2 }] };
+        const atlas = fakeTileAtlas();
+        const tileMap = new TileMap(chunksFromRows(['................']));
+        const sideDoor = spawnDoor(tileMap), topDoor = spawnDoor(tileMap);
+        fitDoor(sideDoor, chunk, chunk.doors[0], false, atlas);
+        fitDoor(topDoor, chunk, chunk.doors[1], false, atlas);
+
+        const paintedFrom = (door : typeof sideDoor) => {
+            const texture = door.getComponent('material').texture!;
+            const normals = texture.normals as unknown as FakeOffscreenCanvas;
+            return {
+                colours: (texture.img as unknown as FakeOffscreenCanvas).recording.calls.find((call) => call.method === 'drawImage')?.args[0],
+                normals: normals.recording.calls.find((call) => call.method === 'drawImage')?.args[0],
+            };
+        };
+        expect(paintedFrom(sideDoor)).toEqual({ colours: atlas.colours, normals: atlas.turnedNormals[1] });
+        expect(paintedFrom(topDoor)).toEqual({ colours: atlas.colours, normals: atlas.turnedNormals[0] });
     });
 });

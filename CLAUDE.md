@@ -56,7 +56,9 @@ The engine is entity/component based: entities are built from components, system
   - `generateChunk.ts`: a pure function of `(seed, cx, cy)` that returns a 16×16 tile chunk, with rooms, corridors, doorway openings, doors, zombie spawns and lamp spawns (`x, y, tint roll`; their own random stream, so they don't shift the rest). Shared chunk edges get deterministic openings, so chunks line up without seeing each other. Tuning constants live at the top of the file.
   - `ChunkStreamer.ts`: streams chunks around the camera via the `workers/worldgen.ts` worker (generation and bitmap rendering happen off the main thread), unloads far chunks (which regenerate identically from the seed), and fires `ChunkEvent.LOADED` / `UNLOADED` through `EventHandler`.
   - `TileMap.ts`: tile queries over the loaded chunks: `isSolidTile`, `setTile`, grid DDA `raycast` / `hasLineOfSight` (`raycast.ts`), corners, and open-floor lookups.
-  - `WorldLayer.ts`: queues only the visible chunk bitmaps into the sprite batch, and releases a chunk's GPU texture when it unloads.
+  - `tileAtlas.ts`: the tile atlas's colours plus its normal map turned for each quarter turn (`turnNormals` rotates the encoded vectors, not just the pixels), so rotated floor tiles and side doors shade the right way.
+  - `renderChunk.ts`: paints a chunk's colour bitmap and a matching normal-map bitmap in the worker.
+  - `WorldLayer.ts`: queues only the visible chunk bitmaps (with their normal maps) into the sprite batch, and releases a chunk's GPU textures when it unloads.
 - `src/core/`:
   - **Components:** `Collision`, `Movement`, `Health`, `Door`, `Interactor`, `Interactable`, …
   - **Systems:**
@@ -93,7 +95,7 @@ The engine is entity/component based: entities are built from components, system
     3. **Scene:** draws sprites. `isHiddenOutOfSight` sprites (zombies) are faded by the soft sight channel.
     4. **Composite:** multiplies the scene by `explored × (REMEMBERED_BRIGHTNESS + light × visibility)`, where visibility is 1 in view and `OUT_OF_VIEW_LIGHTING` elsewhere (constants in `GpuRenderer`). So never-seen places stay black, explored ones are very dim, lights brighten them, and lights behind walls show only faintly. Then it adds glow the same way, and additive sprites.
   - **Normal maps:** a `Texture` can carry `normals` laid out like its sprite sheet, in the common green-up convention (green = facing up the screen).
-    - **Hand-made maps:** `<sprite>_n.png` in `public/assets/img/` (player, zombie), loaded alongside the sprite.
+    - **Hand-made maps:** `<sprite>_n.png` in `public/assets/img/` (player, zombie, `tiles_n.png` for the tile atlas), loaded alongside the sprite.
     - **Generated maps:** `lib/spriteNormals.ts` (`normalMapOf`) builds one for sprites without a hand-made map (dead zombies).
     - **Shading:** the sprite shader turns each normal with the sprite and shades it per light colour: each light reaching the pixel (`LIGHT_HEIGHT` above the floor) brightens or darkens the side facing it, relative to a flat surface, by `NORMAL_MAP_STRENGTH`. A green lamp on one side and white torchlight on the other light a zombie differently.
   - **Player firing:** `SpriteAnimator` takes its frames from the factory. The player's animation `playsOnce`: it rests on the idle frame, and `animateFiring` replays the muzzle and smoke frames each time the gun fires.

@@ -41,10 +41,15 @@ export class TextureStore {
 
     release(source : TextureSource) {
         const uploaded = this.#uploaded.get(source);
-        if (uploaded === undefined) return;
-        uploaded.texture.destroy();
-        this.#owned.delete(uploaded.texture);
-        this.#uploaded.delete(source);
+        if (uploaded !== undefined) {
+            this.#destroy(uploaded.texture);
+            this.#uploaded.delete(source);
+        }
+        const normalMap = this.#normalMaps.get(source);
+        if (normalMap !== undefined) {
+            this.#destroy(normalMap);
+            this.#normalMaps.delete(source);
+        }
     }
 
     dispose() {
@@ -96,6 +101,11 @@ export class TextureStore {
         this.#device.queue.writeTexture({ texture }, pixel, { bytesPerRow: RGBA_BYTES }, [1, 1]);
         this.#owned.add(texture);
         return texture;
+    }
+
+    #destroy(texture : GPUTexture) {
+        texture.destroy();
+        this.#owned.delete(texture);
     }
 
     #bindGroup(texture : GPUTexture, normals : GPUTexture) {

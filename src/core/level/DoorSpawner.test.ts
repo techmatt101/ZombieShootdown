@@ -5,7 +5,7 @@ import { spawnPlayer } from '../factories/PlayerFactory';
 import { InputState } from '../../lib/controllers/InputState';
 import { FakeOffscreenCanvas } from '../../testing/fakeCanvas';
 import { levelOn } from '../../testing/levelFixtures';
-import { FakeChunkSource } from '../../testing/worldFixtures';
+import { FakeChunkSource, fakeTileAtlas } from '../../testing/worldFixtures';
 import { DoorSide, generateChunk } from '../../world/generateChunk';
 import { TileType } from '../../world/TileType';
 
@@ -31,7 +31,7 @@ describe('DoorSpawner', () => {
     it('places a door entity for every doorway in loaded chunks and removes them on unload', () => {
         const chunks = new FakeChunkSource();
         const { level } = levelOn(chunks);
-        new DoorSpawner(level).useAtlas({} as CanvasImageSource);
+        new DoorSpawner(level).useAtlas(fakeTileAtlas());
         chunks.load(chunkWithDoor(0));
         chunks.load(chunkWithDoor(1));
         expect(activeDoors(level.getEntities()).length).toBe(2);
@@ -42,7 +42,7 @@ describe('DoorSpawner', () => {
     it('reuses door entities from its pool', () => {
         const chunks = new FakeChunkSource();
         const { level } = levelOn(chunks);
-        new DoorSpawner(level).useAtlas({} as CanvasImageSource);
+        new DoorSpawner(level).useAtlas(fakeTileAtlas());
         chunks.load(chunkWithDoor(0));
         chunks.unload(0, 0);
         chunks.load(chunkWithDoor(5));
@@ -52,7 +52,7 @@ describe('DoorSpawner', () => {
     it('remembers which doors were left open when a chunk is reloaded', () => {
         const chunks = new FakeChunkSource();
         const { level, tileMap } = levelOn(chunks);
-        new DoorSpawner(level).useAtlas({} as CanvasImageSource);
+        new DoorSpawner(level).useAtlas(fakeTileAtlas());
         chunks.load(chunkWithDoor(0));
         const opener = spawnPlayer({ x: -1000, y: -1000 }, new InputState());
         activeDoors(level.getEntities())[0].getComponent('door').toggle(opener);

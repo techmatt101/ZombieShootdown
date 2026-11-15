@@ -4,10 +4,11 @@ import { fitDoor, spawnDoor } from '../factories/DoorFactory';
 import type { TopDownLevel } from './TopDownLevel';
 import { Pool } from '../../lib/Pool';
 import { ChunkEvent, type Chunk } from '../../world/ChunkStreamer';
+import type { TileAtlas } from '../../world/tileAtlas';
 
 export class DoorSpawner {
     #pool : Pool<Entity>;
-    #atlas : CanvasImageSource | null = null;
+    #atlas : TileAtlas | null = null;
     #doorsByChunk = new Map<string, Entity[]>();
     #doorKeyOf = new Map<Entity, string>();
     #openDoorKeys = new Set<string>();
@@ -25,7 +26,7 @@ export class DoorSpawner {
         chunks.on(ChunkEvent.UNLOADED, (chunk : Chunk) => this.#removeDoors(chunk));
     }
 
-    useAtlas(atlas : CanvasImageSource) {
+    useAtlas(atlas : TileAtlas) {
         this.#atlas = atlas;
     }
 

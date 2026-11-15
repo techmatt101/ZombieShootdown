@@ -3,10 +3,12 @@ import { ChunkEvent, ChunkStreamer, isInChunk, type Chunk } from './ChunkStreame
 import { CHUNK_SIZE } from './constants';
 import { generateChunk } from './generateChunk';
 import type { WorldgenRequest, WorldgenResponse } from '../workers/worldgen';
+import { fakeTileAtlas } from '../testing/worldFixtures';
 
 class FakeWorker {
     static latest : FakeWorker;
     requests : WorldgenRequest[] = [];
+    transfers : Transferable[][] = [];
     terminated = false;
     #listener : ((e : { data : WorldgenResponse }) => void) | null = null;
 
@@ -22,8 +24,9 @@ class FakeWorker {
         this.terminated = true;
     }
 
-    postMessage(request : WorldgenRequest) {
+    postMessage(request : WorldgenRequest, transfer : Transferable[] = []) {
         this.requests.push(request);
+        this.transfers.push(transfer);
     }
 
     respondToAll() {
@@ -33,7 +36,8 @@ class FakeWorker {
             const request = pending[i];
             if (request.type !== 'chunk') continue;
             const bitmap = { close: vi.fn() } as unknown as ImageBitmap;
-            this.#listener?.({ data: { chunk: generateChunk(request.seed, request.cx, request.cy), bitmap } });
+            const normals = { close: vi.fn() } as unknown as ImageBitmap;
+            this.#listener?.({ data: { chunk: generateChunk(request.seed, request.cx, request.cy), bitmap, normals } });
         }
     }
 
@@ -44,7 +48,7 @@ class FakeWorker {
 
 beforeEach(() => {
     vi.stubGlobal('Worker', FakeWorker);
-    vi.stubGlobal('createImageBitmap', async () => ({}));
+    vi.stubGlobal('createImageBitmap', async (source : unknown, options? : ImageBitmapOptions) => ({ source, options }));
 });
 
 afterEach(() => {
@@ -53,7 +57,7 @@ afterEach(() => {
 
 async function startedStreamer() {
     const streamer = new ChunkStreamer(9);
-    await streamer.start({} as ImageBitmapSource);
+    await streamer.start(fakeTileAtlas());
     return streamer;
 }
 
@@ -67,6 +71,22 @@ describe('ChunkStreamer', () => {
     it('sends the tile atlas to the worker on start', async () => {
         await startedStreamer();
         expect(FakeWorker.latest.requests[0].type).toBe('atlas');
+    });
+
+    it('hands the worker its colours and every turned normal map as bitmaps, with the normals left untouched', async () => {
+        await startedStreamer();
+        const request = FakeWorker.latest.requests[0];
+        if (request.type !== 'atlas') throw new Error('expected the atlas first');
+        const tileAtlas = fakeTileAtlas();
+        expect(request.atlas.colours).toMatchObject({ source: tileAtlas.colours });
+        expect(request.atlas.turnedNormals.length).toBe(4);
+        for (let i = 0; i < 4; i++) {
+            expect(request.atlas.turnedNormals[i]).toEqual({
+                source: tileAtlas.turnedNormals[i],
+                options: { colorSpaceConversion: 'none', premultiplyAlpha: 'none' },
+            });
+        }
+        expect(FakeWorker.latest.transfers[0]).toEqual([request.atlas.colours, ...request.atlas.turnedNormals]);
     });
 
     it('limits in-flight requests and asks for the nearest chunks first', async () => {
@@ -104,6 +124,7 @@ describe('ChunkStreamer', () => {
         expect(streamer.chunkAt(0, 0)).toBeUndefined();
         expect(unloaded.length).toBeGreaterThan(0);
         expect(unloaded[0].bitmap?.close).toHaveBeenCalled();
+        expect(unloaded[0].normals?.close).toHaveBeenCalled();
         expect(streamer.version).toBeGreaterThan(versionBefore);
         const chunks = streamer.chunks();
         for (let i = 0; i < chunks.length; i++) {
@@ -116,12 +137,13 @@ describe('ChunkStreamer', () => {
         const ready = streamer.whenLoadedAround({ x: 0, y: 0 }, 600, 300);
         loadEverything(FakeWorker.latest);
         await ready;
-        const bitmap = streamer.chunks()[0].bitmap;
+        const { bitmap, normals } = streamer.chunks()[0];
         streamer.stop();
         expect(FakeWorker.latest.terminated).toBe(true);
         expect(streamer.loadedCount).toBe(0);
         expect(streamer.chunkAt(0, 0)).toBeUndefined();
         expect(bitmap?.close).toHaveBeenCalled();
+        expect(normals?.close).toHaveBeenCalled();
         streamer.update({ x: 0, y: 0 }, 600, 300);
         expect(streamer.pendingCount).toBe(0);
     });

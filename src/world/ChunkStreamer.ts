@@ -1,5 +1,6 @@
 import { CHUNK_SIZE, chunkKey } from './constants';
 import type { ChunkData } from './generateChunk';
+import type { TileAtlas } from './tileAtlas';
 import type { WorldgenRequest, WorldgenResponse } from '../workers/worldgen';
 import { EventHandler, type IObserver, type Listener } from '../lib/EventHandler';
 import type { IVector } from '../lib/geometry/IVector';
@@ -7,6 +8,7 @@ import type { IVector } from '../lib/geometry/IVector';
 export interface Chunk extends ChunkData {
     key : string;
     bitmap : ImageBitmap | null;
+    normals : ImageBitmap | null;
     listIndex : number;
 }
 
@@ -32,6 +34,7 @@ interface ChunkRange {
 const LOAD_MARGIN_CHUNKS = 1;
 const UNLOAD_MARGIN_CHUNKS = 2;
 const MAX_PENDING_REQUESTS = 4;
+const NORMALS_AS_STORED : ImageBitmapOptions = { colorSpaceConversion: 'none', premultiplyAlpha: 'none' };
 
 export const chunkIndexOf = (position : number) => Math.floor(position / CHUNK_SIZE);
 
@@ -46,6 +49,11 @@ function rangeAround(focus : IVector, halfWidth : number, halfHeight : number, m
 
 function isInRange(range : ChunkRange, cx : number, cy : number) {
     return cx >= range.minCx && cx <= range.maxCx && cy >= range.minCy && cy <= range.maxCy;
+}
+
+function closeBitmaps(chunk : Chunk) {
+    chunk.bitmap?.close();
+    chunk.normals?.close();
 }
 
 export function isInChunk(chunk : ChunkData, point : IVector) {
@@ -68,12 +76,16 @@ export class ChunkStreamer implements IObserver<ChunkEvent>, ChunkSource {
         this.seed = seed;
     }
 
-    async start(atlas : ImageBitmapSource) {
+    async start(atlas : TileAtlas) {
         const worker = new Worker(new URL('../workers/worldgen.ts', import.meta.url), { type: 'module' });
         worker.addEventListener('message', (e : MessageEvent<WorldgenResponse>) => this.#onChunkGenerated(e.data));
-        const atlasBitmap = await createImageBitmap(atlas);
-        const request : WorldgenRequest = { type: 'atlas', atlas: atlasBitmap };
-        worker.postMessage(request, [atlasBitmap]);
+        const colours = await createImageBitmap(atlas.colours);
+        const turnedNormals : ImageBitmap[] = [];
+        for (let i = 0; i < atlas.turnedNormals.length; i++) {
+            turnedNormals.push(await createImageBitmap(atlas.turnedNormals[i], NORMALS_AS_STORED));
+        }
+        const request : WorldgenRequest = { type: 'atlas', atlas: { colours, turnedNormals } };
+        worker.postMessage(request, [colours, ...turnedNormals]);
         this.#worker = worker;
     }
 
@@ -110,7 +122,7 @@ export class ChunkStreamer implements IObserver<ChunkEvent>, ChunkSource {
         this.#worker = null;
         const chunkList = this.#chunkList;
         for (let i = 0; i < chunkList.length; i++) {
-            chunkList[i].bitmap?.close();
+            closeBitmaps(chunkList[i]);
         }
         this.#chunks.clear();
         this.#chunkList = [];
@@ -165,10 +177,10 @@ export class ChunkStreamer implements IObserver<ChunkEvent>, ChunkSource {
         }
     }
 
-    #onChunkGenerated({ chunk : data, bitmap } : WorldgenResponse) {
+    #onChunkGenerated({ chunk : data, bitmap, normals } : WorldgenResponse) {
         const key = chunkKey(data.cx, data.cy);
         this.#pending.delete(key);
-        const chunk : Chunk = { ...data, key, bitmap, listIndex: this.#chunkList.length };
+        const chunk : Chunk = { ...data, key, bitmap, normals, listIndex: this.#chunkList.length };
         this.#chunks.set(key, chunk);
         this.#chunkList.push(chunk);
         this.#version++;
@@ -180,7 +192,7 @@ export class ChunkStreamer implements IObserver<ChunkEvent>, ChunkSource {
     #unload(chunk : Chunk) {
         this.#chunks.delete(chunk.key);
         this.#removeFromChunkList(chunk);
-        chunk.bitmap?.close();
+        closeBitmaps(chunk);
         this.#version++;
         this.#eventHandler.fire(ChunkEvent.UNLOADED, chunk);
     }

@@ -28,6 +28,7 @@ export class AI implements IComponent {
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {
+        this.#ai.drawDebug(ctx);
     }
 
     build(components : IComponentDirectory) {

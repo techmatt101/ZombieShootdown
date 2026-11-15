@@ -302,6 +302,16 @@ describe('GpuRenderer', () => {
         expect(gpu.draws.at(-1)?.instanceCount).toBe(2);
     });
 
+    it('frees a normal map texture when it is released', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const normals = { width: 64, height: 64 } as HTMLImageElement;
+        renderer.render([sprite({ normals })]);
+        renderer.paint();
+        renderer.release(normals);
+        const normalTextures = gpu.textures.filter((texture) => texture.label === 'normals');
+        expect(normalTextures.map((texture) => texture.isDestroyed)).toEqual([true]);
+    });
+
     it('tells the sprite shaders how many lights to shade normals with, and none without lighting', async () => {
         const { renderer, gpu } = await readyRenderer();
         renderer.paint();

@@ -1,6 +1,7 @@
 import { ChunkEvent, type Chunk, type ChunkSource } from '../world/ChunkStreamer';
 import { CHUNK_SHIFT, CHUNK_TILES, LAST_TILE, TILE_SIZE, chunkKey } from '../world/constants';
 import { generateChunk, isCornerVertex, type ChunkData } from '../world/generateChunk';
+import type { TileAtlas } from '../world/tileAtlas';
 import { TileType } from '../world/TileType';
 import type { Listener } from '../lib/EventHandler';
 
@@ -10,6 +11,14 @@ const TILE_BY_SYMBOL : Record<string, TileType> = {
     '.': TileType.FLOOR,
     'D': TileType.DOOR,
 };
+
+export function fakeTileAtlas() : TileAtlas {
+    const turnedNormals : CanvasImageSource[] = [];
+    for (let quarterTurns = 0; quarterTurns < 4; quarterTurns++) {
+        turnedNormals.push({ name: 'normals', quarterTurns } as unknown as CanvasImageSource);
+    }
+    return { colours: { name: 'colours' } as unknown as CanvasImageSource, turnedNormals };
+}
 
 function emptyChunk(cx : number, cy : number) : ChunkData {
     return {
@@ -46,7 +55,7 @@ export class FakeChunkSource implements ChunkSource {
     }
 
     load(data : ChunkData) : Chunk {
-        const chunk : Chunk = { ...data, key: chunkKey(data.cx, data.cy), bitmap: null, listIndex: this.#chunks.size };
+        const chunk : Chunk = { ...data, key: chunkKey(data.cx, data.cy), bitmap: null, normals: null, listIndex: this.#chunks.size };
         this.#chunks.set(chunk.key, chunk);
         this.version++;
         this.#fire(ChunkEvent.LOADED, chunk);

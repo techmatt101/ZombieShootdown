@@ -35,6 +35,7 @@ import { PerfOverlay } from './PerfOverlay';
 import { loadImage, loadSound, whenAssetsLoaded } from '../lib/assets';
 import { CHUNK_SIZE } from '../world/constants';
 import { ChunkStreamer } from '../world/ChunkStreamer';
+import { tileAtlasOf } from '../world/tileAtlas';
 import { TileMap } from '../world/TileMap';
 import { WorldLayer } from '../world/WorldLayer';
 import { TaskCollection } from '../lib/TaskCollection';
@@ -135,7 +136,8 @@ export abstract class Game {
                 });
             })
             .add('World', async () => {
-                const tileAtlas = await loadImage('tiles');
+                const [tileColours, tileNormals] = await Promise.all([loadImage('tiles'), loadImage('tiles_n')]);
+                const tileAtlas = tileAtlasOf(tileColours, tileNormals);
                 doorSpawner.useAtlas(tileAtlas);
                 await this.chunks.start(tileAtlas);
                 const spawnChunkCentre = { x: CHUNK_SIZE / 2, y: CHUNK_SIZE / 2 };

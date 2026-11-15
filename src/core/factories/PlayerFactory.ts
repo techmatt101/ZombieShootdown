@@ -21,7 +21,7 @@ import { Vector } from '../../lib/geometry/Vector';
 import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
-const VIEW_DISTANCE = 1400;
+export const VIEW_DISTANCE = 1400;
 const TORCH_RADIUS = 700;
 const TORCH_HALF_ANGLE = 0.6;
 const TORCH_BRIGHTNESS = 1.7;

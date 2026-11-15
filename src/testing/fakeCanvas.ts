@@ -50,6 +50,7 @@ export function recordingContext() {
 export class FakeOffscreenCanvas {
     width : number;
     height : number;
+    readonly recording = recordingContext();
 
     constructor(width : number, height : number) {
         this.width = width;
@@ -57,6 +58,10 @@ export class FakeOffscreenCanvas {
     }
 
     getContext() {
-        return recordingContext().context;
+        return this.recording.context;
+    }
+
+    transferToImageBitmap() {
+        return this as unknown as ImageBitmap;
     }
 }

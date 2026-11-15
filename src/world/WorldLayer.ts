@@ -18,6 +18,9 @@ export class WorldLayer implements SpriteLayer {
             if (chunk.bitmap !== null) {
                 textures.release(chunk.bitmap);
             }
+            if (chunk.normals !== null) {
+                textures.release(chunk.normals);
+            }
         });
     }
 
@@ -30,6 +33,9 @@ export class WorldLayer implements SpriteLayer {
             this.#chunkCentre.set(left + HALF_CHUNK, top + HALF_CHUNK);
             if (this.#camera.isInCurrentView(this.#chunkCentre, HALF_CHUNK)) {
                 batch.place(chunk.bitmap, SpriteKind.SCENE, left, top, 0, 0, 0, CHUNK_SIZE, CHUNK_SIZE);
+                if (chunk.normals !== null) {
+                    batch.withNormals(chunk.normals);
+                }
             }
         }
     }

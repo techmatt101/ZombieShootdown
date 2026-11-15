@@ -8,6 +8,7 @@ import { Material } from '../components/Material';
 import { Movement } from '../components/Movement';
 import { SpriteAnimator } from '../components/SpriteAnimator';
 import { Entity } from '../Entity';
+import { VIEW_DISTANCE } from './PlayerFactory';
 import { ZIndexLayer } from '../level/ZIndexLayer';
 import { Box } from '../../lib/geometry/Box';
 import { Circle } from '../../lib/geometry/Circle';
@@ -40,7 +41,7 @@ export function spawnZombie(target : Entity) {
     const zombie = new Entity('Zombie', new Point(0, 0, 0), new Box(48, 48));
 
     const chaseSpeed = randInt(MIN_CHASE_SPEED, MAX_CHASE_SPEED);
-    zombie.addComponent(new AI(new ZombieAI(zombie, target, chaseSpeed)));
+    zombie.addComponent(new AI(new ZombieAI(zombie, target, chaseSpeed, VIEW_DISTANCE)));
     zombie.addComponent(new Movement(zombie.pos, chaseSpeed, 1));
     const collision = zombie.addComponent(new Collision(new Circle(BODY_RADIUS, zombie.pos), CollisionLayer.ENEMY, ZOMBIE_COLLIDES_WITH));
 
