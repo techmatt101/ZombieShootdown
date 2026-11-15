@@ -4,6 +4,8 @@ import { Vector } from '../geometry/Vector';
 export class InputState {
     movementCoordinates = new Vector(0, 0);
     directionCoordinates = new Vector(0, 0);
+    /** The device that most recently aimed; it keeps ownership of `directionCoordinates` until another takes over. */
+    aimSource : 'mouse' | 'gamepad' | null = null;
 
     #pressed = new Set<InputAction>();
 

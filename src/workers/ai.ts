@@ -9,6 +9,11 @@ export interface LineOfSightRequest {
     segments : Segment[];
 }
 
+export interface LineOfSightResponse {
+    id : number;
+    value : boolean;
+}
+
 /** Answers whether p1 has an unobstructed line of sight to p2. */
 self.addEventListener('message', (e : MessageEvent<LineOfSightRequest>) => {
     const { id, p1, p2, segments } = e.data;
@@ -25,5 +30,6 @@ self.addEventListener('message', (e : MessageEvent<LineOfSightRequest>) => {
         return intersect !== null && intersect.param < length;
     });
 
-    self.postMessage({ id, value: !blocked });
+    const response : LineOfSightResponse = { id, value: !blocked };
+    self.postMessage(response);
 });

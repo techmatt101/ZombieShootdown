@@ -27,6 +27,10 @@ export class GamepadAdaptor implements IInputController {
     update(dt : number) {
         this.#gamepadController.update(dt);
         this.#inputState.movementCoordinates.copy(this.#gamepadController.leftAxes);
-        this.#inputState.directionCoordinates.copy(this.#gamepadController.rightAxes).scale(Math.min(this.#camera.size.x, this.#camera.size.y) / 2);
+        // rightAxes is zeroed inside the dead zone, so any length means the stick is aiming
+        if (this.#gamepadController.rightAxes.len() > 0) {
+            this.#inputState.aimSource = 'gamepad';
+            this.#inputState.directionCoordinates.copy(this.#gamepadController.rightAxes).scale(Math.min(this.#camera.size.x, this.#camera.size.y) / 2);
+        }
     }
 }

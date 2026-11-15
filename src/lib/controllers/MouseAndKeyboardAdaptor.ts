@@ -33,7 +33,13 @@ export class MouseAndKeyboardAdaptor implements IInputController {
         if (this.#inputState.isKeyDown(InputAction.UP)) this.#inputState.movementCoordinates.y -= 1;
         if (this.#inputState.isKeyDown(InputAction.DOWN)) this.#inputState.movementCoordinates.y += 1;
 
-        if(!this.#lastPos.equal(this.#mouseAndKeyboardController.pointerPos)) {
+        // Moving the mouse takes over aiming; while it owns aim, recompute every frame so the
+        // crosshair stays visible and keeps tracking as the player/camera move under a still mouse.
+        if (!this.#lastPos.equal(this.#mouseAndKeyboardController.pointerPos)) {
+            this.#inputState.aimSource = 'mouse';
+        }
+
+        if (this.#inputState.aimSource === 'mouse') {
             const pointOnCanvas = new Vector(
                 this.#mouseAndKeyboardController.pointerPos.x + this.#camera.pos.x - this.#camera.viewportOffset.x,
                 this.#mouseAndKeyboardController.pointerPos.y + this.#camera.pos.y - this.#camera.viewportOffset.y
