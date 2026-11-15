@@ -27,6 +27,7 @@ export class Lamp implements IComponent {
 
     #light : Light;
     #material : Material;
+    #brightness : number;
     #look : LampLook | null = null;
     #seed = 0;
     #time = 0;
@@ -36,9 +37,10 @@ export class Lamp implements IComponent {
         return components.lamp;
     }
 
-    constructor(light : Light, material : Material) {
+    constructor(light : Light, material : Material, brightness = 1) {
         this.#light = light;
         this.#material = material;
+        this.#brightness = brightness;
     }
 
     switchOn(look : LampLook, colour : LightColour, seed : number, isBroken : boolean) {
@@ -84,8 +86,9 @@ export class Lamp implements IComponent {
     }
 
     #show() {
-        this.#light.intensity = this.isBroken
+        const flicker = this.isBroken
             ? brokenLampSputter(this.#sinceBroken, this.#time, this.#seed)
             : flickerAt(this.#time, this.#seed);
+        this.#light.intensity = this.#brightness * flicker;
     }
 }

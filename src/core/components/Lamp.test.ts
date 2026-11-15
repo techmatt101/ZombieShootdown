@@ -38,6 +38,17 @@ describe('Lamp', () => {
         expect(light.intensity).toBeGreaterThan(0);
     });
 
+    it('flickers around its own brightness, so dimmer fixtures stay dim', () => {
+        const light = new Light(new Vector(0, 0), { radius: 300 });
+        const lamp = new Lamp(light, new Material(), 0.5);
+        lamp.switchOn(look(), GREEN, 3, false);
+        for (let i = 0; i < 20; i++) {
+            lamp.update(0.5);
+            expect(light.intensity).toBeLessThanOrEqual(0.5);
+            expect(light.intensity).toBeGreaterThan(0.1);
+        }
+    });
+
     it('breaks once, showing broken glass and going dark after sputtering', () => {
         const { light, material, lamp } = lampWith();
         const lampLook = look();

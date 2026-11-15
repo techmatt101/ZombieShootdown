@@ -14,7 +14,7 @@ import { fanTriangles, fanVertexCount, FLOATS_PER_FAN_VERTEX } from '../../../li
 import type { LitArea } from '../../../lighting/LightField';
 import { MEMORY_SIZE, type RememberedChunk } from '../../../lighting/MapMemory';
 
-export const MAX_LIGHTS = 32;
+export const MAX_LIGHTS = 96;
 const CAMERA_FLOATS = 16;
 const FLOATS_PER_LIGHT = 20;
 const CONE_SOFT_EDGE = 0.15;

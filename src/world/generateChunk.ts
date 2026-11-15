@@ -37,6 +37,7 @@ export interface ChunkData {
     openFloor : Float32Array;
     zombieSpawns : Float32Array;
     lampSpawns : Float32Array;
+    wallLightSpawns : Float32Array;
     doors : ChunkDoor[];
 }
 
@@ -69,6 +70,16 @@ const MAX_ZOMBIES_PER_ROOM = 5;
 const LAMP_SALT = 4;
 const LAMP_CHANCE_PER_ROOM = 0.7;
 export const FLOATS_PER_LAMP_SPAWN = 3;
+const WALL_LIGHT_SALT = 5;
+const WALL_LIT_ROOM_CHANCE = 0.55;
+const WALL_LIGHT_SPACING = 2;
+const WALL_LIGHT_INSET = 5;
+export const FLOATS_PER_WALL_LIGHT_SPAWN = 4;
+const FACING_RIGHT = 0;
+const FACING_DOWN = Math.PI / 2;
+const FACING_LEFT = Math.PI;
+const FACING_UP = -Math.PI / 2;
+const SIDES = 4;
 
 function isSpawnChunkEdge(orientation : number, cx : number, cy : number) {
     return orientation === HORIZONTAL_EDGE
@@ -326,6 +337,7 @@ export function generateChunk(seed : number, cx : number, cy : number) : ChunkDa
         cy,
         tiles,
         lampSpawns: placeLamps(seed, cx, cy, plan, rooms),
+        wallLightSpawns: placeWallLights(seed, cx, cy, plan, rooms),
         wallDirections,
         floorRotations,
         corners: Float32Array.from(corners),
@@ -347,6 +359,44 @@ function placeLamps(seed : number, cx : number, cy : number, plan : FloorPlan, r
         lamps.push(tileCentre(cx * CHUNK_TILES + tile.x), tileCentre(cy * CHUNK_TILES + tile.y), random());
     }
     return Float32Array.from(lamps);
+}
+
+function placeWallLights(seed : number, cx : number, cy : number, plan : FloorPlan, rooms : Room[]) {
+    const random = createRandom(hashCoords(seed, WALL_LIGHT_SALT, cx, cy));
+    const lights : number[] = [];
+    const mounted = new Set<number>();
+    const reachToWall = TILE_SIZE / 2 - WALL_LIGHT_INSET;
+
+    const mount = (x : number, y : number, wallX : number, wallY : number, facing : number, side : number, tintRoll : number) => {
+        const mountKey = tileIndex(x, y) * SIDES + side;
+        if (plan.isFloor(x + wallX, y + wallY) || mounted.has(mountKey)) return;
+        mounted.add(mountKey);
+        lights.push(
+            (cx * CHUNK_TILES + x + 0.5) * TILE_SIZE + wallX * reachToWall,
+            (cy * CHUNK_TILES + y + 0.5) * TILE_SIZE + wallY * reachToWall,
+            facing,
+            tintRoll,
+        );
+    };
+
+    for (let roomIndex = 0; roomIndex < rooms.length; roomIndex++) {
+        if (random() >= WALL_LIT_ROOM_CHANCE) continue;
+        const room = rooms[roomIndex];
+        const tintRoll = random();
+        const offset = randomInt(random, 0, WALL_LIGHT_SPACING - 1);
+        const right = room.x + room.width - 1, bottom = room.y + room.height - 1;
+        for (let x = room.x + 1; x < right; x++) {
+            if ((x - room.x + offset) % WALL_LIGHT_SPACING !== 0) continue;
+            mount(x, room.y, 0, -1, FACING_DOWN, 0, tintRoll);
+            mount(x, bottom, 0, 1, FACING_UP, 1, tintRoll);
+        }
+        for (let y = room.y + 1; y < bottom; y++) {
+            if ((y - room.y + offset) % WALL_LIGHT_SPACING !== 0) continue;
+            mount(room.x, y, -1, 0, FACING_RIGHT, 2, tintRoll);
+            mount(right, y, 1, 0, FACING_LEFT, 3, tintRoll);
+        }
+    }
+    return Float32Array.from(lights);
 }
 
 function openTilesInRoom(plan : FloorPlan, room : Room) : TilePoint[] {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CHUNK_TILES, LAST_TILE, tileIndex } from './constants';
-import { chunkOpenings, DoorSide, FLOATS_PER_LAMP_SPAWN, generateChunk, type ChunkData } from './generateChunk';
+import { CHUNK_TILES, LAST_TILE, TILE_SIZE, tileIndex } from './constants';
+import { chunkOpenings, DoorSide, FLOATS_PER_LAMP_SPAWN, FLOATS_PER_WALL_LIGHT_SPAWN, generateChunk, type ChunkData } from './generateChunk';
 import { createRandom, randomInt } from './random';
 import { TileType } from './TileType';
 
@@ -186,5 +186,42 @@ describe('generateChunk', () => {
             lampCount += chunk.lampSpawns.length / FLOATS_PER_LAMP_SPAWN;
         }
         expect(lampCount).toBeGreaterThan(0);
+    });
+
+    it('mounts wall lights on real walls, just inside the floor, facing into the room', () => {
+        for (const { cx, cy } of sampleChunkCoords(SAMPLE_COUNT)) {
+            const chunk = generateChunk(SEED, cx, cy);
+            expect(generateChunk(SEED, cx, cy).wallLightSpawns).toEqual(chunk.wallLightSpawns);
+            const spawns = chunk.wallLightSpawns;
+            for (let i = 0; i < spawns.length; i += FLOATS_PER_WALL_LIGHT_SPAWN) {
+                const x = spawns[i] / TILE_SIZE - cx * CHUNK_TILES, y = spawns[i + 1] / TILE_SIZE - cy * CHUNK_TILES;
+                const facingX = Math.round(Math.cos(spawns[i + 2])), facingY = Math.round(Math.sin(spawns[i + 2]));
+                const tileX = Math.floor(x), tileY = Math.floor(y);
+                expect(tileAt(chunk, tileX, tileY)).toBe(TileType.FLOOR);
+                expect(tileAt(chunk, tileX - facingX, tileY - facingY)).toBe(TileType.WALL);
+                expect(isPassable(tileAt(chunk, tileX + facingX, tileY + facingY))).toBe(true);
+                const fromWall = facingX !== 0 ? (facingX > 0 ? x - tileX : tileX + 1 - x) : (facingY > 0 ? y - tileY : tileY + 1 - y);
+                expect(fromWall * TILE_SIZE).toBeCloseTo(5);
+                expect(spawns[i + 3]).toBeGreaterThanOrEqual(0);
+                expect(spawns[i + 3]).toBeLessThan(1);
+            }
+        }
+    });
+
+    it('lights some rooms with lots of wall lights in one colour, and leaves others dark', () => {
+        let darkChunks = 0, brightChunks = 0;
+        for (const { cx, cy } of sampleChunkCoords(SAMPLE_COUNT)) {
+            const spawns = generateChunk(SEED, cx, cy).wallLightSpawns;
+            const count = spawns.length / FLOATS_PER_WALL_LIGHT_SPAWN;
+            if (count === 0) darkChunks++;
+            if (count >= 6) brightChunks++;
+            const mounts = new Set<string>();
+            for (let i = 0; i < spawns.length; i += FLOATS_PER_WALL_LIGHT_SPAWN) {
+                mounts.add(`${spawns[i]},${spawns[i + 1]}`);
+            }
+            expect(mounts.size).toBe(count);
+        }
+        expect(darkChunks).toBeGreaterThan(SAMPLE_COUNT * 0.1);
+        expect(brightChunks).toBeGreaterThan(SAMPLE_COUNT * 0.2);
     });
 });

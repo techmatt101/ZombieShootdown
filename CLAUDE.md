@@ -53,7 +53,7 @@ Write all code to be as fast as possible. The game loop runs every frame, so per
 The engine is entity/component based: entities are built from components, systems do the per-frame work, and interactions between entities go through dominant/passive **behaviours**. Components only know their own entity and constructor-injected collaborators; anything that needs level-wide data (the tile map) gets it from a system.
 
 - `src/world/`: the endless world. Infrastructure only, no game rules.
-  - `generateChunk.ts`: a pure function of `(seed, cx, cy)` that returns a 16×16 tile chunk, with rooms, corridors, doorway openings, doors, zombie spawns and lamp spawns (`x, y, tint roll`; their own random stream, so they don't shift the rest). Shared chunk edges get deterministic openings, so chunks line up without seeing each other. Tuning constants live at the top of the file.
+  - `generateChunk.ts`: a pure function of `(seed, cx, cy)` that returns a 16×16 tile chunk, with rooms, corridors, doorway openings, doors, zombie spawns, lamp spawns (`x, y, tint roll`) and wall light spawns (`x, y, facing, tint roll`), each with their own random stream so they don't shift the rest. About half the rooms get wall lights, mounted every `WALL_LIGHT_SPACING` tiles along their real walls, 5px inside the floor and facing into the room, one colour per room; the rest stay dark. Shared chunk edges get deterministic openings, so chunks line up without seeing each other. Tuning constants live at the top of the file.
   - `ChunkStreamer.ts`: streams chunks around the camera via the `workers/worldgen.ts` worker (generation and bitmap rendering happen off the main thread), unloads far chunks (which regenerate identically from the seed), and fires `ChunkEvent.LOADED` / `UNLOADED` through `EventHandler`.
   - `TileMap.ts`: tile queries over the loaded chunks: `isSolidTile`, `setTile`, grid DDA `raycast` / `hasLineOfSight` (`raycast.ts`), corners, and open-floor lookups.
   - `tileAtlas.ts`: the tile atlas's colours plus its normal map turned for each quarter turn (`turnNormals` rotates the encoded vectors, not just the pixels), so rotated floor tiles and side doors shade the right way.
@@ -79,6 +79,11 @@ The engine is entity/component based: entities are built from components, system
     - Spooky coloured lights placed per chunk by `level/LampSpawner.ts`, which remembers where each lamp was pushed and whether it was broken.
     - Each lamp (`factories/LampFactory.ts`) is a `PROP` body with `Movement`, so players and zombies shove it. It has a coloured `Light` with glow, flickering via `flickerAt` (shared with the torch's `Flicker`), and a code-drawn lantern sprite with a generated normal map.
     - One bullet breaks it: `Lamp` swaps to broken glass and sputters the light out.
+  - **Wall lights:**
+    - Dim, flickering sconces (`factories/WallLightFactory.ts`) mounted by `level/WallLightSpawner.ts`, which remembers which were shot out across unloads.
+    - A wide cone `Light` (no glow) in one of `WALL_LIGHT_COLOURS`, driven by the same `Lamp` component as lamps (its `brightness` keeps them dimmer), and a code-drawn sconce sprite with a generated normal map.
+    - Fixed to the wall: their `PROP` body only collides with `PROJECTILE`, so one bullet breaks them but players and zombies never bump into them. They cast no shadows.
+    - Lit rooms add many lights, so `GpuPainter.MAX_LIGHTS` is 96.
   - **Doors:**
     - Entities from `factories/DoorFactory.ts` (`Material` + `Door` + `Interactable`), pooled and placed per chunk by `level/DoorSpawner.ts`, which also remembers open doors across unloads.
     - The `Door` component writes its tiles (door ↔ floor) into the `TileMap`, so collision, bullets, line of sight and light all respect it.

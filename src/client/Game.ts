@@ -8,6 +8,7 @@ import { GpuRenderer } from '../core/render/GpuRenderer';
 import { Systems } from '../core/Systems';
 import { DoorSpawner } from '../core/level/DoorSpawner';
 import { LampSpawner } from '../core/level/LampSpawner';
+import { WallLightSpawner } from '../core/level/WallLightSpawner';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
 import { InteractionSystem } from '../core/systems/InteractionSystem';
 import { LightingSystem } from '../core/systems/LightingSystem';
@@ -118,6 +119,7 @@ export abstract class Game {
         this.level = new TopDownLevel(this.chunks, this.tileMap, this.camera, this.systems);
         const doorSpawner = new DoorSpawner(this.level);
         new LampSpawner(this.level);
+        new WallLightSpawner(this.level);
 
         this.levelSetupTasks = new TaskCollection('Level Setup')
             .add('Renderer', async () => {
