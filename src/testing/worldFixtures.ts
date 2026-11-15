@@ -21,6 +21,7 @@ function emptyChunk(cx : number, cy : number) : ChunkData {
         corners: new Float32Array(),
         openFloor: new Float32Array(),
         zombieSpawns: new Float32Array(),
+        lampSpawns: new Float32Array(),
         doors: [],
     };
 }

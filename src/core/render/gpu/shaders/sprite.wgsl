@@ -2,7 +2,7 @@
 @group(1) @binding(1) var spriteSampler : sampler;
 @group(1) @binding(2) var normalTexture : texture_2d<f32>;
 @group(2) @binding(0) var softLightTexture : texture_2d<f32>;
-@group(2) @binding(1) var softLightSampler : sampler;
+@group(2) @binding(2) var softSampler : sampler;
 
 struct SpriteVertex {
     @builtin(position) position : vec4f,
@@ -36,29 +36,12 @@ fn vertexMain(
     return out;
 }
 
-fn towardsLightsFrom(world : vec2f) -> vec3f {
-    let lightCount = u32(camera.lighting.x);
-    let lightHeight = camera.lighting.z;
-    var towards = vec3f(0.0);
-    for (var i = 0u; i < lightCount; i++) {
-        let light = lights[i];
-        let falloffUv = (world - light.centre) / (2.0 * light.radius) + 0.5;
-        let reach = textureSampleLevel(visionTexture, smoothSampler, falloffUv, 0.0).a * light.intensity;
-        towards += normalize(vec3f(light.centre - world, lightHeight)) * reach;
-    }
-    return towards;
-}
+const NO_LIGHT = 0.0001;
 
-fn normalShade(in : SpriteVertex) -> f32 {
+fn normalShade(in : SpriteVertex) -> vec3f {
     if (in.isNormalMapped == 0.0) {
-        return 1.0;
+        return vec3f(1.0);
     }
-    let towards = towardsLightsFrom(in.world);
-    let reach = length(towards);
-    if (reach == 0.0) {
-        return 1.0;
-    }
-    let light = towards / reach;
     let encoded = textureSampleLevel(normalTexture, spriteSampler, in.uv, 0.0).xyz * 2.0 - 1.0;
     let pointingDown = -encoded.y;
     let normal = normalize(vec3f(
@@ -66,8 +49,20 @@ fn normalShade(in : SpriteVertex) -> f32 {
         encoded.x * in.turn.y + pointingDown * in.turn.x,
         encoded.z,
     ));
+    let lightCount = u32(camera.lighting.x);
     let normalStrength = camera.lighting.y;
-    return max(0.0, 1.0 + normalStrength * (dot(normal, light) - light.z));
+    let lightHeight = camera.lighting.z;
+    var shaded = vec3f(0.0);
+    var unshaded = vec3f(0.0);
+    for (var i = 0u; i < lightCount; i++) {
+        let light = lights[i];
+        let arriving = light.colour * reachOf(light, in.world);
+        let towards = normalize(vec3f(light.centre - in.world, lightHeight));
+        let facing = max(0.0, 1.0 + normalStrength * (dot(normal, towards) - towards.z));
+        shaded += arriving * facing;
+        unshaded += arriving;
+    }
+    return select(shaded / max(unshaded, vec3f(NO_LIGHT)), vec3f(1.0), unshaded < vec3f(NO_LIGHT));
 }
 
 fn shadedSprite(in : SpriteVertex) -> vec4f {
@@ -82,6 +77,6 @@ fn fragmentMain(in : SpriteVertex) -> @location(0) vec4f {
 
 @fragment
 fn fragmentInSight(in : SpriteVertex) -> @location(0) vec4f {
-    let sight = textureSample(softLightTexture, softLightSampler, in.position.xy / camera.viewport.xy).g;
+    let sight = textureSample(softLightTexture, softSampler, in.position.xy / camera.viewport.xy).a;
     return shadedSprite(in) * sight;
 }

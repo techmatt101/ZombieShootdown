@@ -48,7 +48,7 @@ function cameraOnOrigin() {
 function lightingWith(lights : Light[], remembered : RememberedChunk[] = []) {
     const areas = new Map<Light, LitArea>();
     for (const light of lights) {
-        areas.set(light, { x: light.pos.x, y: light.pos.y, radius: light.radius, tileMapVersion: 0, polygon: TRIANGLE });
+        areas.set(light, { x: light.pos.x, y: light.pos.y, direction: 0, radius: light.radius, tileMapVersion: 0, polygon: TRIANGLE });
     }
     const lighting = {
         lights,
@@ -117,7 +117,47 @@ describe('GpuRenderer', () => {
         renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 500, isSight: true }), new Light(new Vector(0, 0), { radius: 600 })]));
         renderer.paint();
         const lights = gpu.lastWriteTo('lights');
-        expect([lights[5], lights[8 + 5]]).toEqual([1, 0]);
+        const floatsPerLight = 20, sightFlag = 11;
+        expect([lights[sightFlag], lights[floatsPerLight + sightFlag]]).toEqual([1, 0]);
+    });
+
+    it('tells the shaders where a cone of light points and how wide it is, and that other lights shine all round', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const facing = { direction: Math.PI / 2 };
+        renderer.setLighting(lightingWith([
+            new Light(new Vector(0, 0), { radius: 700, cone: { aim: facing, halfAngle: 0.4 } }),
+            new Light(new Vector(0, 0), { radius: 300 }),
+        ]));
+        renderer.paint();
+        const lights = gpu.lastWriteTo('lights');
+        const floatsPerLight = 20, coneAt = 12;
+        const [aimX, aimY, outerEdge, innerEdge] = lights.slice(coneAt, coneAt + 4);
+        expect(aimX).toBeCloseTo(0, 5);
+        expect(aimY).toBeCloseTo(1, 5);
+        expect(outerEdge).toBeCloseTo(Math.cos(0.4), 5);
+        expect(innerEdge).toBeGreaterThan(outerEdge);
+        expect(lights[floatsPerLight + coneAt + 2]).toBeLessThan(-1);
+    });
+
+    it('lets a cone fade softly across its whole width, and a light fade faster with distance', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const torch = new Light(new Vector(0, 0), { radius: 700, fade: 1.8, cone: { aim: { direction: 0 }, halfAngle: 0.5, softEdge: 0.4 } });
+        renderer.setLighting(lightingWith([torch, new Light(new Vector(0, 0), { radius: 300 })]));
+        renderer.paint();
+        const lights = gpu.lastWriteTo('lights');
+        const floatsPerLight = 20, innerEdge = 15, fade = 16;
+        expect(lights[innerEdge]).toBeCloseTo(Math.cos(0.1), 5);
+        expect(lights[fade]).toBeCloseTo(1.8, 5);
+        expect(lights[floatsPerLight + fade]).toBe(1);
+    });
+
+    it('gives the shaders each light\'s colour and glow colour', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const green = { r: 0.25, g: 1, b: 0.5 }, orange = { r: 1, g: 0.5, b: 0.25 };
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 300, colour: green, glow: 0.5, glowColour: orange })]));
+        renderer.paint();
+        const lights = gpu.lastWriteTo('lights');
+        expect(lights.slice(4, 11)).toEqual([0.25, 1, 0.5, 0.5, 1, 0.5, 0.25]);
     });
 
     it('softens shadows more the further they are from the player, by the same world distance at any zoom', async () => {

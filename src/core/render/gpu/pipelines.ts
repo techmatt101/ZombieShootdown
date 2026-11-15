@@ -13,12 +13,14 @@ export const MEMORY_INSTANCE_STRIDE = 8;
 export interface PipelineSettings {
     chunkSize : number;
     rememberedBrightness : number;
+    outOfViewLighting : number;
 }
 
 export interface Pipelines {
     sceneLayout : GPUBindGroupLayout;
     textureLayout : GPUBindGroupLayout;
     spriteLayout : GPUBindGroupLayout;
+    lightPairLayout : GPUBindGroupLayout;
     sprite : GPURenderPipeline;
     spriteInSight : GPURenderPipeline;
     spriteAdditive : GPURenderPipeline;
@@ -94,9 +96,23 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
             { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: {} },
         ],
     });
+    const lightPairLayout = device.createBindGroupLayout({
+        label: 'light pair',
+        entries: [
+            { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+            { binding: 1, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+            { binding: 2, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+        ],
+    });
     const withTexture = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, textureLayout] });
+    const withLightPair = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, lightPairLayout] });
     const withSprite = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, spriteLayout] });
-    const withSpriteAndSoftLight = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, spriteLayout, textureLayout] });
+    const withSpriteAndSoftLight = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, spriteLayout, lightPairLayout] });
+    const addedLightAndGlow : GPUColorTargetState[] = [
+        { format: LIGHT_TARGET_FORMAT, blend: ADDITIVE },
+        { format: LIGHT_TARGET_FORMAT, blend: ADDITIVE },
+    ];
+    const lightAndGlow : GPUColorTargetState[] = [{ format: LIGHT_TARGET_FORMAT }, { format: LIGHT_TARGET_FORMAT }];
     const sceneOnly = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout] });
 
     const module = (label : string, code : string) => device.createShaderModule({ label, code: commonShader + code });
@@ -117,32 +133,33 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         label,
         layout: sceneOnly,
         vertex: { module: fanModule, entryPoint: 'vertexMain', buffers: [FAN_VERTEX] },
-        fragment: { module: fanModule, entryPoint, targets: [{ format: LIGHT_TARGET_FORMAT, blend: ADDITIVE }] },
+        fragment: { module: fanModule, entryPoint, targets: addedLightAndGlow },
     });
 
     const blur = (label : string, blurAxisX : number, blurAxisY : number) => device.createRenderPipeline({
         label,
-        layout: withTexture,
+        layout: withLightPair,
         vertex: { module: blurModule, entryPoint: 'vertexMain' },
         fragment: {
             module: blurModule,
             entryPoint: 'fragmentMain',
-            targets: [{ format: LIGHT_TARGET_FORMAT }],
+            targets: lightAndGlow,
             constants: { blurAxisX, blurAxisY },
         },
     });
 
-    const composite = (label : string, entryPoint : string, blend : GPUBlendState) => device.createRenderPipeline({
+    const composite = (label : string, entryPoint : string, blend : GPUBlendState, constants : Record<string, number>) => device.createRenderPipeline({
         label,
-        layout: withTexture,
+        layout: withLightPair,
         vertex: { module: compositeModule, entryPoint: 'vertexMain' },
-        fragment: { module: compositeModule, entryPoint, targets: [{ format: canvasFormat, blend }] },
+        fragment: { module: compositeModule, entryPoint, targets: [{ format: canvasFormat, blend }], constants },
     });
 
     return {
         sceneLayout,
         textureLayout,
         spriteLayout,
+        lightPairLayout,
         sprite: sprite('sprite', 'fragmentMain', PREMULTIPLIED_ALPHA),
         spriteInSight: sprite('sprite in sight', 'fragmentInSight', PREMULTIPLIED_ALPHA, withSpriteAndSoftLight),
         spriteAdditive: sprite('sprite additive', 'fragmentMain', ADDITIVE),
@@ -160,13 +177,15 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
             fragment: {
                 module: memoryModule,
                 entryPoint: 'fragmentMain',
-                targets: [{ format: LIGHT_TARGET_FORMAT, blend: ADDITIVE }],
-                constants: { rememberedBrightness: settings.rememberedBrightness },
+                targets: addedLightAndGlow,
             },
         }),
         blurAcross: blur('blur across', 1, 0),
         blurDown: blur('blur down', 0, 1),
-        darken: composite('darken', 'darkenMain', MULTIPLY),
-        warmGlow: composite('warm glow', 'warmGlowMain', ADDITIVE),
+        darken: composite('darken', 'darkenMain', MULTIPLY, {
+            rememberedBrightness: settings.rememberedBrightness,
+            outOfViewLighting: settings.outOfViewLighting,
+        }),
+        warmGlow: composite('warm glow', 'warmGlowMain', ADDITIVE, { outOfViewLighting: settings.outOfViewLighting }),
     };
 }

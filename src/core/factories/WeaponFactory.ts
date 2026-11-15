@@ -18,7 +18,7 @@ export function spawnBullet() {
     const bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));
 
     const material = bullet.addComponent(new Material());
-    const collision = bullet.addComponent(new Collision(bullet.pos, CollisionLayer.PROJECTILE, CollisionLayer.ENEMY));
+    const collision = bullet.addComponent(new Collision(bullet.pos, CollisionLayer.PROJECTILE, CollisionLayer.ENEMY | CollisionLayer.PROP));
     bullet.addComponent(new Movement(bullet.pos, 80));
     const damage = bullet.addComponent(new Damage(30));
 
@@ -51,8 +51,11 @@ export function spawnGun(bulletPool : Pool<Entity>) {
 
 const GUN_LENGTH = 14;
 const FLASH_LIGHT_RADIUS = 600;
-const FLASH_LIGHT_GLOW = 0.5;
+const FLASH_PEAK_BRIGHTNESS = 1.5;
+const FLASH_LIGHT_GLOW = 0.75;
 const FLASH_GLOW_SIZE = 140;
+const FLASH_LIGHT_COLOUR = { r: 1, g: 0.92, b: 0.78 };
+const FLASH_GLOW_COLOUR = { r: 1, g: 0.6, b: 0.25 };
 
 let flashGlowTexture : Texture | null = null;
 
@@ -82,8 +85,11 @@ export function spawnMuzzleFlash(gun : Gun, holder : Entity) {
     material.setTexture(flashGlowTexture);
     material.zIndex = ZIndexLayer.FOREGROUND + 2;
     material.isAdditive = true;
-    const light = flash.addComponent(new Light(holder.pos, { radius: FLASH_LIGHT_RADIUS, intensity: 0, isSight: true, glow: FLASH_LIGHT_GLOW }));
-    const muzzleFlash = flash.addComponent(new MuzzleFlash(light, { pos: flash.pos, material, muzzle: gun.pos, reach: GUN_LENGTH / 2 }));
+    const light = flash.addComponent(new Light(holder.pos, {
+        radius: FLASH_LIGHT_RADIUS, intensity: 0, glow: FLASH_LIGHT_GLOW,
+        colour: FLASH_LIGHT_COLOUR, glowColour: FLASH_GLOW_COLOUR,
+    }));
+    const muzzleFlash = flash.addComponent(new MuzzleFlash(light, { pos: flash.pos, material, muzzle: gun.pos, reach: GUN_LENGTH / 2 }, FLASH_PEAK_BRIGHTNESS));
 
     flash.build();
     muzzleFlash.reset();

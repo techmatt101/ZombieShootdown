@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CHUNK_TILES, LAST_TILE, tileIndex } from './constants';
-import { chunkOpenings, DoorSide, generateChunk, type ChunkData } from './generateChunk';
+import { chunkOpenings, DoorSide, FLOATS_PER_LAMP_SPAWN, generateChunk, type ChunkData } from './generateChunk';
 import { createRandom, randomInt } from './random';
 import { TileType } from './TileType';
 
@@ -168,5 +168,23 @@ describe('generateChunk', () => {
                 expect(openFloor.has(`${chunk.zombieSpawns[i]},${chunk.zombieSpawns[i + 1]}`)).toBe(true);
             }
         }
+    });
+
+    it('places at most one lamp per room, on open floor, with a tint roll, the same every time', () => {
+        let lampCount = 0;
+        for (const { cx, cy } of sampleChunkCoords(SAMPLE_COUNT)) {
+            const chunk = generateChunk(SEED, cx, cy);
+            expect(generateChunk(SEED, cx, cy).lampSpawns).toEqual(chunk.lampSpawns);
+            const openFloor = new Set<string>();
+            for (let i = 0; i < chunk.openFloor.length; i += 2) openFloor.add(`${chunk.openFloor[i]},${chunk.openFloor[i + 1]}`);
+            for (let i = 0; i < chunk.lampSpawns.length; i += FLOATS_PER_LAMP_SPAWN) {
+                expect(openFloor.has(`${chunk.lampSpawns[i]},${chunk.lampSpawns[i + 1]}`)).toBe(true);
+                expect(chunk.lampSpawns[i + 2]).toBeGreaterThanOrEqual(0);
+                expect(chunk.lampSpawns[i + 2]).toBeLessThan(1);
+            }
+            expect(chunk.lampSpawns.length / FLOATS_PER_LAMP_SPAWN).toBeLessThanOrEqual(2);
+            lampCount += chunk.lampSpawns.length / FLOATS_PER_LAMP_SPAWN;
+        }
+        expect(lampCount).toBeGreaterThan(0);
     });
 });

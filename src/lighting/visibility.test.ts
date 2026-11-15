@@ -132,4 +132,30 @@ describe('computeVisibilityPolygon', () => {
             expect(Math.hypot(polygon[i] - 1344, polygon[i + 1] - 1344)).toBeCloseTo(300, 3);
         }
     });
+
+    it('limits a cone of light to its arc, starting from the light itself', () => {
+        const tileMap = new TileMap(chunksFromRows(roomWithPillar));
+        const arc = { direction: 0, halfAngle: 0.4 };
+        const polygon = computeVisibilityPolygon(tileMap, LEFT_OF_PILLAR.x, LEFT_OF_PILLAR.y, 900, arc);
+        expect([polygon[0], polygon[1]]).toEqual([LEFT_OF_PILLAR.x, LEFT_OF_PILLAR.y]);
+        const angles = anglesOf(polygon.subarray(2), LEFT_OF_PILLAR.x, LEFT_OF_PILLAR.y);
+        for (let i = 0; i < angles.length; i++) {
+            expect(Math.abs(angles[i])).toBeLessThanOrEqual(0.4 + 1e-6);
+        }
+        expect(angles[0]).toBeCloseTo(-0.4, 5);
+        expect(angles.at(-1)).toBeCloseTo(0.4, 5);
+        expect(polygon.length).toBeLessThan(computeVisibilityPolygon(tileMap, LEFT_OF_PILLAR.x, LEFT_OF_PILLAR.y, 900).length);
+    });
+
+    it('wraps a cone aimed straight behind across the turn of the circle', () => {
+        const rows : string[] = [];
+        for (let i = 0; i < 32; i++) rows.push('.'.repeat(32));
+        const tileMap = new TileMap(chunksFromRows(rows));
+        const polygon = computeVisibilityPolygon(tileMap, 672, 672, 300, { direction: Math.PI, halfAngle: 0.3 });
+        const angles = anglesOf(polygon.subarray(2), 672, 672);
+        for (let i = 0; i < angles.length; i++) {
+            expect(Math.abs(Math.abs(angles[i]) - Math.PI)).toBeLessThanOrEqual(0.3 + 1e-6);
+        }
+        expect(angles.length).toBeGreaterThanOrEqual(2);
+    });
 });

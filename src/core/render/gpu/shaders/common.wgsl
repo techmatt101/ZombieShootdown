@@ -9,11 +9,39 @@ struct Light {
     centre : vec2f,
     radius : f32,
     intensity : f32,
+    colour : vec3f,
     glow : f32,
+    glowColour : vec3f,
     isSight : f32,
-    unused1 : f32,
-    unused2 : f32,
+    cone : vec4f,
+    fade : f32,
 };
+
+struct LightOutput {
+    @location(0) light : vec4f,
+    @location(1) glow : vec4f,
+};
+
+const NOT_A_CONE = -1.0;
+const AT_THE_LIGHT = 0.001;
+
+fn coneOf(light : Light, world : vec2f) -> f32 {
+    if (light.cone.z < NOT_A_CONE) {
+        return 1.0;
+    }
+    let offset = world - light.centre;
+    let distanceAway = length(offset);
+    if (distanceAway < AT_THE_LIGHT) {
+        return 1.0;
+    }
+    return smoothstep(light.cone.z, light.cone.w, dot(light.cone.xy, offset / distanceAway));
+}
+
+fn reachOf(light : Light, world : vec2f) -> f32 {
+    let falloffUv = (world - light.centre) / (2.0 * light.radius) + 0.5;
+    let falloff = pow(textureSampleLevel(visionTexture, smoothSampler, falloffUv, 0.0).a, light.fade);
+    return falloff * light.intensity * coneOf(light, world);
+}
 
 @group(0) @binding(0) var<uniform> camera : Camera;
 @group(0) @binding(1) var<storage, read> lights : array<Light>;

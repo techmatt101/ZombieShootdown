@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fitDoor, spawnDoor } from './DoorFactory';
 import { spawnZombie } from './EnemyFactory';
-import { animateFiring, spawnPlayer } from './PlayerFactory';
+import { animateFiring, spawnPlayer, spawnTorch } from './PlayerFactory';
 import { spawnBullet } from './WeaponFactory';
 import { AI } from '../components/AI';
 import { CollisionLayer } from '../components/Collision';
@@ -48,7 +48,44 @@ describe('spawnPlayer', () => {
         expect(player.getComponent('interactor').behaviours.openDoor?.dominant).toBe(true);
         expect(player.getComponent('collision').behaviours.zombieDamage?.passive).toBe(true);
         expect(player.getComponent('health').value).toBe(400);
-        expect(player.getComponent('light')).toMatchObject({ pos: player.pos, radius: 500, intensity: 1, isSight: true });
+        expect(player.getComponent('light')).toMatchObject({ pos: player.pos, isSight: true, colour: { r: 0, g: 0, b: 0 }, cone: null });
+    });
+
+    it('sees everything in line of sight across the whole screen, without lighting any of it', () => {
+        const player = spawnPlayer({ x: 50, y: 60 }, new InputState());
+        const eyes = player.getComponent('light');
+        expect(eyes.radius).toBeGreaterThanOrEqual(1200);
+        expect([eyes.colour.r, eyes.colour.g, eyes.colour.b]).toEqual([0, 0, 0]);
+    });
+
+    it('carries a torch: a long, bright cone of light aimed wherever the player faces', () => {
+        const player = spawnPlayer({ x: 50, y: 60 }, new InputState());
+        const torch = spawnTorch(player).getComponent('light');
+        expect(torch.pos).toBe(player.pos);
+        expect(torch.isSight).toBe(false);
+        expect(torch.intensity).toBeGreaterThanOrEqual(1);
+        expect(torch.cone?.aim).toBe(player.pos);
+        expect(torch.cone?.halfAngle).toBeLessThan(Math.PI / 4);
+    });
+
+    it('shines like an old torch: yellowish, brightest in the middle of the beam, fading fast with distance', () => {
+        const torch = spawnTorch(spawnPlayer({ x: 0, y: 0 }, new InputState())).getComponent('light');
+        expect(torch.colour.r).toBeGreaterThan(torch.colour.b);
+        expect(torch.colour.g).toBeGreaterThan(torch.colour.b);
+        expect(torch.cone?.softEdge).toBeGreaterThan((torch.cone?.halfAngle ?? 0) / 2);
+        expect(torch.fade).toBeGreaterThan(1);
+    });
+
+    it('flickers like a torch on its last batteries', () => {
+        const torch = spawnTorch(spawnPlayer({ x: 0, y: 0 }, new InputState()));
+        const light = torch.getComponent('light');
+        const brightnesses = new Set<number>();
+        for (let i = 0; i < 20; i++) {
+            torch.update(0.3);
+            brightnesses.add(Math.round(light.intensity * 100));
+        }
+        expect(torch.components.flicker).toBeDefined();
+        expect(brightnesses.size).toBeGreaterThan(5);
     });
 
     it('plays its firing frames each time its gun fires, then rests on the idle frame', () => {

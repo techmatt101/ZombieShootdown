@@ -7,6 +7,7 @@ import { createGpuContext } from '../core/render/gpu/GpuContext';
 import { GpuRenderer } from '../core/render/GpuRenderer';
 import { Systems } from '../core/Systems';
 import { DoorSpawner } from '../core/level/DoorSpawner';
+import { LampSpawner } from '../core/level/LampSpawner';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
 import { InteractionSystem } from '../core/systems/InteractionSystem';
 import { LightingSystem } from '../core/systems/LightingSystem';
@@ -98,7 +99,7 @@ export abstract class Game {
         this.systems = new Systems<Entity>();
         this.systems.schedule(new LogicSystem());
         if (this.lighting !== undefined) {
-            this.systems.schedule(new LightingSystem(this.lighting));
+            this.systems.schedule(new LightingSystem(this.lighting, this.camera));
         }
         this.collisionSystem = new CollisionSystem(this.tileMap);
         this.systems.schedule(this.collisionSystem);
@@ -112,6 +113,7 @@ export abstract class Game {
         }
         this.level = new TopDownLevel(this.chunks, this.tileMap, this.camera, this.systems);
         const doorSpawner = new DoorSpawner(this.level);
+        new LampSpawner(this.level);
 
         this.levelSetupTasks = new TaskCollection('Level Setup')
             .add('Renderer', async () => {

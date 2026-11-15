@@ -24,7 +24,7 @@ const MAX_CHASE_SPEED = 25;
 const BITE_DAMAGE = 6;
 const BITE_COOLDOWN = 1;
 const BODY_RADIUS = 21;
-const ZOMBIE_COLLIDES_WITH = CollisionLayer.PLAYER | CollisionLayer.ENEMY | CollisionLayer.PROJECTILE;
+const ZOMBIE_COLLIDES_WITH = CollisionLayer.PLAYER | CollisionLayer.ENEMY | CollisionLayer.PROJECTILE | CollisionLayer.PROP;
 const ZOMBIE_FRAME_WIDTH = 28;
 const ZOMBIE_FRAME_HEIGHT = 20;
 

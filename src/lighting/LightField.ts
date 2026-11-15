@@ -1,5 +1,5 @@
 import type { RememberedChunk } from './MapMemory';
-import { computeVisibilityPolygon } from './visibility';
+import { computeVisibilityPolygon, type LightArc } from './visibility';
 import type { Light } from '../core/components/Light';
 import type { LightReceiver } from '../core/systems/LightingSystem';
 import type { Camera } from '../lib/Camera';
@@ -7,6 +7,7 @@ import type { IUpdate } from '../lib/IUpdate';
 import type { TileMap } from '../world/TileMap';
 
 const MIN_LIGHT_MOVEMENT = 0.5;
+const MIN_AIM_TURN = 0.01;
 const SIGHT_DEBUG_COLOUR = '#0ff';
 const LIGHT_DEBUG_COLOUR = '#fa0';
 const RAY_DEBUG_ALPHA = 0.2;
@@ -20,6 +21,7 @@ export interface RememberedMap {
 export interface LitArea {
     x : number;
     y : number;
+    direction : number;
     radius : number;
     tileMapVersion : number;
     polygon : Float32Array;
@@ -31,6 +33,7 @@ export class LightField implements IUpdate, LightReceiver {
     #lights : readonly Light[] = [];
     #litAreas = new Map<Light, LitArea>();
     #version = 0;
+    #arc : LightArc = { direction: 0, halfAngle: 0 };
 
     constructor(tileMap : TileMap, memory : RememberedMap | null = null) {
         this.#tileMap = tileMap;
@@ -87,16 +90,26 @@ export class LightField implements IUpdate, LightReceiver {
         }
     }
 
+    #arcOf(light : Light, direction : number) {
+        if (light.cone === null) return null;
+        const arc = this.#arc;
+        arc.direction = direction;
+        arc.halfAngle = light.cone.halfAngle;
+        return arc;
+    }
+
     #refreshLitArea(light : Light) {
         const { x, y } = light.pos;
+        const direction = light.cone?.aim.direction ?? 0;
         const cached = this.#litAreas.get(light);
         const isCurrent = cached !== undefined
             && cached.radius === light.radius
             && cached.tileMapVersion === this.#tileMap.version
-            && Math.hypot(x - cached.x, y - cached.y) <= MIN_LIGHT_MOVEMENT;
+            && Math.hypot(x - cached.x, y - cached.y) <= MIN_LIGHT_MOVEMENT
+            && Math.abs(direction - cached.direction) <= MIN_AIM_TURN;
         if (isCurrent) return;
-        const polygon = computeVisibilityPolygon(this.#tileMap, x, y, light.radius);
-        this.#litAreas.set(light, { x, y, radius: light.radius, tileMapVersion: this.#tileMap.version, polygon });
+        const polygon = computeVisibilityPolygon(this.#tileMap, x, y, light.radius, this.#arcOf(light, direction));
+        this.#litAreas.set(light, { x, y, direction, radius: light.radius, tileMapVersion: this.#tileMap.version, polygon });
         this.#version++;
         if (light.isSight) {
             this.#memory?.reveal(polygon);

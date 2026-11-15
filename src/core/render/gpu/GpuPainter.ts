@@ -15,7 +15,9 @@ import { MEMORY_SIZE, type RememberedChunk } from '../../../lighting/MapMemory';
 
 export const MAX_LIGHTS = 32;
 const CAMERA_FLOATS = 16;
-const FLOATS_PER_LIGHT = 8;
+const FLOATS_PER_LIGHT = 20;
+const CONE_SOFT_EDGE = 0.15;
+const NO_CONE = -2;
 const MEMORY_FLOATS_PER_CHUNK = 2;
 const BYTES_PER_FLOAT = 4;
 const INITIAL_BUFFER_BYTES = 16384;
@@ -43,8 +45,9 @@ export interface PainterSettings extends PipelineSettings {
 }
 
 interface LightTarget {
-    texture : GPUTexture;
-    view : GPUTextureView;
+    light : GPUTexture;
+    glow : GPUTexture;
+    attachments : GPURenderPassColorAttachment[];
     asSource : GPUBindGroup;
 }
 
@@ -170,7 +173,7 @@ export class GpuPainter {
     #paintLight(encoder : GPUCommandEncoder, targets : RenderTargets) {
         const pass = encoder.beginRenderPass({
             label: 'light',
-            colorAttachments: [{ view: targets.light.view, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' }],
+            colorAttachments: targets.light.attachments,
         });
         pass.setBindGroup(0, this.#sceneBindGroup);
 
@@ -198,7 +201,7 @@ export class GpuPainter {
     #paintBlur(encoder : GPUCommandEncoder, pipeline : GPURenderPipeline, source : LightTarget, target : LightTarget) {
         const pass = encoder.beginRenderPass({
             label: pipeline.label,
-            colorAttachments: [{ view: target.view, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' }],
+            colorAttachments: target.attachments,
         });
         pass.setPipeline(pipeline);
         pass.setBindGroup(0, this.#sceneBindGroup);
@@ -315,8 +318,16 @@ export class GpuPainter {
             data[offset + 1] = light.pos.y;
             data[offset + 2] = light.radius;
             data[offset + 3] = light.intensity;
-            data[offset + 4] = light.glow;
-            data[offset + 5] = light.isSight ? 1 : 0;
+            data[offset + 4] = light.colour.r;
+            data[offset + 5] = light.colour.g;
+            data[offset + 6] = light.colour.b;
+            data[offset + 7] = light.glow;
+            data[offset + 8] = light.glowColour.r;
+            data[offset + 9] = light.glowColour.g;
+            data[offset + 10] = light.glowColour.b;
+            data[offset + 11] = light.isSight ? 1 : 0;
+            this.#writeCone(light, offset + 12);
+            data[offset + 16] = light.fade;
             hasGlow ||= light.glow > 0;
         }
         this.#lightCount = count;
@@ -324,6 +335,22 @@ export class GpuPainter {
         if (count > 0) {
             this.#device.queue.writeBuffer(this.#lightBuffer, 0, data, 0, count * FLOATS_PER_LIGHT);
         }
+    }
+
+    #writeCone(light : Light, offset : number) {
+        const data = this.#lightData;
+        const cone = light.cone;
+        if (cone === null) {
+            data[offset] = 1;
+            data[offset + 1] = 0;
+            data[offset + 2] = NO_CONE;
+            data[offset + 3] = NO_CONE;
+            return;
+        }
+        data[offset] = Math.cos(cone.aim.direction);
+        data[offset + 1] = Math.sin(cone.aim.direction);
+        data[offset + 2] = Math.cos(cone.halfAngle);
+        data[offset + 3] = Math.cos(Math.max(cone.halfAngle - (cone.softEdge ?? CONE_SOFT_EDGE), 0));
     }
 
     #writeFans(lighting : LightingSource) {
@@ -415,30 +442,42 @@ export class GpuPainter {
     }
 
     #createLightTarget(label : string, width : number, height : number) : LightTarget {
-        const texture = this.#device.createTexture({
+        const light = this.#createLightTexture(label, width, height);
+        const glow = this.#createLightTexture(`${label} glow`, width, height);
+        const lightView = light.createView(), glowView = glow.createView();
+        const asSource = this.#device.createBindGroup({
+            label,
+            layout: this.#pipelines.lightPairLayout,
+            entries: [
+                { binding: 0, resource: lightView },
+                { binding: 1, resource: glowView },
+                { binding: 2, resource: this.#smoothSampler },
+            ],
+        });
+        const attachments : GPURenderPassColorAttachment[] = [
+            { view: lightView, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' },
+            { view: glowView, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' },
+        ];
+        return { light, glow, attachments, asSource };
+    }
+
+    #createLightTexture(label : string, width : number, height : number) {
+        return this.#device.createTexture({
             label,
             size: [width, height],
             format: LIGHT_TARGET_FORMAT,
             usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
         });
-        const view = texture.createView();
-        const asSource = this.#device.createBindGroup({
-            label,
-            layout: this.#pipelines.textureLayout,
-            entries: [
-                { binding: 0, resource: view },
-                { binding: 1, resource: this.#smoothSampler },
-            ],
-        });
-        return { texture, view, asSource };
     }
 
     #destroyTargets() {
         const targets = this.#targets;
         if (targets === null) return;
-        targets.light.texture.destroy();
-        targets.blurredAcross.texture.destroy();
-        targets.softLight.texture.destroy();
+        const lightTargets = [targets.light, targets.blurredAcross, targets.softLight];
+        for (let i = 0; i < lightTargets.length; i++) {
+            lightTargets[i].light.destroy();
+            lightTargets[i].glow.destroy();
+        }
     }
 
     #uploadVision(vision : TextureSource) {

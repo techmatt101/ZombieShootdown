@@ -36,6 +36,7 @@ export interface ChunkData {
     corners : Float32Array;
     openFloor : Float32Array;
     zombieSpawns : Float32Array;
+    lampSpawns : Float32Array;
     doors : ChunkDoor[];
 }
 
@@ -65,6 +66,9 @@ const SECOND_ROOM_CHANCE = 0.6;
 const ROOM_CORRIDOR_WIDTH = 2;
 const MIN_ZOMBIES_PER_ROOM = 2;
 const MAX_ZOMBIES_PER_ROOM = 5;
+const LAMP_SALT = 4;
+const LAMP_CHANCE_PER_ROOM = 0.7;
+export const FLOATS_PER_LAMP_SPAWN = 3;
 
 function isSpawnChunkEdge(orientation : number, cx : number, cy : number) {
     return orientation === HORIZONTAL_EDGE
@@ -321,6 +325,7 @@ export function generateChunk(seed : number, cx : number, cy : number) : ChunkDa
         cx,
         cy,
         tiles,
+        lampSpawns: placeLamps(seed, cx, cy, plan, rooms),
         wallDirections,
         floorRotations,
         corners: Float32Array.from(corners),
@@ -328,6 +333,20 @@ export function generateChunk(seed : number, cx : number, cy : number) : ChunkDa
         zombieSpawns: Float32Array.from(zombieSpawns),
         doors,
     };
+}
+
+function placeLamps(seed : number, cx : number, cy : number, plan : FloorPlan, rooms : Room[]) {
+    const random = createRandom(hashCoords(seed, LAMP_SALT, cx, cy));
+    const lamps : number[] = [];
+    const tileCentre = (tile : number) => (tile + 0.5) * TILE_SIZE;
+    for (let roomIndex = 0; roomIndex < rooms.length; roomIndex++) {
+        if (random() >= LAMP_CHANCE_PER_ROOM) continue;
+        const openTiles = openTilesInRoom(plan, rooms[roomIndex]);
+        if (openTiles.length === 0) continue;
+        const tile = openTiles[randomInt(random, 0, openTiles.length - 1)];
+        lamps.push(tileCentre(cx * CHUNK_TILES + tile.x), tileCentre(cy * CHUNK_TILES + tile.y), random());
+    }
+    return Float32Array.from(lamps);
 }
 
 function openTilesInRoom(plan : FloorPlan, room : Room) : TilePoint[] {

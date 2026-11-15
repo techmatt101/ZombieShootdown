@@ -60,6 +60,15 @@ describe('MuzzleFlash', () => {
         expect(glowPos.x).toBeCloseTo(200);
     });
 
+    it('can flash brighter than an ordinary light, fading the same way', () => {
+        const light = new Light(new Point(0, 0, 0), { radius: 600, intensity: 0 });
+        const muzzleFlash = new MuzzleFlash(light, { pos: new Point(0, 0, 0), material: new Material(), muzzle: new Point(0, 0, 0), reach: 7 }, 3);
+        muzzleFlash.trigger();
+        expect(light.intensity).toBe(3);
+        muzzleFlash.update(FLASH_LIGHT_DURATION / 2);
+        expect(light.intensity).toBeCloseTo(0.75);
+    });
+
     it('goes dark when reset mid-flash', () => {
         const { light, material, muzzleFlash } = setUp();
         muzzleFlash.trigger();
@@ -74,13 +83,14 @@ describe('MuzzleFlash', () => {
         const flash = spawnMuzzleFlash(gun, shooter);
         const light = flash.getComponent('light');
         expect(light.pos).toBe(shooter.pos);
-        expect(light.isSight).toBe(true);
+        expect(light.isSight).toBe(false);
         expect(flash.getComponent('material').isAdditive).toBe(true);
         expect(flash.getComponent('material').texture).not.toBeNull();
         const muzzleFlash = flash.getComponent('muzzleFlash');
         expect(muzzleFlash.isFlashing).toBe(false);
         gun.attack();
         expect(muzzleFlash.isFlashing).toBe(true);
+        expect(light.intensity).toBeGreaterThan(1);
         muzzleFlash.update(FLASH_LIGHT_DURATION);
         gun.attack();
         expect(muzzleFlash.isFlashing).toBe(false);

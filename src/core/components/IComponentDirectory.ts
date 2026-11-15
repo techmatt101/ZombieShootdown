@@ -4,8 +4,10 @@ import type { Damage } from './Damage';
 import type { Health } from './Health';
 import type { InputControl } from './InputControl';
 import type { Door } from './Door';
+import type { Flicker } from './Flicker';
 import type { Interactable } from './Interactable';
 import type { Interactor } from './Interactor';
+import type { Lamp } from './Lamp';
 import type { Light } from './Light';
 import type { Material } from './Material';
 import type { Movement } from './Movement';
@@ -30,4 +32,6 @@ export interface IComponentDirectory {
     door? : Door;
     muzzleFlash? : MuzzleFlash;
     light? : Light;
+    lamp? : Lamp;
+    flicker? : Flicker;
 }

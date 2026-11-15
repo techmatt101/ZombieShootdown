@@ -123,4 +123,27 @@ describe('LightField', () => {
         expect(count('save')).toBe(count('restore'));
         expect(calls.filter((call) => call.method === 'moveTo' && call.args[0] === 5 && call.args[1] === 5).length).toBe(3);
     });
+
+    it('recomputes a cone of light when it is aimed somewhere else, passing its arc along', () => {
+        const field = new LightField(new TileMap(chunksFromRows(['....'])));
+        const facing = { direction: 0 };
+        const torch = new Light(new Vector(10, 10), { radius: 700, cone: { aim: facing, halfAngle: 0.4 } });
+        field.setLights([torch]);
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenLastCalledWith(expect.anything(), 10, 10, 700, { direction: 0, halfAngle: 0.4 });
+        facing.direction = 0.005;
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenCalledTimes(1);
+        facing.direction = 1;
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenCalledTimes(2);
+        expect(computeVisibilityPolygon).toHaveBeenLastCalledWith(expect.anything(), 10, 10, 700, { direction: 1, halfAngle: 0.4 });
+    });
+
+    it('lights all the way round when a light has no cone', () => {
+        const field = new LightField(new TileMap(chunksFromRows(['....'])));
+        field.setLights([new Light(new Vector(10, 10), { radius: 500 })]);
+        field.update(1);
+        expect(computeVisibilityPolygon).toHaveBeenLastCalledWith(expect.anything(), 10, 10, 500, null);
+    });
 });

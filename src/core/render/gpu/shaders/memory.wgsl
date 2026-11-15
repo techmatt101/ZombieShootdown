@@ -1,5 +1,4 @@
 override chunkSize : f32;
-override rememberedBrightness : f32;
 
 @group(1) @binding(0) var maskTexture : texture_2d<f32>;
 @group(1) @binding(1) var maskSampler : sampler;
@@ -19,7 +18,10 @@ fn vertexMain(@builtin(vertex_index) vertexIndex : u32, @location(0) origin : ve
 }
 
 @fragment
-fn fragmentMain(in : MemoryVertex) -> @location(0) vec4f {
-    let seen = textureSample(maskTexture, maskSampler, in.uv).r * rememberedBrightness;
-    return vec4f(seen, 0.0, 0.0, 0.0);
+fn fragmentMain(in : MemoryVertex) -> LightOutput {
+    let seen = textureSample(maskTexture, maskSampler, in.uv).r;
+    var out : LightOutput;
+    out.light = vec4f(0.0);
+    out.glow = vec4f(0.0, 0.0, 0.0, seen);
+    return out;
 }

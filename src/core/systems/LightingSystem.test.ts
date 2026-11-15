@@ -29,4 +29,16 @@ describe('LightingSystem', () => {
         system.update(1);
         expect(received).toEqual([on.light, off.light]);
     });
+
+    it('leaves out lights that cannot reach the camera view', () => {
+        let received : readonly Light[] = [];
+        const nearby = lit(1), faraway = lit(1);
+        faraway.entity.pos.set(5000, 0);
+        const view = { isInCurrentOrUpcomingView: (point : { x : number }, margin : number) => Math.abs(point.x) <= 600 + margin };
+        const system = new LightingSystem({ setLights: (lights) => { received = [...lights]; } }, view);
+        system.add(nearby.entity);
+        system.add(faraway.entity);
+        system.update(1);
+        expect(received).toEqual([nearby.light]);
+    });
 });

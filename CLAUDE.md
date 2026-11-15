@@ -53,7 +53,7 @@ Write all code to be as fast as possible. The game loop runs every frame, so per
 The engine is entity/component based: entities are built from components, systems do the per-frame work, and interactions between entities go through dominant/passive **behaviours**. Components only know their own entity and constructor-injected collaborators; anything that needs level-wide data (the tile map) gets it from a system.
 
 - `src/world/`: the endless world. Infrastructure only, no game rules.
-  - `generateChunk.ts`: a pure function of `(seed, cx, cy)` that returns a 16×16 tile chunk, with rooms, corridors, doorway openings, doors and zombie spawns. Shared chunk edges get deterministic openings, so chunks line up without seeing each other. Tuning constants live at the top of the file.
+  - `generateChunk.ts`: a pure function of `(seed, cx, cy)` that returns a 16×16 tile chunk, with rooms, corridors, doorway openings, doors, zombie spawns and lamp spawns (`x, y, tint roll`; their own random stream, so they don't shift the rest). Shared chunk edges get deterministic openings, so chunks line up without seeing each other. Tuning constants live at the top of the file.
   - `ChunkStreamer.ts`: streams chunks around the camera via the `workers/worldgen.ts` worker (generation and bitmap rendering happen off the main thread), unloads far chunks (which regenerate identically from the seed), and fires `ChunkEvent.LOADED` / `UNLOADED` through `EventHandler`.
   - `TileMap.ts`: tile queries over the loaded chunks: `isSolidTile`, `setTile`, grid DDA `raycast` / `hasLineOfSight` (`raycast.ts`), corners, and open-floor lookups.
   - `WorldLayer.ts`: queues only the visible chunk bitmaps into the sprite batch, and releases a chunk's GPU texture when it unloads.
@@ -63,12 +63,20 @@ The engine is entity/component based: entities are built from components, system
     - `CollisionSystem`: `SpatialHash` for entity pairs, plus tile lookups.
     - `InteractionSystem`: nearest `Interactable` in reach; when interact is pressed, runs the matching behaviours.
     - `AISystem`: a per-frame think budget; passes the `TileMap` to `IAI.think`.
-    - `LightingSystem`: hands every shining `Light` (player vision, muzzle flash) to `LightField`.
+    - `LightingSystem`: hands every shining `Light` (player's torch, muzzle flash, lamps) that can reach the camera view to `LightField`.
     - `LogicSystem` and `RenderSystem`.
-  - **Collision layers:** `Collision` has a `layer` and a `mask` (`CollisionLayer.PLAYER` / `ENEMY` / `PROJECTILE`). A pair only interacts when each mask includes the other's layer. Walls and closed doors block every moving entity.
+  - **Collision layers:** `Collision` has a `layer` and a `mask` (`CollisionLayer.PLAYER` / `ENEMY` / `PROJECTILE` / `PROP`). A pair only interacts when each mask includes the other's layer. Walls and closed doors block every moving entity.
   - **Game lifecycle:** every DOM/window listener a game adds must pass `{ signal: game.signal }`. `Game.end()` (player died) freezes the game and shows the game-over screen. `Game.dispose()` (restart, main menu) aborts all listeners, stops sound, terminates the world worker and frees its GPU resources, so a new game starts clean.
   - **Pooling:** pooled entities call `reset()` on every component when reused, so stateful components (AI, movement, damage cooldowns) implement `reset()`.
   - **Behaviours:** `behaviours/` with `CollisionBehaviourList` (damage) and `InteractionBehaviourList` (`openDoor`). Pairs fire when one side is dominant and the other passive.
+  - **Player view and light** (constants in `PlayerFactory`):
+    - **Eyes:** the player's own `Light` is their view. It is a sight light with no colour, `VIEW_DISTANCE` across the whole screen in line of sight, so it lights nothing but decides what is in view and what gets remembered.
+    - **Torch:** from `spawnTorch`, a long cone `Light` aimed by `player.pos.direction`, shining like an old torch. `OLD_BULB_YELLOW` gives it a yellow tint. Its cone `softEdge` equals the half angle, so the beam fades from its centre line out to both sides. `TORCH_FADE` (`Light.fade`, an exponent on the falloff) makes it die off quickly with distance. A `Flicker` component hums its brightness with an occasional stutter. Other constants: `TORCH_RADIUS`, `TORCH_HALF_ANGLE`, `TORCH_BRIGHTNESS`.
+    - The muzzle flash and lamps are plain lights too.
+  - **Lamps:**
+    - Spooky coloured lights placed per chunk by `level/LampSpawner.ts`, which remembers where each lamp was pushed and whether it was broken.
+    - Each lamp (`factories/LampFactory.ts`) is a `PROP` body with `Movement`, so players and zombies shove it. It has a coloured `Light` with glow, flickering via `flickerAt` (shared with the torch's `Flicker`), and a code-drawn lantern sprite with a generated normal map.
+    - One bullet breaks it: `Lamp` swaps to broken glass and sputters the light out.
   - **Doors:**
     - Entities from `factories/DoorFactory.ts` (`Material` + `Door` + `Interactable`), pooled and placed per chunk by `level/DoorSpawner.ts`, which also remembers open doors across unloads.
     - The `Door` component writes its tiles (door ↔ floor) into the `TileMap`, so collision, bullets, line of sight and light all respect it.
@@ -78,14 +86,16 @@ The engine is entity/component based: entities are built from components, system
   - `EntitySprites.ts`: culls entities outside the camera view and queues the rest in z order.
   - `GpuRenderer`: fills the batch (world layer, then entities) each frame and hands it to `gpu/GpuPainter`. `init()` is async (`createGpuContext`), and `paint()` does nothing until it is ready.
   - `gpu/GpuPainter`: per frame:
-    1. A light pass adds the remembered map and each light's visibility fan into an `rgba8unorm` light target: r = brightness, g = sight (sight lights only), b/a = warm glow.
-    2. Two half-resolution blur passes (across, then down) soften it. The blur radius grows with distance from the player (`NEAR_SHADOW_SOFTNESS` → `FAR_SHADOW_SOFTNESS` over `SOFTEST_SHADOW_DISTANCE`, in `GpuRenderer`), so shadows are crisp close up and soft further out.
-    3. The scene pass draws sprites. `isHiddenOutOfSight` sprites (zombies) are faded by the soft sight channel, so they melt into the same shadows as the floor.
-    4. A fullscreen pass multiplies everything by the soft brightness, then adds the warm glow and additive sprites.
+    1. **Light pass:** adds every light into two `rgba8unorm` targets at once.
+       - `light`: rgb = light colour × falloff × cone; a = in view (sight lights only). Cones have soft edges (`CONE_SOFT_EDGE`).
+       - `glow`: rgb = glow colour; a = explored (the remembered map mask).
+    2. **Blur:** two half-resolution passes (across, then down) soften both targets. The blur radius grows with distance from the player (`NEAR_SHADOW_SOFTNESS` → `FAR_SHADOW_SOFTNESS` over `SOFTEST_SHADOW_DISTANCE`, in `GpuRenderer`), so shadows are crisp close up and soft further out.
+    3. **Scene:** draws sprites. `isHiddenOutOfSight` sprites (zombies) are faded by the soft sight channel.
+    4. **Composite:** multiplies the scene by `explored × (REMEMBERED_BRIGHTNESS + light × visibility)`, where visibility is 1 in view and `OUT_OF_VIEW_LIGHTING` elsewhere (constants in `GpuRenderer`). So never-seen places stay black, explored ones are very dim, lights brighten them, and lights behind walls show only faintly. Then it adds glow the same way, and additive sprites.
   - **Normal maps:** a `Texture` can carry `normals` laid out like its sprite sheet, in the common green-up convention (green = facing up the screen).
     - **Hand-made maps:** `<sprite>_n.png` in `public/assets/img/` (player, zombie), loaded alongside the sprite.
     - **Generated maps:** `lib/spriteNormals.ts` (`normalMapOf`) builds one for sprites without a hand-made map (dead zombies).
-    - **Shading:** the sprite shader turns each normal with the sprite and aims it at the lights reaching it (`LIGHT_HEIGHT` above the floor). It brightens or darkens relative to a flat surface by `NORMAL_MAP_STRENGTH`.
+    - **Shading:** the sprite shader turns each normal with the sprite and shades it per light colour: each light reaching the pixel (`LIGHT_HEIGHT` above the floor) brightens or darkens the side facing it, relative to a flat surface, by `NORMAL_MAP_STRENGTH`. A green lamp on one side and white torchlight on the other light a zombie differently.
   - **Player firing:** `SpriteAnimator` takes its frames from the factory. The player's animation `playsOnce`: it rests on the idle frame, and `animateFiring` replays the muzzle and smoke frames each time the gun fires.
   - `gpu/GpuContext.ts`: one shared `GPUDevice` per page, reused across games, because Chrome can fail to create a fresh device right after destroying one. `dispose()` frees only the game's own textures and buffers.
   - `gpu/TextureStore` uploads any `TextureSource` once (keyed by the source object), and `gpu/MaskTextures` keeps map-memory masks in sync by version. Shaders live in `gpu/shaders/*.wgsl`, imported with `?raw`.
@@ -96,8 +106,9 @@ The engine is entity/component based: entities are built from components, system
     - **faced** (inside corners, or outer corners seen head-on): one ray.
     - **grazed** (one side open, where a shadow edge starts): two rays just either side.
     - **rim:** 24 extra rays, since the light falls off to nothing before its radius. Scratch angles are reused, so only the returned polygon is allocated.
-  - `LightField.ts`: caches each light's visibility polygon, recomputing only when the light moves or the tiles change, and bumps `version` so the GPU re-uploads light fans (`fanTriangles.ts`) only then.
-  - `MapMemory.ts`: Monaco-style map discovery. The player's sight light (`Light.isSight`) scanline-fills its polygon (`fillPolygon.ts`) into a low-res `Uint8Array` mask per chunk. Remembered areas are drawn dimly; never-seen areas stay black. Unloaded chunks keep their mask array.
+    - **cones:** with a `LightArc` (cone lights like the torch), only rays inside the arc are cast, plus rays on both edges. The polygon starts at the light, so fans, memory and debug drawing work unchanged.
+  - `LightField.ts`: caches each light's visibility polygon, recomputing only when the light moves, a cone turns, or the tiles change, and bumps `version` so the GPU re-uploads light fans (`fanTriangles.ts`) only then.
+  - `MapMemory.ts`: Monaco-style map discovery. The player's view (`Light.isSight`) scanline-fills its polygon (`fillPolygon.ts`) into a low-res `Uint8Array` mask per chunk. Explored areas are drawn dimly; never-seen areas stay black. Unloaded chunks keep their mask array.
 - `src/client/`:
   - Game modes: `SinglePlayerGame` with `SinglePlayerWaveLogic` (Arcade) or `AmbientZombieLogic` (Dev Level).
   - HUD, menu, perf overlay.

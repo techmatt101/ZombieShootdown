@@ -18,6 +18,7 @@ export enum CollisionLayer {
     PLAYER = 2,
     ENEMY = 4,
     PROJECTILE = 8,
+    PROP = 16,
 }
 
 export enum CollisionShape {

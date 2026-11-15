@@ -24,7 +24,7 @@ self.addEventListener('message', (e : MessageEvent<WorldgenRequest>) => {
     const response : WorldgenResponse = { chunk, bitmap };
     const transfer : Transferable[] = [
         chunk.tiles.buffer, chunk.wallDirections.buffer, chunk.floorRotations.buffer,
-        chunk.corners.buffer, chunk.openFloor.buffer, chunk.zombieSpawns.buffer,
+        chunk.corners.buffer, chunk.openFloor.buffer, chunk.zombieSpawns.buffer, chunk.lampSpawns.buffer,
     ];
     if (bitmap !== null) {
         transfer.push(bitmap);

@@ -18,15 +18,17 @@ export class MuzzleFlash implements IComponent {
 
     #light : Light;
     #glow : FlashGlow;
+    #peakBrightness : number;
     #sinceFired = Infinity;
 
     static reference(components : IComponentDirectory) {
         return components.muzzleFlash;
     }
 
-    constructor(light : Light, glow : FlashGlow) {
+    constructor(light : Light, glow : FlashGlow, peakBrightness = 1) {
         this.#light = light;
         this.#glow = glow;
+        this.#peakBrightness = peakBrightness;
     }
 
     get isFlashing() {
@@ -59,7 +61,7 @@ export class MuzzleFlash implements IComponent {
     #show() {
         const fade = Math.max(0, 1 - this.#sinceFired / FLASH_LIGHT_DURATION);
         const intensity = fade * fade;
-        this.#light.intensity = intensity;
+        this.#light.intensity = intensity * this.#peakBrightness;
         const glow = this.#glow;
         glow.material.active = intensity > 0;
         glow.material.opacity = intensity;
