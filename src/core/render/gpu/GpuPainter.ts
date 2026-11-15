@@ -2,13 +2,14 @@ import type { GpuContext } from './GpuContext';
 import { MaskTextures } from './MaskTextures';
 import {
     createPipelines, FAN_VERTEX_STRIDE, LIGHT_TARGET_FORMAT, MEMORY_INSTANCE_STRIDE,
-    SPRITE_STRIDE, type PipelineSettings, type Pipelines,
+    SHADOW_STENCIL_FORMAT, SPRITE_STRIDE, type PipelineSettings, type Pipelines,
 } from './pipelines';
 import { TextureStore } from './TextureStore';
 import { FLOATS_PER_SPRITE, SpriteKind, type SpriteBatch } from '../SpriteBatch';
 import type { Light } from '../../components/Light';
 import type { Camera } from '../../../lib/Camera';
 import type { TextureSource } from '../../../lib/Texture';
+import { casterShadow, FLOATS_PER_CASTER_SHADOW, type ShadowOccluder } from '../../../lighting/casterShadow';
 import { fanTriangles, fanVertexCount, FLOATS_PER_FAN_VERTEX } from '../../../lighting/fanTriangles';
 import type { LitArea } from '../../../lighting/LightField';
 import { MEMORY_SIZE, type RememberedChunk } from '../../../lighting/MapMemory';
@@ -28,6 +29,8 @@ const SOFT_LIGHT_GROUP = 2;
 const MIN_POLYGON_FLOATS = 6;
 const BLACK : GPUColor = { r: 0, g: 0, b: 0, a: 1 };
 const UNLIT : GPUColor = { r: 0, g: 0, b: 0, a: 0 };
+const NO_CASTERS : readonly ShadowOccluder[] = [];
+const UNSHADOWED = 0;
 
 export interface LightingSource {
     readonly lights : readonly Light[];
@@ -59,6 +62,12 @@ interface RenderTargets {
     light : LightTarget;
     blurredAcross : LightTarget;
     softLight : LightTarget;
+    shadowStencil : GPUTexture;
+    shadowStencilAttachment : GPURenderPassDepthStencilAttachment;
+}
+
+function shadowMarkOf(lightIndex : number) {
+    return lightIndex + 1;
 }
 
 function hasFan(area : LitArea | undefined) : area is LitArea {
@@ -80,6 +89,7 @@ export class GpuPainter {
     #instanceBuffer : GPUBuffer;
     #fanBuffer : GPUBuffer;
     #memoryBuffer : GPUBuffer;
+    #shadowBuffer : GPUBuffer;
     #targets : RenderTargets | null = null;
 
     #cameraData = new Float32Array(CAMERA_FLOATS);
@@ -91,6 +101,9 @@ export class GpuPainter {
     #fanCount = new Uint32Array(MAX_LIGHTS);
     #fanLights : Light[] = [];
     #fanVersion = -1;
+    #shadowData = new Float32Array(INITIAL_BUFFER_BYTES / BYTES_PER_FLOAT);
+    #shadowFirst = new Uint32Array(MAX_LIGHTS);
+    #shadowCount = new Uint32Array(MAX_LIGHTS);
     #remembered : RememberedChunk[] = [];
     #memoryData = new Float32Array(INITIAL_BUFFER_BYTES / BYTES_PER_FLOAT);
     #drawCalls = 0;
@@ -113,6 +126,7 @@ export class GpuPainter {
         this.#instanceBuffer = this.#createBuffer('sprites', INITIAL_BUFFER_BYTES, GPUBufferUsage.VERTEX);
         this.#fanBuffer = this.#createBuffer('light fans', INITIAL_BUFFER_BYTES, GPUBufferUsage.VERTEX);
         this.#memoryBuffer = this.#createBuffer('memory chunks', INITIAL_BUFFER_BYTES, GPUBufferUsage.VERTEX);
+        this.#shadowBuffer = this.#createBuffer('shadows', INITIAL_BUFFER_BYTES, GPUBufferUsage.VERTEX);
 
         this.#visionTexture = this.#uploadVision(vision);
         this.#sceneBindGroup = device.createBindGroup({
@@ -142,15 +156,17 @@ export class GpuPainter {
         this.#instanceBuffer.destroy();
         this.#fanBuffer.destroy();
         this.#memoryBuffer.destroy();
+        this.#shadowBuffer.destroy();
         this.#gpu.context.unconfigure();
     }
 
-    paint(batch : SpriteBatch, lighting : LightingSource | null, camera : Camera) {
+    paint(batch : SpriteBatch, lighting : LightingSource | null, camera : Camera, casters : readonly ShadowOccluder[] = NO_CASTERS) {
         this.#drawCalls = 0;
         const targets = this.#resizeTargets();
         if (lighting !== null) {
             this.#writeLights(lighting);
             this.#writeFans(lighting);
+            this.#writeShadows(lighting, casters);
             this.#writeRemembered(lighting, camera);
         } else {
             this.#lightCount = 0;
@@ -174,6 +190,7 @@ export class GpuPainter {
         const pass = encoder.beginRenderPass({
             label: 'light',
             colorAttachments: targets.light.attachments,
+            depthStencilAttachment: targets.shadowStencilAttachment,
         });
         pass.setBindGroup(0, this.#sceneBindGroup);
 
@@ -187,9 +204,21 @@ export class GpuPainter {
             }
         }
 
-        pass.setPipeline(this.#pipelines.brightness);
-        pass.setVertexBuffer(0, this.#fanBuffer);
+        let needsBrightnessPipeline = true;
         for (let i = 0; i < this.#lightCount; i++) {
+            const shadowVertices = this.#shadowCount[i];
+            pass.setStencilReference(shadowMarkOf(i));
+            if (shadowVertices > 0) {
+                pass.setPipeline(this.#pipelines.shadow);
+                pass.setVertexBuffer(0, this.#shadowBuffer);
+                this.#draw(pass, shadowVertices, 1, this.#shadowFirst[i], i);
+                needsBrightnessPipeline = true;
+            }
+            if (needsBrightnessPipeline) {
+                pass.setPipeline(this.#pipelines.brightness);
+                pass.setVertexBuffer(0, this.#fanBuffer);
+                needsBrightnessPipeline = false;
+            }
             this.#drawFan(pass, i);
         }
         if (this.#hasGlow) {
@@ -236,6 +265,7 @@ export class GpuPainter {
 
     #paintGlow(pass : GPURenderPassEncoder) {
         pass.setPipeline(this.#pipelines.glow);
+        pass.setVertexBuffer(0, this.#fanBuffer);
         const lights = this.#fanLights;
         for (let i = 0; i < this.#lightCount; i++) {
             if (lights[i].glow > 0) {
@@ -392,6 +422,33 @@ export class GpuPainter {
         }
     }
 
+    #writeShadows(lighting : LightingSource, casters : readonly ShadowOccluder[]) {
+        const lights = lighting.lights;
+        const count = this.#lightCount;
+        const mostFloats = count * casters.length * FLOATS_PER_CASTER_SHADOW;
+        if (mostFloats > this.#shadowData.length) {
+            this.#shadowData = new Float32Array(Math.max(mostFloats, this.#shadowData.length * 2));
+        }
+        const data = this.#shadowData;
+
+        let offset = 0;
+        for (let i = 0; i < count; i++) {
+            const light = lights[i];
+            const firstVertex = offset / FLOATS_PER_FAN_VERTEX;
+            if (!light.isSight) {
+                for (let j = 0; j < casters.length; j++) {
+                    offset = casterShadow(light.pos.x, light.pos.y, light.radius, casters[j], data, offset);
+                }
+            }
+            this.#shadowFirst[i] = firstVertex;
+            this.#shadowCount[i] = offset / FLOATS_PER_FAN_VERTEX - firstVertex;
+        }
+        if (offset > 0) {
+            this.#shadowBuffer = this.#bufferFitting(this.#shadowBuffer, (offset / FLOATS_PER_FAN_VERTEX) * FAN_VERTEX_STRIDE);
+            this.#device.queue.writeBuffer(this.#shadowBuffer, 0, data, 0, offset);
+        }
+    }
+
     #fansAreCurrent(lighting : LightingSource) {
         if (lighting.version !== this.#fanVersion) return false;
         const lights = lighting.lights, previous = this.#fanLights;
@@ -436,6 +493,7 @@ export class GpuPainter {
             light: this.#createLightTarget('light', width, height),
             blurredAcross: this.#createLightTarget('shadow blur', blurWidth, blurHeight),
             softLight: this.#createLightTarget('soft light', blurWidth, blurHeight),
+            ...this.#createShadowStencil(width, height),
         };
         this.#targets = targets;
         return targets;
@@ -461,6 +519,22 @@ export class GpuPainter {
         return { light, glow, attachments, asSource };
     }
 
+    #createShadowStencil(width : number, height : number) {
+        const shadowStencil = this.#device.createTexture({
+            label: 'shadow stencil',
+            size: [width, height],
+            format: SHADOW_STENCIL_FORMAT,
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        const shadowStencilAttachment : GPURenderPassDepthStencilAttachment = {
+            view: shadowStencil.createView(),
+            stencilLoadOp: 'clear',
+            stencilClearValue: UNSHADOWED,
+            stencilStoreOp: 'discard',
+        };
+        return { shadowStencil, shadowStencilAttachment };
+    }
+
     #createLightTexture(label : string, width : number, height : number) {
         return this.#device.createTexture({
             label,
@@ -478,6 +552,7 @@ export class GpuPainter {
             lightTargets[i].light.destroy();
             lightTargets[i].glow.destroy();
         }
+        targets.shadowStencil.destroy();
     }
 
     #uploadVision(vision : TextureSource) {

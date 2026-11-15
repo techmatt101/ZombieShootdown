@@ -66,6 +66,19 @@ describe('spawnDeadZombie', () => {
     });
 });
 
+describe('shadow casters', () => {
+    it('makes the player, zombies and lamps cast shadows the size of their bodies', () => {
+        const player = spawnPlayer({ x: 0, y: 0 }, new InputState());
+        const zombie = spawnZombie(player);
+        expect(player.getComponent('shadowCaster')).toMatchObject({ pos: player.pos, radius: 21 });
+        expect(zombie.getComponent('shadowCaster')).toMatchObject({ pos: zombie.pos, radius: 21 });
+    });
+
+    it('casts no shadow from bullets', () => {
+        expect(spawnBullet().components.shadowCaster).toBeUndefined();
+    });
+});
+
 describe('spawnPlayer', () => {
     it('places a controllable player that can open doors and be bitten', () => {
         const player = spawnPlayer({ x: 50, y: 60 }, new InputState());

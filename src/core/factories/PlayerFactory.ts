@@ -8,6 +8,7 @@ import { Flicker } from '../components/Flicker';
 import { Light, NO_LIGHT } from '../components/Light';
 import { Material } from '../components/Material';
 import { Movement } from '../components/Movement';
+import { ShadowCaster } from '../components/ShadowCaster';
 import { SpriteAnimator } from '../components/SpriteAnimator';
 import type { ISpriteAnimationData } from '../animation/SpriteAnimation';
 import { WeaponEvent, type Gun } from '../gameobjects/Gun';
@@ -51,6 +52,7 @@ export function spawnPlayer(position : IVector, input : InputState) {
     const interactor = player.addComponent(new Interactor(input));
     player.addComponent(new Movement(player.pos, 30, 1));
     const collision = player.addComponent(new Collision(new Circle(BODY_RADIUS, player.pos), CollisionLayer.PLAYER, CollisionLayer.ENEMY | CollisionLayer.PROP));
+    player.addComponent(new ShadowCaster(player.pos, BODY_RADIUS));
 
     const material = player.addComponent(new Material());
     player.addComponent(new Light(player.pos, { radius: VIEW_DISTANCE, colour: NO_LIGHT, isSight: true }));

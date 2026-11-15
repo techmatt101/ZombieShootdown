@@ -23,6 +23,14 @@ fn brightnessMain(in : FanVertex) -> LightOutput {
 }
 
 @fragment
+fn shadowMain(in : FanVertex) -> LightOutput {
+    var out : LightOutput;
+    out.light = vec4f(0.0);
+    out.glow = vec4f(0.0);
+    return out;
+}
+
+@fragment
 fn glowMain(in : FanVertex) -> LightOutput {
     let light = lights[in.light];
     let fromCentre = clamp(distance(in.world, light.centre) / light.radius, 0.0, 1.0);

@@ -5,6 +5,7 @@ import { Lamp, type LampLook } from '../components/Lamp';
 import { Light, type LightColour } from '../components/Light';
 import { Material } from '../components/Material';
 import { Movement } from '../components/Movement';
+import { ShadowCaster } from '../components/ShadowCaster';
 import { Entity } from '../Entity';
 import { ZIndexLayer } from '../level/ZIndexLayer';
 import { Box } from '../../lib/geometry/Box';
@@ -51,6 +52,7 @@ export function spawnLamp() {
     const light = lamp.addComponent(new Light(lamp.pos, { radius: LAMP_RADIUS, glow: LAMP_GLOW }));
     lamp.addComponent(new Movement(lamp.pos, 0, 1));
     const collision = lamp.addComponent(new Collision(new Circle(LAMP_BODY_RADIUS, lamp.pos), CollisionLayer.PROP, LAMP_COLLIDES_WITH));
+    lamp.addComponent(new ShadowCaster(lamp.pos, LAMP_BODY_RADIUS));
     const health = lamp.addComponent(new Health(LAMP_TOUGHNESS));
     const control = lamp.addComponent(new Lamp(light, material));
 

@@ -4,6 +4,7 @@ import { GpuRenderer } from './GpuRenderer';
 import { SpriteKind, type SpriteBatch } from './SpriteBatch';
 import { Light } from '../components/Light';
 import { Material } from '../components/Material';
+import { ShadowCaster } from '../components/ShadowCaster';
 import { Entity } from '../Entity';
 import { Camera } from '../../lib/Camera';
 import { Box } from '../../lib/geometry/Box';
@@ -36,6 +37,19 @@ function sprite({ isHiddenOutOfSight = false, isAdditive = false, source = sheet
         material.setTexture(texture);
     }
     return entity;
+}
+
+function body(x : number, y : number, radius = 20) {
+    const entity = sprite();
+    entity.pos.set(x, y);
+    entity.addComponent(new ShadowCaster(entity.pos, radius));
+    entity.build();
+    return entity;
+}
+
+function lightPassDraws(gpu : ReturnType<typeof fakeGpu>) {
+    const draws = gpu.draws.filter((draw) => draw.pass === 'light');
+    return draws.map((draw) => `${draw.pipeline}@${draw.stencilReference}`);
 }
 
 function cameraOnOrigin() {
@@ -137,6 +151,51 @@ describe('GpuRenderer', () => {
             outOfViewLighting: shade.fragment!.constants!.outOfViewLighting,
             contrast: shade.fragment!.constants!.contrast,
         });
+    });
+
+    it('casts each body\'s shadow from each light, marking it just before that light is drawn', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const lampA = new Light(new Vector(0, 0), { radius: 400 });
+        const lampB = new Light(new Vector(300, 0), { radius: 400 });
+        renderer.setLighting(lightingWith([lampA, lampB]));
+        renderer.render([body(150, 0), body(150, 100)]);
+        renderer.paint();
+        expect(lightPassDraws(gpu)).toEqual(['shadow@1', 'brightness@1', 'shadow@2', 'brightness@2']);
+        const shadows = gpu.draws.filter((draw) => draw.pipeline === 'shadow');
+        expect(shadows.map((draw) => draw.vertexCount)).toEqual([48, 48]);
+        expect(gpu.draws.every((draw) => draw.pass !== 'light' || draw.hasStencil)).toBe(true);
+    });
+
+    it('casts no shadows from the player\'s own view, from a light inside a body, or from bodies out of reach', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const eyes = new Light(new Vector(0, 0), { radius: 1400, isSight: true });
+        const torch = new Light(new Vector(500, 0), { radius: 300 });
+        renderer.setLighting(lightingWith([eyes, torch]));
+        renderer.render([body(100, 0), body(500, 0), body(1000, 0)]);
+        renderer.paint();
+        expect(lightPassDraws(gpu)).toEqual(['brightness@1', 'brightness@2']);
+    });
+
+    it('ignores bodies that are switched off or whose entity is gone', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 400 })]));
+        const hidden = body(100, 0), gone = body(0, 100);
+        hidden.getComponent('shadowCaster').active = false;
+        gone.active = false;
+        renderer.render([hidden, gone]);
+        renderer.paint();
+        expect(lightPassDraws(gpu)).toEqual(['brightness@1']);
+    });
+
+    it('marks shadows in the stencil without colour, and only lets light through where its own mark is missing', async () => {
+        const { gpu } = await readyRenderer();
+        const pipeline = (label : string) => gpu.pipelines.find((candidate) => candidate.label === label)!;
+        const shadow = pipeline('shadow'), brightness = pipeline('brightness'), glow = pipeline('glow'), memory = pipeline('memory');
+        expect([...shadow.fragment!.targets].map((target) => target?.writeMask)).toEqual([0, 0]);
+        expect(shadow.depthStencil).toMatchObject({ format: 'stencil8', stencilFront: { compare: 'always', passOp: 'replace' } });
+        expect(brightness.depthStencil).toMatchObject({ format: 'stencil8', stencilFront: { compare: 'not-equal', passOp: 'keep' } });
+        expect(glow.depthStencil).toEqual({ format: 'stencil8' });
+        expect(memory.depthStencil).toEqual({ format: 'stencil8' });
     });
 
     it('skips the warm glow when no light glows', async () => {

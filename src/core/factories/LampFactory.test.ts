@@ -42,6 +42,15 @@ describe('spawnLamp', () => {
         expect(lamp.getComponent('material').texture?.normals).not.toBeNull();
     });
 
+    it('casts a small shadow from other lights, but none from its own light inside it', () => {
+        const lamp = litLamp(30, 40);
+        const caster = lamp.getComponent('shadowCaster');
+        expect(caster.pos).toBe(lamp.pos);
+        expect(caster.radius).toBeGreaterThan(0);
+        expect(caster.radius).toBeLessThan(21);
+        expect(lamp.getComponent('light').pos).toBe(lamp.pos);
+    });
+
     it('is a prop that players, zombies, bullets and other lamps all bump into', () => {
         const collision = litLamp().getComponent('collision');
         expect(collision.layer).toBe(CollisionLayer.PROP);

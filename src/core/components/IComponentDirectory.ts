@@ -13,6 +13,7 @@ import type { Material } from './Material';
 import type { Movement } from './Movement';
 import type { MuzzleFlash } from './MuzzleFlash';
 import type { Pointer } from './Pointer';
+import type { ShadowCaster } from './ShadowCaster';
 import type { SpriteAnimator } from './SpriteAnimator';
 import type { WeaponHolder } from './WeaponHolder';
 
@@ -34,4 +35,5 @@ export interface IComponentDirectory {
     light? : Light;
     lamp? : Lamp;
     flicker? : Flicker;
+    shadowCaster? : ShadowCaster;
 }

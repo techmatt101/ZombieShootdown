@@ -8,6 +8,8 @@ export interface RecordedDraw {
     instanceCount : number;
     firstVertex : number;
     firstInstance : number;
+    stencilReference : number;
+    hasStencil : boolean;
 }
 
 export interface RecordedWrite {
@@ -75,15 +77,20 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
 
     const beginRenderPass = (descriptor : GPURenderPassDescriptor) => {
         const pass = descriptor.label ?? '';
+        const hasStencil = descriptor.depthStencilAttachment !== undefined;
         let pipeline = '';
+        let stencilReference = 0;
         return {
             setPipeline: (renderPipeline : { label : string }) => {
                 pipeline = renderPipeline.label;
             },
+            setStencilReference: (reference : number) => {
+                stencilReference = reference;
+            },
             setBindGroup: () => {},
             setVertexBuffer: () => {},
             draw: (vertexCount : number, instanceCount = 1, firstVertex = 0, firstInstance = 0) => {
-                draws.push({ pass, pipeline, vertexCount, instanceCount, firstVertex, firstInstance });
+                draws.push({ pass, pipeline, vertexCount, instanceCount, firstVertex, firstInstance, stencilReference, hasStencil });
             },
             end: () => {},
         };

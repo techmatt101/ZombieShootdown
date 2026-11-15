@@ -6,6 +6,7 @@ import memoryShader from './shaders/memory.wgsl?raw';
 import spriteShader from './shaders/sprite.wgsl?raw';
 
 export const LIGHT_TARGET_FORMAT : GPUTextureFormat = 'rgba16float';
+export const SHADOW_STENCIL_FORMAT : GPUTextureFormat = 'stencil8';
 export const SPRITE_STRIDE = 64;
 export const FAN_VERTEX_STRIDE = 8;
 export const MEMORY_INSTANCE_STRIDE = 8;
@@ -27,6 +28,7 @@ export interface Pipelines {
     sprite : GPURenderPipeline;
     spriteInSight : GPURenderPipeline;
     spriteAdditive : GPURenderPipeline;
+    shadow : GPURenderPipeline;
     brightness : GPURenderPipeline;
     glow : GPURenderPipeline;
     memory : GPURenderPipeline;
@@ -50,6 +52,14 @@ export const DOUBLED_MULTIPLY : GPUBlendState = {
     color: { srcFactor: 'dst', dstFactor: 'src' },
     alpha: { srcFactor: 'zero', dstFactor: 'one' },
 };
+
+const IGNORES_SHADOWS : GPUDepthStencilState = { format: SHADOW_STENCIL_FORMAT };
+
+const MARKS_SHADOW : GPUStencilFaceState = { compare: 'always', passOp: 'replace' };
+const CASTS_SHADOW : GPUDepthStencilState = { format: SHADOW_STENCIL_FORMAT, stencilFront: MARKS_SHADOW, stencilBack: MARKS_SHADOW };
+
+const OUTSIDE_SHADOW : GPUStencilFaceState = { compare: 'not-equal', passOp: 'keep' };
+const STOPPED_BY_SHADOWS : GPUDepthStencilState = { format: SHADOW_STENCIL_FORMAT, stencilFront: OUTSIDE_SHADOW, stencilBack: OUTSIDE_SHADOW };
 
 const SPRITE_INSTANCE : GPUVertexBufferLayout = {
     arrayStride: SPRITE_STRIDE,
@@ -116,6 +126,10 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         { format: LIGHT_TARGET_FORMAT, blend: ADDITIVE },
     ];
     const lightAndGlow : GPUColorTargetState[] = [{ format: LIGHT_TARGET_FORMAT }, { format: LIGHT_TARGET_FORMAT }];
+    const noColour : GPUColorTargetState[] = [
+        { format: LIGHT_TARGET_FORMAT, writeMask: 0 },
+        { format: LIGHT_TARGET_FORMAT, writeMask: 0 },
+    ];
     const sceneOnly = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout] });
 
     const module = (label : string, code : string) => device.createShaderModule({ label, code: commonShader + code });
@@ -132,11 +146,12 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         fragment: { module: spriteModule, entryPoint, targets: [{ format: canvasFormat, blend }] },
     });
 
-    const fan = (label : string, entryPoint : string) => device.createRenderPipeline({
+    const fan = (label : string, entryPoint : string, depthStencil : GPUDepthStencilState, targets = addedLightAndGlow) => device.createRenderPipeline({
         label,
         layout: sceneOnly,
         vertex: { module: fanModule, entryPoint: 'vertexMain', buffers: [FAN_VERTEX] },
-        fragment: { module: fanModule, entryPoint, targets: addedLightAndGlow },
+        fragment: { module: fanModule, entryPoint, targets },
+        depthStencil,
     });
 
     const blur = (label : string, blurAxisX : number, blurAxisY : number) => device.createRenderPipeline({
@@ -166,8 +181,9 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         sprite: sprite('sprite', 'fragmentMain', PREMULTIPLIED_ALPHA),
         spriteInSight: sprite('sprite in sight', 'fragmentInSight', PREMULTIPLIED_ALPHA, withSpriteAndSoftLight),
         spriteAdditive: sprite('sprite additive', 'fragmentMain', ADDITIVE),
-        brightness: fan('brightness', 'brightnessMain'),
-        glow: fan('glow', 'glowMain'),
+        shadow: fan('shadow', 'shadowMain', CASTS_SHADOW, noColour),
+        brightness: fan('brightness', 'brightnessMain', STOPPED_BY_SHADOWS),
+        glow: fan('glow', 'glowMain', IGNORES_SHADOWS),
         memory: device.createRenderPipeline({
             label: 'memory',
             layout: withTexture,
@@ -182,6 +198,7 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
                 entryPoint: 'fragmentMain',
                 targets: addedLightAndGlow,
             },
+            depthStencil: IGNORES_SHADOWS,
         }),
         blurAcross: blur('blur across', 1, 0),
         blurDown: blur('blur down', 0, 1),

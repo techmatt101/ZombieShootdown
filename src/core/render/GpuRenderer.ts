@@ -7,6 +7,7 @@ import type { EntityRenderer } from '../systems/RenderSystem';
 import { loadImage } from '../../lib/assets';
 import type { Camera } from '../../lib/Camera';
 import type { TextureSource } from '../../lib/Texture';
+import type { ShadowOccluder } from '../../lighting/casterShadow';
 import { CHUNK_SIZE } from '../../world/constants';
 
 const REMEMBERED_BRIGHTNESS = 0.12;
@@ -23,6 +24,7 @@ const LIGHT_HEIGHT = 60;
 export class GpuRenderer implements EntityRenderer, TextureOwner {
     #camera : Camera;
     #entities : readonly Entity[] = [];
+    #shadowCasters : ShadowOccluder[] = [];
     #background : SpriteLayer | null = null;
     #lighting : LightingSource | null = null;
     #batch = new SpriteBatch();
@@ -79,7 +81,20 @@ export class GpuRenderer implements EntityRenderer, TextureOwner {
         batch.reset();
         this.#background?.queue(batch);
         queueEntitySprites(this.#entities, this.#camera, batch);
-        this.#drawCalls = painter.paint(batch, this.#lighting, this.#camera);
+        this.#drawCalls = painter.paint(batch, this.#lighting, this.#camera, this.#gatherShadowCasters());
+    }
+
+    #gatherShadowCasters() {
+        const casters = this.#shadowCasters;
+        casters.length = 0;
+        const entities = this.#entities;
+        for (let i = 0; i < entities.length; i++) {
+            const caster = entities[i].components.shadowCaster;
+            if (caster !== undefined && caster.active && entities[i].active) {
+                casters.push(caster);
+            }
+        }
+        return casters;
     }
 
     release(source : TextureSource) {
