@@ -82,6 +82,11 @@ The engine is entity/component based: entities are built from components, system
     2. Two half-resolution blur passes (across, then down) soften it. The blur radius grows with distance from the player (`NEAR_SHADOW_SOFTNESS` → `FAR_SHADOW_SOFTNESS` over `SOFTEST_SHADOW_DISTANCE`, in `GpuRenderer`), so shadows are crisp close up and soft further out.
     3. The scene pass draws sprites. `isHiddenOutOfSight` sprites (zombies) are faded by the soft sight channel, so they melt into the same shadows as the floor.
     4. A fullscreen pass multiplies everything by the soft brightness, then adds the warm glow and additive sprites.
+  - **Normal maps:** a `Texture` can carry `normals` laid out like its sprite sheet, in the common green-up convention (green = facing up the screen).
+    - **Hand-made maps:** `<sprite>_n.png` in `public/assets/img/` (player, zombie), loaded alongside the sprite.
+    - **Generated maps:** `lib/spriteNormals.ts` (`normalMapOf`) builds one for sprites without a hand-made map (dead zombies).
+    - **Shading:** the sprite shader turns each normal with the sprite and aims it at the lights reaching it (`LIGHT_HEIGHT` above the floor). It brightens or darkens relative to a flat surface by `NORMAL_MAP_STRENGTH`.
+  - **Player firing:** `SpriteAnimator` takes its frames from the factory. The player's animation `playsOnce`: it rests on the idle frame, and `animateFiring` replays the muzzle and smoke frames each time the gun fires.
   - `gpu/GpuContext.ts`: one shared `GPUDevice` per page, reused across games, because Chrome can fail to create a fresh device right after destroying one. `dispose()` frees only the game's own textures and buffers.
   - `gpu/TextureStore` uploads any `TextureSource` once (keyed by the source object), and `gpu/MaskTextures` keeps map-memory masks in sync by version. Shaders live in `gpu/shaders/*.wgsl`, imported with `?raw`.
   - HUD text, the perf overlay and every `drawDebug` draw on the transparent 2D `#hud` canvas stacked over `#game` (`HudCanvas`).

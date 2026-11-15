@@ -18,6 +18,7 @@ export interface PipelineSettings {
 export interface Pipelines {
     sceneLayout : GPUBindGroupLayout;
     textureLayout : GPUBindGroupLayout;
+    spriteLayout : GPUBindGroupLayout;
     sprite : GPURenderPipeline;
     spriteInSight : GPURenderPipeline;
     spriteAdditive : GPURenderPipeline;
@@ -85,8 +86,17 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
             { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
         ],
     });
+    const spriteLayout = device.createBindGroupLayout({
+        label: 'sprite',
+        entries: [
+            { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+            { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+            { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+        ],
+    });
     const withTexture = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, textureLayout] });
-    const withTextureAndSoftLight = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, textureLayout, textureLayout] });
+    const withSprite = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, spriteLayout] });
+    const withSpriteAndSoftLight = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, spriteLayout, textureLayout] });
     const sceneOnly = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout] });
 
     const module = (label : string, code : string) => device.createShaderModule({ label, code: commonShader + code });
@@ -96,7 +106,7 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
     const blurModule = module('blur', blurShader);
     const compositeModule = module('composite', compositeShader);
 
-    const sprite = (label : string, entryPoint : string, blend : GPUBlendState, layout = withTexture) => device.createRenderPipeline({
+    const sprite = (label : string, entryPoint : string, blend : GPUBlendState, layout = withSprite) => device.createRenderPipeline({
         label,
         layout,
         vertex: { module: spriteModule, entryPoint: 'vertexMain', buffers: [SPRITE_INSTANCE] },
@@ -132,8 +142,9 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
     return {
         sceneLayout,
         textureLayout,
+        spriteLayout,
         sprite: sprite('sprite', 'fragmentMain', PREMULTIPLIED_ALPHA),
-        spriteInSight: sprite('sprite in sight', 'fragmentInSight', PREMULTIPLIED_ALPHA, withTextureAndSoftLight),
+        spriteInSight: sprite('sprite in sight', 'fragmentInSight', PREMULTIPLIED_ALPHA, withSpriteAndSoftLight),
         spriteAdditive: sprite('sprite additive', 'fragmentMain', ADDITIVE),
         brightness: fan('brightness', 'brightnessMain'),
         glow: fan('glow', 'glowMain'),

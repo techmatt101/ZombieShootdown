@@ -5,7 +5,7 @@ function fakeDevice() {
     const lost = new Promise<{ reason : string; message : string }>((resolve) => {
         markLost = resolve;
     });
-    return { lost, addEventListener: () => {}, loseDevice: (reason : string) => markLost({ reason, message: 'gone' }) };
+    return { lost, isDestroyed: false, addEventListener: () => {}, destroy() { this.isDestroyed = true; }, loseDevice: (reason : string) => markLost({ reason, message: 'gone' }) };
 }
 
 function fakeNavigatorGpu() {
@@ -72,9 +72,28 @@ describe('createGpuContext', () => {
         const { requestDevice } = fakeNavigatorGpu();
         requestDevice.mockRejectedValueOnce(new Error('Failed to create MTLSharedEvent'));
         const { createGpuContext } = await freshModule();
-        await expect(createGpuContext(fakeCanvas().canvas)).rejects.toThrow('MTLSharedEvent');
+        await expect(createGpuContext(fakeCanvas().canvas)).rejects.toThrow('Restart Chrome');
         await expect(createGpuContext(fakeCanvas().canvas)).resolves.toBeDefined();
         expect(requestDevice).toHaveBeenCalledTimes(2);
+    });
+
+    it('explains how to recover when Chrome cannot start a device', async () => {
+        const { requestDevice } = fakeNavigatorGpu();
+        const chromeError = new Error('Failed to create MTLSharedEvent');
+        requestDevice.mockRejectedValueOnce(chromeError);
+        const { createGpuContext } = await freshModule();
+        await expect(createGpuContext(fakeCanvas().canvas)).rejects.toMatchObject({ message: expect.stringContaining('Restart Chrome'), cause: chromeError });
+    });
+
+    it('frees the device when the page goes away, so reloading can make a new one', async () => {
+        const { devices } = fakeNavigatorGpu();
+        const pageListeners = new Map<string, () => void>();
+        vi.stubGlobal('addEventListener', (type : string, listener : () => void) => pageListeners.set(type, listener));
+        const { createGpuContext } = await freshModule();
+        await createGpuContext(fakeCanvas().canvas);
+        expect(devices[0].isDestroyed).toBe(false);
+        pageListeners.get('pagehide')?.();
+        expect(devices[0].isDestroyed).toBe(true);
     });
 
     it('explains that WebGPU is required when the browser has none', async () => {

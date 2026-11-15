@@ -8,12 +8,14 @@ export enum SpriteKind {
 
 export const FLOATS_PER_SPRITE = 16;
 const INITIAL_CAPACITY = 256;
+const NORMAL_MAPPED_OFFSET = 3;
 const RECT_OFFSET = 4;
 const CROP_OFFSET = 8;
 const TINT_OFFSET = 12;
 
 export interface SpriteRun {
     source : TextureSource | null;
+    normals : TextureSource | null;
     kind : SpriteKind;
     first : number;
     count : number;
@@ -65,7 +67,7 @@ export class SpriteBatch {
         data[offset] = x;
         data[offset + 1] = y;
         data[offset + 2] = rotation;
-        data[offset + 3] = 0;
+        data[offset + NORMAL_MAPPED_OFFSET] = 0;
         data[offset + RECT_OFFSET] = left;
         data[offset + RECT_OFFSET + 1] = top;
         data[offset + RECT_OFFSET + 2] = width;
@@ -91,6 +93,11 @@ export class SpriteBatch {
         data[offset + 3] = v1;
     }
 
+    withNormals(normals : TextureSource) {
+        this.#data[(this.#count - 1) * FLOATS_PER_SPRITE + NORMAL_MAPPED_OFFSET] = 1;
+        this.#runs[this.#runCount - 1].normals = normals;
+    }
+
     tint(red : number, green : number, blue : number, alpha : number) {
         const offset = (this.#count - 1) * FLOATS_PER_SPRITE + TINT_OFFSET;
         const data = this.#data;
@@ -111,9 +118,10 @@ export class SpriteBatch {
         }
         const run = runs[this.#runCount];
         if (run === undefined) {
-            runs.push({ source, kind, first: this.#count, count: 1 });
+            runs.push({ source, normals: null, kind, first: this.#count, count: 1 });
         } else {
             run.source = source;
+            run.normals = null;
             run.kind = kind;
             run.first = this.#count;
             run.count = 1;

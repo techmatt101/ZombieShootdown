@@ -2,6 +2,7 @@ struct Camera {
     view : vec4f,
     viewport : vec4f,
     shadow : vec4f,
+    lighting : vec4f,
 };
 
 struct Light {

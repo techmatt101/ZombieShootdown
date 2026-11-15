@@ -27,4 +27,35 @@ describe('SpriteAnimation', () => {
         expect(() => animation.update(1.5, target)).not.toThrow();
         expect(target.sourcePos.y).toBe(20);
     });
+
+    it('rests on its last frame when it only plays once, until it is played', () => {
+        const animation = new SpriteAnimation({ animationTime: 2, playsOnce: true, spriteSequence: [frame(0, 1), frame(20, 2)] });
+        const target = texture();
+        target.sourcePos.y = 20;
+        animation.update(10, target);
+        expect(target.sourcePos.y).toBe(20);
+    });
+
+    it('runs through once when played, then holds the last frame instead of looping', () => {
+        const animation = new SpriteAnimation({ animationTime: 2, playsOnce: true, spriteSequence: [frame(0, 1), frame(20, 2)] });
+        const target = texture();
+        animation.play();
+        animation.update(0.5, target);
+        expect(target.sourcePos.y).toBe(0);
+        animation.update(1, target);
+        expect(target.sourcePos.y).toBe(20);
+        animation.update(10, target);
+        expect(target.sourcePos.y).toBe(20);
+    });
+
+    it('starts again from the first frame when played mid-way', () => {
+        const animation = new SpriteAnimation({ animationTime: 2, playsOnce: true, spriteSequence: [frame(0, 1), frame(20, 2)] });
+        const target = texture();
+        animation.play();
+        animation.update(1.5, target);
+        expect(target.sourcePos.y).toBe(20);
+        animation.play();
+        animation.update(0.1, target);
+        expect(target.sourcePos.y).toBe(0);
+    });
 });

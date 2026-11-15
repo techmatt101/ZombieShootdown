@@ -71,4 +71,18 @@ describe('SpriteBatch', () => {
         expect(batch.run(0)).toBe(firstRun);
         expect(runsOf(batch)).toEqual([{ source: playerSheet, kind: SpriteKind.ADDITIVE, first: 0, count: 1 }]);
     });
+
+    it('marks a sprite as normal mapped and gives its run the normal map', () => {
+        const batch = new SpriteBatch();
+        const normals = { width: 28, height: 40 } as HTMLImageElement;
+        batch.place(zombieSheet, SpriteKind.SCENE, 0, 0, 0, 0, 0, 1, 1);
+        batch.place(playerSheet, SpriteKind.SCENE, 0, 0, 0, 0, 0, 1, 1);
+        batch.withNormals(normals);
+        expect([batch.data[3], batch.data[FLOATS_PER_SPRITE + 3]]).toEqual([0, 1]);
+        expect([batch.run(0).normals, batch.run(1).normals]).toEqual([null, normals]);
+        batch.reset();
+        batch.place(playerSheet, SpriteKind.SCENE, 0, 0, 0, 0, 0, 1, 1);
+        expect(batch.run(0).normals).toBeNull();
+        expect(batch.data[3]).toBe(0);
+    });
 });

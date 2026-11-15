@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fitDoor, spawnDoor } from './DoorFactory';
 import { spawnZombie } from './EnemyFactory';
-import { spawnPlayer } from './PlayerFactory';
+import { animateFiring, spawnPlayer } from './PlayerFactory';
 import { spawnBullet } from './WeaponFactory';
 import { AI } from '../components/AI';
 import { CollisionLayer } from '../components/Collision';
 import { Movement } from '../components/Movement';
+import type { Gun } from '../gameobjects/Gun';
 import { InputState } from '../../lib/controllers/InputState';
+import { Vector } from '../../lib/geometry/Vector';
+import { Texture } from '../../lib/Texture';
 import { FakeOffscreenCanvas } from '../../testing/fakeCanvas';
 import { chunksFromRows } from '../../testing/worldFixtures';
 import { TILE_SIZE } from '../../world/constants';
@@ -46,6 +49,26 @@ describe('spawnPlayer', () => {
         expect(player.getComponent('collision').behaviours.zombieDamage?.passive).toBe(true);
         expect(player.getComponent('health').value).toBe(400);
         expect(player.getComponent('light')).toMatchObject({ pos: player.pos, radius: 500, intensity: 1, isSight: true });
+    });
+
+    it('plays its firing frames each time its gun fires, then rests on the idle frame', () => {
+        const frameHeight = 18, idleFrameTop = 72;
+        const player = spawnPlayer({ x: 0, y: 0 }, new InputState());
+        const fired : (() => void)[] = [];
+        animateFiring(player, { on: (event : unknown, listener : () => void) => fired.push(listener) } as unknown as Gun);
+        const texture = new Texture({ width: 30, height: 90 } as ImageBitmap, new Vector(0, 0), 78, 47, new Vector(0, idleFrameTop), 30, frameHeight);
+        player.getComponent('material').setTexture(texture);
+        const animator = player.getComponent('spriteAnimator');
+
+        animator.update(1);
+        expect(texture.sourcePos.y).toBe(idleFrameTop);
+        fired[0]();
+        animator.update(0.1);
+        expect(texture.sourcePos.y).toBe(0);
+        animator.update(0.5);
+        expect(texture.sourcePos.y).toBe(frameHeight);
+        animator.update(5);
+        expect(texture.sourcePos.y).toBe(idleFrameTop);
     });
 });
 

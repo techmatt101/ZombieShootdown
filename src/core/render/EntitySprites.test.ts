@@ -86,4 +86,17 @@ describe('queueEntitySprites', () => {
         const batch = queued([plain, zombie, glow]);
         expect([batch.run(0).kind, batch.run(1).kind, batch.run(2).kind]).toEqual([SpriteKind.SCENE, SpriteKind.SCENE_IN_SIGHT, SpriteKind.ADDITIVE]);
     });
+
+    it('passes on the normal map of a texture that has one', () => {
+        const normals = { width: 100, height: 50 } as HTMLImageElement;
+        const lit = new Entity('Zombie', new Point(0, 0, 0), new Box(48, 48));
+        const material = lit.addComponent(new Material());
+        lit.build();
+        const texture = new Texture(sheet, new Vector(0, 0), 48, 48);
+        texture.normals = normals;
+        material.setTexture(texture);
+        const batch = queued([sprite(0, 0), lit]);
+        expect([batch.data[3], batch.data[FLOATS_PER_SPRITE + 3]]).toEqual([0, 1]);
+        expect(batch.run(1).normals).toBe(normals);
+    });
 });

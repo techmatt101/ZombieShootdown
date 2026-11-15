@@ -13,6 +13,8 @@ const REMEMBERED_BRIGHTNESS = 0.3;
 const NEAR_SHADOW_SOFTNESS = 0.1;
 const FAR_SHADOW_SOFTNESS = 10;
 const SOFTEST_SHADOW_DISTANCE = 500;
+const NORMAL_MAP_STRENGTH = 0.7;
+const LIGHT_HEIGHT = 60;
 
 export class GpuRenderer implements EntityRenderer, TextureOwner {
     #camera : Camera;
@@ -45,6 +47,8 @@ export class GpuRenderer implements EntityRenderer, TextureOwner {
             nearShadowSoftness: NEAR_SHADOW_SOFTNESS,
             farShadowSoftness: FAR_SHADOW_SOFTNESS,
             softestShadowDistance: SOFTEST_SHADOW_DISTANCE,
+            normalMapStrength: NORMAL_MAP_STRENGTH,
+            lightHeight: LIGHT_HEIGHT,
         }, vision);
     }
 

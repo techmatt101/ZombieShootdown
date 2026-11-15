@@ -24,14 +24,16 @@ const sheet = { width: 64, height: 64 } as HTMLImageElement;
 const TRIANGLE = new Float32Array([0, 0, 10, 0, 10, 10]);
 const TRIANGLE_FAN_VERTICES = 9;
 
-function sprite({ isHiddenOutOfSight = false, isAdditive = false, source = sheet as HTMLImageElement | null } = {}) {
+function sprite({ isHiddenOutOfSight = false, isAdditive = false, source = sheet as HTMLImageElement | null, normals = null as HTMLImageElement | null } = {}) {
     const entity = new Entity('Sprite', new Point(0, 0, 0), new Box(40, 40));
     const material = entity.addComponent(new Material());
     material.isHiddenOutOfSight = isHiddenOutOfSight;
     material.isAdditive = isAdditive;
     entity.build();
     if (source !== null) {
-        material.setTexture(new Texture(source, new Vector(0, 0), 40, 40));
+        const texture = new Texture(source, new Vector(0, 0), 40, 40);
+        texture.normals = normals;
+        material.setTexture(texture);
     }
     return entity;
 }
@@ -135,7 +137,7 @@ describe('GpuRenderer', () => {
         camera.zoomBy(1);
         zoomedRenderer.paint();
         const zoomed = gpu.lastWriteTo('camera');
-        expect(zoomed.slice(8)).toEqual([100, 50, near * 2, far * 2]);
+        expect(zoomed.slice(8, 12)).toEqual([100, 50, near * 2, far * 2]);
     });
 
     it('draws each light as its own fan, tagged with the light it belongs to', async () => {
@@ -247,5 +249,28 @@ describe('GpuRenderer', () => {
         await loading;
         expect(renderer.isReady).toBe(false);
         expect(gpu.textures.length).toBe(0);
+    });
+
+    it('uploads a sprite\'s normal map once, without premultiplying it, alongside its colours', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const normals = { width: 64, height: 64 } as HTMLImageElement;
+        renderer.render([sprite({ normals }), sprite({ normals })]);
+        renderer.paint();
+        renderer.paint();
+        expect(gpu.uploadsTo('normals').map((upload) => upload.isPremultiplied)).toEqual([false]);
+        expect(gpu.uploadsTo('sprite').map((upload) => upload.isPremultiplied)).toEqual([true]);
+        expect(gpu.draws.at(-1)?.instanceCount).toBe(2);
+    });
+
+    it('tells the sprite shaders how many lights to shade normals with, and none without lighting', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        renderer.paint();
+        expect(gpu.lastWriteTo('camera')[12]).toBe(0);
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 500, isSight: true }), new Light(new Vector(0, 0), { radius: 600 })]));
+        renderer.paint();
+        const [lightCount, normalStrength, lightHeight] = gpu.lastWriteTo('camera').slice(12, 15);
+        expect(lightCount).toBe(2);
+        expect(normalStrength).toBeGreaterThan(0);
+        expect(lightHeight).toBeGreaterThan(0);
     });
 });

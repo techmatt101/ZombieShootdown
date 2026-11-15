@@ -14,7 +14,7 @@ import type { LitArea } from '../../../lighting/LightField';
 import { MEMORY_SIZE, type RememberedChunk } from '../../../lighting/MapMemory';
 
 export const MAX_LIGHTS = 32;
-const CAMERA_FLOATS = 12;
+const CAMERA_FLOATS = 16;
 const FLOATS_PER_LIGHT = 8;
 const MEMORY_FLOATS_PER_CHUNK = 2;
 const BYTES_PER_FLOAT = 4;
@@ -35,6 +35,8 @@ export interface LightingSource {
 }
 
 export interface PainterSettings extends PipelineSettings {
+    normalMapStrength : number;
+    lightHeight : number;
     nearShadowSoftness : number;
     farShadowSoftness : number;
     softestShadowDistance : number;
@@ -100,7 +102,7 @@ export class GpuPainter {
         const nearestSampler = device.createSampler({ label: 'nearest' });
         const smoothSampler = device.createSampler({ label: 'smooth', magFilter: 'linear', minFilter: 'linear' });
         this.#smoothSampler = smoothSampler;
-        this.#textures = new TextureStore(device, this.#pipelines.textureLayout, nearestSampler);
+        this.#textures = new TextureStore(device, this.#pipelines.spriteLayout, nearestSampler);
         this.#masks = new MaskTextures(device, this.#pipelines.textureLayout, smoothSampler, MEMORY_SIZE);
 
         this.#cameraBuffer = this.#createBuffer('camera', CAMERA_FLOATS * BYTES_PER_FLOAT, GPUBufferUsage.UNIFORM);
@@ -143,13 +145,15 @@ export class GpuPainter {
     paint(batch : SpriteBatch, lighting : LightingSource | null, camera : Camera) {
         this.#drawCalls = 0;
         const targets = this.#resizeTargets();
-        this.#writeCamera(camera, targets);
-        this.#writeSprites(batch);
         if (lighting !== null) {
             this.#writeLights(lighting);
             this.#writeFans(lighting);
             this.#writeRemembered(lighting, camera);
+        } else {
+            this.#lightCount = 0;
         }
+        this.#writeCamera(camera, targets);
+        this.#writeSprites(batch);
 
         const encoder = this.#device.createCommandEncoder();
         if (lighting !== null) {
@@ -249,7 +253,7 @@ export class GpuPainter {
                 pass.setPipeline(pipeline);
                 current = pipeline;
             }
-            pass.setBindGroup(1, this.#textures.bindGroupFor(run.source));
+            pass.setBindGroup(1, this.#textures.bindGroupFor(run.source, run.normals));
             this.#draw(pass, QUAD_VERTICES, run.count, 0, run.first);
         }
     }
@@ -286,6 +290,9 @@ export class GpuPainter {
         data[9] = player.y;
         data[10] = this.#settings.nearShadowSoftness * camera.zoom;
         data[11] = this.#settings.farShadowSoftness * camera.zoom;
+        data[12] = this.#lightCount;
+        data[13] = this.#settings.normalMapStrength;
+        data[14] = this.#settings.lightHeight;
         this.#device.queue.writeBuffer(this.#cameraBuffer, 0, data);
     }
 

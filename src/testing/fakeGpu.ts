@@ -14,6 +14,7 @@ export interface RecordedWrite {
     method : string;
     target : string;
     data : number[];
+    isPremultiplied? : boolean;
 }
 
 export class FakeGpuTexture {
@@ -104,7 +105,9 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
                 writes.push({ method: 'writeBuffer', target: labelOf(buffer), data: [...data.subarray(dataOffset, dataOffset + size)] });
             },
             writeTexture: (destination : { texture : unknown }) => writes.push({ method: 'writeTexture', target: labelOf(destination.texture), data: [] }),
-            copyExternalImageToTexture: (source : unknown, destination : { texture : unknown }) => writes.push({ method: 'copyExternalImageToTexture', target: labelOf(destination.texture), data: [] }),
+            copyExternalImageToTexture: (source : unknown, destination : { texture : unknown; premultipliedAlpha? : boolean }) => {
+                writes.push({ method: 'copyExternalImageToTexture', target: labelOf(destination.texture), data: [], isPremultiplied: destination.premultipliedAlpha ?? false });
+            },
             submit: () => {},
         },
     };
@@ -119,6 +122,7 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
     const gpu = { device, context, format: 'bgra8unorm', canvas } as unknown as GpuContext;
     const pipelinesDrawn = () => draws.map((draw) => draw.pipeline);
     const writesTo = (target : string) => writes.filter((write) => write.target === target).length;
+    const uploadsTo = (target : string) => writes.filter((write) => write.target === target && write.method === 'copyExternalImageToTexture');
     const lastWriteTo = (target : string) => writes.filter((write) => write.target === target).at(-1)?.data ?? [];
 
     return {
@@ -129,6 +133,7 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
         pipelinesDrawn,
         writesTo,
         lastWriteTo,
+        uploadsTo,
         get isUnconfigured() {
             return isUnconfigured;
         },

@@ -3,7 +3,7 @@ import type { IGameLogic } from './logic/IGameLogic';
 import { giveGun } from '../core/decorators/WeaponiseDecorator';
 import type { Entity } from '../core/Entity';
 import { spawnPointer } from '../core/factories/InterfaceFactory';
-import { spawnPlayer } from '../core/factories/PlayerFactory';
+import { animateFiring, spawnPlayer } from '../core/factories/PlayerFactory';
 import { spawnBullet, spawnGun, spawnMuzzleFlash } from '../core/factories/WeaponFactory';
 import type { TopDownLevel } from '../core/level/TopDownLevel';
 import { AISystem } from '../core/systems/AISystem';
@@ -40,6 +40,7 @@ export class SinglePlayerGame extends Game {
                 const gun = spawnGun(bulletPool);
                 this.player = spawnPlayer(this.tileMap.spawnPoint(), this.inputState);
                 giveGun(this.player, gun);
+                animateFiring(this.player, gun);
 
                 this.level.addEntity(this.player);
                 this.level.addEntity(gun);

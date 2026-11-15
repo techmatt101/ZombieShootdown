@@ -53,4 +53,7 @@ function queueEntity(entity : Entity, batch : SpriteBatch) {
         (texture.sourcePos.y + texture.sourceHeight) / imageHeight
     );
     batch.tint(1, 1, 1, material.opacity);
+    if (texture.normals !== null) {
+        batch.withNormals(texture.normals);
+    }
 }
