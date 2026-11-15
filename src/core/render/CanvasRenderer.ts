@@ -87,9 +87,14 @@ export class CanvasRenderer {
     }
 
     #drawEntity(entity : Entity) {
-        const texture = entity.components.material?.texture ?? null;
+        const material = entity.getComponent('material');
+        const texture = material.texture;
 
         this.#ctx.save();
+        this.#ctx.globalAlpha = material.opacity;
+        if (material.isAdditive) {
+            this.#ctx.globalCompositeOperation = 'lighter';
+        }
         this.#ctx.rotate(entity.pos.direction);
 
         const rx = Math.cos(-entity.pos.direction),

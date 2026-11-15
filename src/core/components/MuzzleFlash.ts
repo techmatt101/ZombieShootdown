@@ -4,68 +4,49 @@ import type { Light } from './Light';
 import type { Material } from './Material';
 import type { Point } from '../../lib/geometry/Point';
 
-export const FLASH_DURATION = 0.6;
 export const FLASH_LIGHT_DURATION = 1.2;
-const MAX_TILT = 0.35;
+
+export interface FlashGlow {
+    pos : Point;
+    material : Material;
+    muzzle : Point;
+    reach : number;
+}
 
 export class MuzzleFlash implements IComponent {
     active = true;
 
-    #pos : Point;
-    #material : Material;
-    #light : Light | null;
-    #muzzle : Point;
-    #reach : number;
-    #random : () => number;
+    #light : Light;
+    #glow : FlashGlow;
     #sinceFired = Infinity;
-    #tilt = 0;
 
     static reference(components : IComponentDirectory) {
         return components.muzzleFlash;
     }
 
-    constructor(pos : Point, material : Material, muzzle : Point, reach : number, light : Light | null = null, random = Math.random) {
-        this.#pos = pos;
-        this.#material = material;
+    constructor(light : Light, glow : FlashGlow) {
         this.#light = light;
-        this.#muzzle = muzzle;
-        this.#reach = reach;
-        this.#random = random;
+        this.#glow = glow;
     }
 
-    get isShowing() {
-        return this.#sinceFired < FLASH_DURATION;
+    get isFlashing() {
+        return this.#sinceFired < FLASH_LIGHT_DURATION;
     }
 
     trigger() {
         this.#sinceFired = 0;
-        this.#tilt = (this.#random() * 2 - 1) * MAX_TILT;
-        this.#material.active = true;
-        this.#followMuzzle();
-        this.#updateLight();
+        this.#show();
     }
 
     update(dt : number) {
-        if (this.#sinceFired >= FLASH_LIGHT_DURATION) return;
+        if (!this.isFlashing) return;
         this.#sinceFired += dt;
-        if (this.isShowing) {
-            this.#followMuzzle();
-        } else {
-            this.#material.active = false;
-        }
-        this.#updateLight();
+        this.#show();
     }
 
     reset() {
         this.#sinceFired = Infinity;
-        this.#material.active = false;
-        this.#updateLight();
-    }
-
-    #updateLight() {
-        if (this.#light === null) return;
-        const fade = Math.max(0, 1 - this.#sinceFired / FLASH_LIGHT_DURATION);
-        this.#light.intensity = fade * fade;
+        this.#show();
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {
@@ -75,10 +56,21 @@ export class MuzzleFlash implements IComponent {
         components.muzzleFlash = this;
     }
 
-    #followMuzzle() {
-        const facing = this.#muzzle.direction;
-        this.#pos.x = this.#muzzle.x + Math.cos(facing) * this.#reach;
-        this.#pos.y = this.#muzzle.y + Math.sin(facing) * this.#reach;
-        this.#pos.direction = facing + this.#tilt;
+    #show() {
+        const fade = Math.max(0, 1 - this.#sinceFired / FLASH_LIGHT_DURATION);
+        const intensity = fade * fade;
+        this.#light.intensity = intensity;
+        const glow = this.#glow;
+        glow.material.active = intensity > 0;
+        glow.material.opacity = intensity;
+        if (intensity > 0) {
+            this.#placeAtMuzzle(glow);
+        }
+    }
+
+    #placeAtMuzzle(glow : FlashGlow) {
+        const facing = glow.muzzle.direction;
+        glow.pos.x = glow.muzzle.x + Math.cos(facing) * glow.reach;
+        glow.pos.y = glow.muzzle.y + Math.sin(facing) * glow.reach;
     }
 }

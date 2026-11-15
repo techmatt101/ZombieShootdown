@@ -49,58 +49,41 @@ export function spawnGun(bulletPool : Pool<Entity>) {
     return gun;
 }
 
-const FLASH_LENGTH = 32;
-const FLASH_WIDTH = 20;
 const GUN_LENGTH = 14;
-const FLASH_LIGHT_RADIUS = 650;
-const FLASH_LIGHT_GLOW = 0.35;
+const FLASH_LIGHT_RADIUS = 600;
+const FLASH_LIGHT_GLOW = 0.5;
+const FLASH_GLOW_SIZE = 140;
 
-let muzzleFlashTexture : Texture | null = null;
+let flashGlowTexture : Texture | null = null;
 
-function drawMuzzleFlash() : Texture {
-    const canvas = new OffscreenCanvas(FLASH_LENGTH, FLASH_WIDTH);
+function drawFlashGlow() : Texture {
+    const canvas = new OffscreenCanvas(FLASH_GLOW_SIZE, FLASH_GLOW_SIZE);
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
         throw new Error('OffscreenCanvas 2D context is not supported');
     }
-    const middle = FLASH_WIDTH / 2;
-
-    const glow = ctx.createRadialGradient(8, middle, 0, 8, middle, middle);
-    glow.addColorStop(0, 'rgba(255, 200, 80, 0.9)');
-    glow.addColorStop(1, 'rgba(255, 90, 0, 0)');
+    const middle = FLASH_GLOW_SIZE / 2;
+    const glow = ctx.createRadialGradient(middle, middle, 0, middle, middle, middle);
+    glow.addColorStop(0, 'rgba(255, 250, 220, 1)');
+    glow.addColorStop(0.12, 'rgba(255, 210, 90, 1)');
+    glow.addColorStop(0.35, 'rgba(255, 140, 20, 0.75)');
+    glow.addColorStop(0.7, 'rgba(255, 90, 0, 0.25)');
+    glow.addColorStop(1, 'rgba(255, 60, 0, 0)');
     ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, FLASH_LENGTH, FLASH_WIDTH);
-
-    const blast = ctx.createLinearGradient(2, 0, FLASH_LENGTH, 0);
-    blast.addColorStop(0, 'rgba(255, 255, 230, 1)');
-    blast.addColorStop(0.4, 'rgba(255, 220, 90, 0.9)');
-    blast.addColorStop(1, 'rgba(255, 120, 0, 0)');
-    ctx.fillStyle = blast;
-    ctx.beginPath();
-    ctx.moveTo(2, middle - 3);
-    ctx.lineTo(FLASH_LENGTH, middle - 7);
-    ctx.lineTo(FLASH_LENGTH * 0.7, middle);
-    ctx.lineTo(FLASH_LENGTH, middle + 7);
-    ctx.lineTo(2, middle + 3);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-    ctx.beginPath();
-    ctx.arc(6, middle, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    return new Texture(canvas, new Vector(0, 0), FLASH_LENGTH, FLASH_WIDTH, new Vector(0, 0), FLASH_LENGTH, FLASH_WIDTH);
+    ctx.fillRect(0, 0, FLASH_GLOW_SIZE, FLASH_GLOW_SIZE);
+    return new Texture(canvas, new Vector(0, 0), FLASH_GLOW_SIZE, FLASH_GLOW_SIZE);
 }
 
 export function spawnMuzzleFlash(gun : Gun, holder : Entity) {
-    const flash = new Entity('Muzzle Flash', new Point(0, 0, 0), new Box(FLASH_LENGTH, FLASH_WIDTH));
+    const flash = new Entity('Muzzle Flash', new Point(0, 0, 0), new Box(FLASH_GLOW_SIZE, FLASH_GLOW_SIZE));
 
     const material = flash.addComponent(new Material());
-    muzzleFlashTexture ??= drawMuzzleFlash();
-    material.setTexture(muzzleFlashTexture);
+    flashGlowTexture ??= drawFlashGlow();
+    material.setTexture(flashGlowTexture);
     material.zIndex = ZIndexLayer.FOREGROUND + 2;
+    material.isAdditive = true;
     const light = flash.addComponent(new Light(holder.pos, { radius: FLASH_LIGHT_RADIUS, intensity: 0, glow: FLASH_LIGHT_GLOW }));
-    const muzzleFlash = flash.addComponent(new MuzzleFlash(flash.pos, material, gun.pos, GUN_LENGTH / 2 + FLASH_LENGTH / 2, light));
+    const muzzleFlash = flash.addComponent(new MuzzleFlash(light, { pos: flash.pos, material, muzzle: gun.pos, reach: GUN_LENGTH / 2 }));
 
     flash.build();
     muzzleFlash.reset();

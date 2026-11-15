@@ -32,7 +32,6 @@ export function recordingContext() {
         arc: record('arc'),
         clip: record('clip'),
         createRadialGradient: () => ({ addColorStop() {} }),
-        createLinearGradient: () => ({ addColorStop() {} }),
     };
     const count = (method : string) => {
         let total = 0;

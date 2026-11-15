@@ -7,6 +7,8 @@ export class Material implements IComponent {
     active = false;
     texture : Texture | null = null;
     zIndex = ZIndexLayer.FOREGROUND;
+    opacity = 1;
+    isAdditive = false;
 
     static reference(components : IComponentDirectory) {
         return components.material;

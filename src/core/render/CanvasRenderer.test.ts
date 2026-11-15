@@ -42,6 +42,28 @@ describe('CanvasRenderer', () => {
         const drawOrder = calls.filter((call) => call.method === 'drawImage' || call.method === 'fillRect').map((call) => call.method);
         expect(drawOrder).toEqual(['drawImage', 'fillRect']);
     });
+
+    it('draws each sprite with its own opacity, adding additive sprites onto the scene', () => {
+        const { context, calls } = recordingContext();
+        const camera = new Camera(fakeCanvas(context).center);
+        camera.setTarget(new Vector(0, 0));
+        camera.jumpToTarget();
+        const renderer = new CanvasRenderer(fakeCanvas(context), camera);
+        const drawnWith : { alpha : number; blend : string }[] = [];
+        const fillRect = context.fillRect.bind(context);
+        context.fillRect = (...args) => {
+            drawnWith.push({ alpha: context.globalAlpha, blend: context.globalCompositeOperation });
+            fillRect(...args);
+        };
+        const plain = sprite(0, 0, 0);
+        const glow = sprite(0, 0, 1);
+        glow.getComponent('material').opacity = 0.4;
+        glow.getComponent('material').isAdditive = true;
+        renderer.render([plain, glow]);
+        renderer.paint();
+        expect(drawnWith).toEqual([{ alpha: 1, blend: 'source-over' }, { alpha: 0.4, blend: 'lighter' }]);
+        expect(calls.filter((call) => call.method === 'save').length).toBe(calls.filter((call) => call.method === 'restore').length);
+    });
 });
 
 describe('RenderSystem', () => {
