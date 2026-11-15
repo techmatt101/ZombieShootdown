@@ -1,7 +1,7 @@
 import type { IWaveLogic } from './IWaveLogic';
 import { HealthEvent } from '../../core/components/Health';
 import { Entity } from '../../core/Entity';
-import { EnemyFactory } from '../../core/factories/EnemyFactory';
+import { spawnDeadZombie, spawnZombie } from '../../core/factories/EnemyFactory';
 import { TopDownLevel } from '../../core/level/TopDownLevel';
 import { MapGenerator } from '../../core/tilemap/MapGenerator';
 import { EventCollection } from '../../lib/EventCollection';
@@ -30,11 +30,11 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
         });
 
         this.#zombiePool = new Pool<Entity>(() => {
-            var zombie = EnemyFactory.spawnZombie(this.#player);
+            const zombie = spawnZombie(this.#player);
             zombie.getComponent('health').on(HealthEvent.DEATH, this.#zombieEventCollection.listen(() => {
                 zombie.active = false; //TODO: hack
                 zombie.available = true;
-                var deadZombie = EnemyFactory.spawnDeadZombie();
+                const deadZombie = spawnDeadZombie();
                 deadZombie.pos.copy(zombie.pos);
                 level.addEntity(deadZombie);
             }));
@@ -56,21 +56,21 @@ export class SinglePlayerWaveLogic implements IWaveLogic {
     spawnWave() {
         this.wave++;
 
-        var numberOfZombies = ~~(this.wave * 1.5 + 3);
+        const numberOfZombies = Math.trunc(this.wave * 1.5 + 3);
         //var numberOfZombies = 1;
-        for (var i = 0; i < numberOfZombies; i++) {
-            var zombie = this.#zombiePool.acquire();
+        for (let i = 0; i < numberOfZombies; i++) {
+            const zombie = this.#zombiePool.acquire();
             zombie.getComponent('health').set(100); //TODO: hack
             this.placeInRoom(zombie.geometry, this.#level.getMap().getGenerator());
         }
 
         this.#zombieEventCollection.reset(numberOfZombies);
 
-        console.log("WAVE " + this.wave + " HAS BEGUN! SPAWNED " + numberOfZombies + " ZOMBIES");
+        console.log(`WAVE ${this.wave} HAS BEGUN! SPAWNED ${numberOfZombies} ZOMBIES`);
     }
 
     placeInRoom(box : Box, map : MapGenerator) {
-        var t = map.getTileSize(), room = map.getRooms()[0];
+        const t = map.getTileSize(), room = map.getRooms()[0];
 
         box.pos.set(
             randInt(room.pos.x + t.x + box.width / 2, room.pos.x + room.width - t.x - box.width / 2),

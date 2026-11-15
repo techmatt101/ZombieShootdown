@@ -1,3 +1,4 @@
+/** Counts down a batch of one-shot events, firing `onComplete` when the last one has fired. */
 export class EventCollection {
     #totalEvents = 0;
     #activeEvents = 0;
@@ -15,18 +16,14 @@ export class EventCollection {
         this.#totalEvents++;
 
         return () => {
-            if (typeof action !== 'undefined') {
-                action();
-            }
-            if (typeof this.#onEventComplete !== 'undefined') {
-                this.#onEventComplete();
-            }
+            action?.();
+            this.#onEventComplete?.();
             this.#testForComplete();
         };
     }
 
     reset(overrideTotalEvents? : number) {
-        this.#activeEvents = overrideTotalEvents || this.#totalEvents;
+        this.#activeEvents = overrideTotalEvents ?? this.#totalEvents;
     }
 
     #testForComplete() {

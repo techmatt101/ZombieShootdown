@@ -16,7 +16,6 @@ import { Camera } from '../lib/Camera';
 import { Canvas } from '../lib/Canvas';
 import { GamepadAdaptor } from '../lib/controllers/GamepadAdaptor';
 import { GamepadController } from '../lib/controllers/GamepadController';
-import { InputAction } from '../lib/controllers/InputAction';
 import { InputHandler } from '../lib/controllers/InputHandler';
 import { InputState } from '../lib/controllers/InputState';
 import { MouseAndKeyboardAdaptor } from '../lib/controllers/MouseAndKeyboardAdaptor';
@@ -25,7 +24,7 @@ import { Sound, SoundController } from '../lib/controllers/SoundController';
 import { GameLoop } from '../lib/GameLoop';
 import { Vector } from '../lib/geometry/Vector';
 import { byId } from '../lib/dom';
-import { ResourceManager } from '../lib/ResourceManager';
+import { loadSound, whenAssetsLoaded } from '../lib/assets';
 import { TaskCollection } from '../lib/TaskCollection';
 
 export abstract class Game {
@@ -52,10 +51,7 @@ export abstract class Game {
 
 
     constructor() {
-        var game = this;
-        this.loop = new GameLoop((dt : number) => {
-            game.update(dt);
-        });
+        this.loop = new GameLoop((dt) => this.update(dt));
 
         this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
 
@@ -64,13 +60,13 @@ export abstract class Game {
         this.camera.setBoundary(this.map);
 
         this.sound = new SoundController();
-        this.input = new InputHandler(InputAction);
+        this.input = new InputHandler();
         this.inputState = this.input.getState();
 
-        var mouseAndKeyboardController = new MouseAndKeyboardController(this.canvas.element);
-        var mouseAndKeyboardControllerAdaptor = new MouseAndKeyboardAdaptor(mouseAndKeyboardController, this.camera);
-        var gamepadController = new GamepadController();
-        var gamepadControllerAdaptor = new GamepadAdaptor(gamepadController, this.camera);
+        const mouseAndKeyboardController = new MouseAndKeyboardController(this.canvas.element);
+        const mouseAndKeyboardControllerAdaptor = new MouseAndKeyboardAdaptor(mouseAndKeyboardController, this.camera);
+        const gamepadController = new GamepadController();
+        const gamepadControllerAdaptor = new GamepadAdaptor(gamepadController, this.camera);
 
         this.input.loadController(gamepadControllerAdaptor);
         this.input.loadController(mouseAndKeyboardControllerAdaptor);
@@ -88,28 +84,26 @@ export abstract class Game {
         this.systems.schedule(new LogicSystem());
         this.systems.schedule(new CollisionSystem());
         this.systems.schedule(new RenderSystem(this.renderer));
-        if(Config.debug) {
+        if (Config.debug) {
             this.debugSystem = new DebugSystem(this.camera);
             this.systems.schedule(this.debugSystem);
         }
         this.level = new TopDownLevel(this.map, this.camera, this.systems);
 
-        this.levelSetupTasks = new TaskCollection('Level Setup', function onCompete() {
-            game.onCompete();
-        })
-            .add(function Controllers() {
-                game.input.load(); //TODO: hmm...
+        this.levelSetupTasks = new TaskCollection('Level Setup')
+            .add('Controllers', () => {
+                this.input.load(); //TODO: hmm...
 
                 gamepadController.loadKeyMappings(Config.gamepadKeyMappings);
-                mouseAndKeyboardController.loadKeyMappings(Config.mouseKeyMappings);
+                mouseAndKeyboardController.loadKeyMappings(Config.keyMappings);
 
-                ResourceManager.retrieveSound('horror-ambient', (audio : HTMLAudioElement) => {
-                    game.sound.load(Sound.AMBIENT, audio);
-                    game.sound.play(Sound.AMBIENT);
+                void loadSound('horror-ambient').then((audio) => {
+                    this.sound.load(Sound.AMBIENT, audio);
+                    this.sound.play(Sound.AMBIENT);
                 });
             })
-            .add(function Map() {
-                game.map.loadMap(game.level);
+            .add('Map', () => {
+                this.map.loadMap(this.level);
             });
     }
 
@@ -121,8 +115,8 @@ export abstract class Game {
         ui.update(dt);
         this.renderer.paint();
 
-        if(Config.debug) {
-            var ctx = this.renderer.getCtx();
+        if (Config.debug) {
+            const ctx = this.renderer.getCtx();
             this.debugSystem?.paint(ctx);
             this.camera.drawDebug(ctx);
             ui.drawDebug(ctx);
@@ -131,14 +125,15 @@ export abstract class Game {
         ui.paint(this.renderer.getCtx());
     }
 
-    onCompete() {
+    onLoaded() {
         ui.loaded(this);
         this.loop.start();
     }
 
-    load() {
-        this.levelSetupTasks.addAsync(function LoadingResources(callback : () => void) {
-            ResourceManager.waitForPendingResources(callback)
-        }).run();
+    async load() {
+        await this.levelSetupTasks
+            .add('Loading Resources', whenAssetsLoaded)
+            .run();
+        this.onLoaded();
     }
 }

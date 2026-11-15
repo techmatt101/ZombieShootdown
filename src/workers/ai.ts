@@ -1,35 +1,29 @@
-import { fastAtan2, findDistance } from './helpers';
 import { getIntersection } from './raytracing';
+import type { IVector } from '../lib/geometry/IVector';
+import type { Segment } from '../lib/geometry/Segment';
 
-self.addEventListener('message', function (e) {
+export interface LineOfSightRequest {
+    id : number;
+    p1 : IVector;
+    p2 : IVector;
+    segments : Segment[];
+}
 
-    var p1 = e.data.p1,
-        p2 = e.data.p2;
+/** Answers whether p1 has an unobstructed line of sight to p2. */
+self.addEventListener('message', (e : MessageEvent<LineOfSightRequest>) => {
+    const { id, p1, p2, segments } = e.data;
 
-    // RAYS IN ALL DIRECTIONS
-    var angle = fastAtan2(p2.x - p1.x, p2.y - p1.y);
-
-    // Calculate dx & dy from angle
-    var dx = Math.cos(angle),
-        dy = Math.sin(angle);
-
-    // Ray from center of screen to mouse
-    var ray = {
-        a: {x: p1.x, y: p1.y},
-        b: {x: p1.x + dx, y: p1.y + dy}
+    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+    const ray : Segment = {
+        a: { x: p1.x, y: p1.y },
+        b: { x: p1.x + Math.cos(angle), y: p1.y + Math.sin(angle) },
     };
+    const length = Math.hypot(p1.x - p2.x, p1.y - p2.y);
 
-    var length = findDistance(p1.x, p1.y, p2.x, p2.y);
+    const blocked = segments.some((segment) => {
+        const intersect = getIntersection(ray, segment);
+        return intersect !== null && intersect.param < length;
+    });
 
-    // Find CLOSEST intersection
-    var intersect = null;
-    for (var i = 0; i < e.data.segments.length; i++) {
-        intersect = getIntersection(ray, e.data.segments[i]);
-        if (intersect !== null && intersect.param < length) {
-            postMessage({id: e.data.id, value: false});
-            return;
-        }
-    }
-
-    self.postMessage({id: e.data.id, value: true});
+    self.postMessage({ id, value: !blocked });
 });

@@ -52,7 +52,7 @@ export class ZombieAI implements IAI {
     update(dt : number) {
         const movement = this.#zombie.components.movement;
         if (movement && this.#zombie.hasActiveComponent(Movement)) {
-            var pos : Vector;
+            let pos : Vector;
             if (this.#canSeePlayer) {
                 pos = this.#player.pos;
                 movement.speed = 15;

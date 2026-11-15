@@ -1,10 +1,10 @@
 import { Game } from './Game';
 import { SinglePlayerWaveLogic } from './logic/SinglePlayerWaveLogic';
-import { WeaponiseDecorator } from '../core/decorators/WeaponiseDecorator';
+import { giveGun } from '../core/decorators/WeaponiseDecorator';
 import { Entity } from '../core/Entity';
-import { InterfaceFactory } from '../core/factories/InterfaceFactory';
-import { PlayerFactory } from '../core/factories/PlayerFactory';
-import { WeaponFactory } from '../core/factories/WeaponFactory';
+import { spawnPointer } from '../core/factories/InterfaceFactory';
+import { spawnPlayer } from '../core/factories/PlayerFactory';
+import { spawnBullet, spawnGun } from '../core/factories/WeaponFactory';
 import { AISystem } from '../core/systems/AISystem';
 import { Pool } from '../lib/Pool';
 
@@ -17,37 +17,35 @@ export class SinglePlayerGame extends Game {
         this.logic = new SinglePlayerWaveLogic(this.level);
     }
 
-    onCompete() {
-        super.onCompete();
+    onLoaded() {
+        super.onLoaded();
         this.logic.start(this.player);
     }
 
     load() {
-        var game = this;
-
         this.levelSetupTasks
-            .add(function LevelEntities() {
-                game.pointer = InterfaceFactory.spawnPointer(game.inputState, game.camera);
-                game.level.addEntity(game.pointer);
+            .add('Level Entities', () => {
+                this.pointer = spawnPointer(this.inputState, this.camera);
+                this.level.addEntity(this.pointer);
 
-                var bulletPool = new Pool<Entity>(() => {
-                    var bullet = WeaponFactory.spawnBullet();
-                    game.level.addEntity(bullet);
+                const bulletPool = new Pool<Entity>(() => {
+                    const bullet = spawnBullet();
+                    this.level.addEntity(bullet);
                     return bullet;
                 });
 
-                var gun = WeaponFactory.spawnGun(bulletPool);
-                game.player = PlayerFactory.spawnPlayer(game.map.getGenerator().getMainRoom(), game.inputState);
-                WeaponiseDecorator.giveGun(game.player, gun);
+                const gun = spawnGun(bulletPool);
+                this.player = spawnPlayer(this.map.getGenerator().getMainRoom(), this.inputState);
+                giveGun(this.player, gun);
 
-                game.level.addEntity(game.player);
-                game.level.addEntity(gun);
+                this.level.addEntity(this.player);
+                this.level.addEntity(gun);
             })
-            .add(function LevelTweaks() {
-                game.level.setObjectToFollow(game.player);
-                game.lighting?.setLightSource(game.player.pos);
+            .add('Level Tweaks', () => {
+                this.level.setObjectToFollow(this.player);
+                this.lighting?.setLightSource(this.player.pos);
             });
 
-        super.load();
+        return super.load();
     }
 }

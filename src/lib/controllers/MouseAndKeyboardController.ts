@@ -1,14 +1,16 @@
 import { InputState } from './InputState';
-import { KeyMapper, type KeyBindings, type KeyMappings } from './KeyMapper';
+import { resolveKeyMappings, type KeyBindings, type KeyMappings } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
+
+/** Keyboard keys are bound by `KeyboardEvent.code`, mouse buttons as `Mouse<button>`. */
+const mouseButtonCode = (e : MouseEvent) => `Mouse${e.button}`;
 
 export class MouseAndKeyboardController {
     pointerPos = new Vector(0, 0);
 
-    #keys : KeyBindings = {};
+    #keys : KeyBindings = new Map();
     #inputState! : InputState; // set in load()
     #canvas : HTMLCanvasElement;
-    #lastPointerPos = new Vector(0, 0);
     #pointerLockEnabled = false;
 
 
@@ -20,64 +22,56 @@ export class MouseAndKeyboardController {
         this.#inputState = inputState;
 
         // Key Presses
-        window.addEventListener('keyup', (e : KeyboardEvent) => {
-            this.#inputState.setKeyRelease(this.#keys[e.keyCode]);
-        }, false);
+        window.addEventListener('keyup', (e) => {
+            this.#inputState.setKeyRelease(this.#keys.get(e.code));
+        });
 
-        window.addEventListener('keydown', (e : KeyboardEvent) => {
-            this.#inputState.setKeyPress(this.#keys[e.keyCode]);
-        }, false);
+        window.addEventListener('keydown', (e) => {
+            this.#inputState.setKeyPress(this.#keys.get(e.code));
+        });
 
-        window.addEventListener('mousedown', (e : MouseEvent) => {
-            this.#inputState.setKeyPress(this.#keys[e.button]);
-        }, false);
+        window.addEventListener('mousedown', (e) => {
+            this.#inputState.setKeyPress(this.#keys.get(mouseButtonCode(e)));
+        });
 
-        window.addEventListener('mouseup', (e : MouseEvent) => {
-            this.#inputState.setKeyRelease(this.#keys[e.button]);
-        }, false);
+        window.addEventListener('mouseup', (e) => {
+            this.#inputState.setKeyRelease(this.#keys.get(mouseButtonCode(e)));
+        });
 
         // Disable right click context menu from appearing
-        this.#canvas.addEventListener('contextmenu', (e : MouseEvent) => {
+        this.#canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-        }, false);
+        });
 
         // Mouse Movement
-        this.#canvas.addEventListener('mousemove', (e : MouseEvent) => {
+        this.#canvas.addEventListener('mousemove', (e) => {
             if (this.#pointerLockEnabled) {
-                this.pointerPos.x += e.movementX || (<any>e).mozMovementX || (<any>e).webkitMovementX || 0;
-                this.pointerPos.y += e.movementY || (<any>e).mozMovementY || (<any>e).webkitMovementY || 0;
+                this.pointerPos.x += e.movementX;
+                this.pointerPos.y += e.movementY;
             } else {
-                this.pointerPos.x = e.offsetX || e.layerX || 0;
-                this.pointerPos.y = e.offsetY || e.layerX || 0;
+                this.pointerPos.x = e.offsetX;
+                this.pointerPos.y = e.offsetY;
             }
-        }, false);
+        });
 
         // Pointer Lock
-        this.#canvas.requestPointerLock = this.#canvas.requestPointerLock || (<any>this.#canvas).mozRequestPointerLock || (<any>this.#canvas).webkitRequestPointerLock || null;
-        var pointerLockChangeEventName = ("onpointerlockchange" in document) ? 'pointerlockchange' :
-            ("onmozpointerlockchange" in document) ? 'mozpointerlockchange' :
-                ("onwebkitpointerlockchange" in document) ? 'webkitpointerlockchange' : null;
-
-        if (this.#canvas.requestPointerLock !== null && pointerLockChangeEventName !== null) {
-            document.addEventListener(pointerLockChangeEventName, this.#pointerLockEvent.bind(this), false);
-            this.#pointerLockEvent();
-        }
+        document.addEventListener('pointerlockchange', () => this.#onPointerLockChange());
+        this.#onPointerLockChange();
     }
 
-    loadKeyMappings(mappings : KeyMappings | undefined) {
-        KeyMapper.loadKeyMappings(this.#keys, mappings, this.#inputState.inputActions);
+    loadKeyMappings(mappings : KeyMappings) {
+        this.#keys = resolveKeyMappings(mappings);
     }
 
-    #pointerLockEvent() {
-        if (document.pointerLockElement === this.#canvas ||
-            (<any>document).mozPointerLockElement === this.#canvas ||
-            (<any>document).webkitPointerLockElement === this.#canvas) {
-            this.#pointerLockEnabled = true;
-        }
-        else {
-            this.#pointerLockEnabled = false;
-            window.addEventListener('click', () => {
-                this.#canvas.requestPointerLock();
+    #onPointerLockChange() {
+        this.#pointerLockEnabled = document.pointerLockElement === this.#canvas;
+        if (!this.#pointerLockEnabled) {
+            window.addEventListener('click', async () => {
+                try {
+                    await this.#canvas.requestPointerLock();
+                } catch (error) {
+                    console.warn('Pointer lock unavailable', error);
+                }
             }, { once: true });
         }
     }

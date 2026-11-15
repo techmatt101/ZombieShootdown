@@ -1,7 +1,6 @@
 import type { IPoint } from './IPoint';
 import type { IVector } from './IVector';
 import { Vector } from './Vector';
-import { fastAtan2 } from '../helpers';
 
 export class Point extends Vector {
     declare x : number;
@@ -18,10 +17,7 @@ export class Point extends Vector {
     }
 
     rotateDirection(other : IVector) {
-        this.direction = fastAtan2(
-            other.x - this.x,
-            other.y - this.y
-        );
+        this.direction = Math.atan2(other.y - this.y, other.x - this.x);
 
         return this;
     }
@@ -35,7 +31,7 @@ export class Point extends Vector {
     }
 
     rotate(other : IVector) {
-        var x = this.x - other.x,
+        const x = this.x - other.x,
             y = this.y - other.y,
             cos = Math.cos(this.direction),
             sin = Math.sin(this.direction);

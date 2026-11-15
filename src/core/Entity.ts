@@ -11,7 +11,7 @@ export interface ComponentType {
 }
 
 export class Entity implements IUpdate, IPool {
-    id = Date.now().toString(32) + (~~(Math.random() * 10000000)).toString(32);
+    id = crypto.randomUUID();
     type : string;
     pos : Point;
     geometry : Box;
@@ -20,7 +20,6 @@ export class Entity implements IUpdate, IPool {
     active = true;
 
     #componentList : IComponent[] = [];
-    #componentListLength = 0;
 
 
     constructor(type : string, pos : Point, geometry : Box) {
@@ -32,7 +31,6 @@ export class Entity implements IUpdate, IPool {
 
     addComponent<T extends IComponent>(component : T) : T {
         this.#componentList.push(component);
-        this.#componentListLength++;
         component.build(this.components);
         return component;
     }
@@ -47,7 +45,7 @@ export class Entity implements IUpdate, IPool {
     }
 
     hasComponent(type : ComponentType) {
-        return typeof type.reference(this.components) !== 'undefined';
+        return type.reference(this.components) !== undefined;
     }
 
     hasActiveComponent(type : ComponentType) {
@@ -55,9 +53,9 @@ export class Entity implements IUpdate, IPool {
     }
 
     build() {
-        for (var i = 0; i < this.#componentListLength; i++) {
-            this.#componentList[i].active = true; //TODO: hmmmm....
-            this.#componentList[i].build(this.components);
+        for (const component of this.#componentList) {
+            component.active = true; //TODO: hmmmm....
+            component.build(this.components);
         }
     }
 
@@ -67,9 +65,9 @@ export class Entity implements IUpdate, IPool {
 
     update(dt : number) {
         if (this.active) {
-            for (var i = 0; i < this.#componentListLength; i++) {
-                if (this.#componentList[i].active) {
-                    this.#componentList[i].update(dt);
+            for (const component of this.#componentList) {
+                if (component.active) {
+                    component.update(dt);
                 }
             }
         }
@@ -77,9 +75,9 @@ export class Entity implements IUpdate, IPool {
 
     drawDebug(ctx : CanvasRenderingContext2D) {
         if (this.active) {
-            for (var i = 0; i < this.#componentListLength; i++) {
-                if (this.#componentList[i].active) {
-                    this.#componentList[i].drawDebug(ctx);
+            for (const component of this.#componentList) {
+                if (component.active) {
+                    component.drawDebug(ctx);
                 }
             }
         }

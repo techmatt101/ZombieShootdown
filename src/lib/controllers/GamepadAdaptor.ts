@@ -20,7 +20,7 @@ export class GamepadAdaptor implements IInputController {
         this.#gamepadController.load(inputState);
     }
 
-    loadKeyMappings(mappings : KeyMappings | undefined) {
+    loadKeyMappings(mappings : KeyMappings) {
         this.#gamepadController.loadKeyMappings(mappings);
     }
 

@@ -21,7 +21,7 @@ export class GameInterface implements IUI {
         this.#overlayElement.hidden = true;
 
         window.addEventListener('keyup', (e : KeyboardEvent) => {
-            if (e.keyCode === 27) {
+            if (e.code === 'Escape') {
                 if (this.#paused) {
                     this.hide();
                     this.#game.loop.start();
@@ -37,16 +37,12 @@ export class GameInterface implements IUI {
 
         this.#game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                var length = this.#game.level.getEntities().length;
-                for (var i = length - 1; i >= 0; i--) {
-                    var entity = this.#game.level.getEntities()[i];
-                    if ((entity.geometry).isBoundingBoxWith(this.#game.pointer.geometry)) {
-                        this.#selectedEntity = entity;
-                        console.log(entity);
-                        return;
-                    }
+                // Topmost (last added) entity under the pointer
+                this.#selectedEntity = this.#game.level.getEntities()
+                    .findLast((entity) => entity.geometry.isBoundingBoxWith(this.#game.pointer.geometry)) ?? null;
+                if (this.#selectedEntity !== null) {
+                    console.log(this.#selectedEntity);
                 }
-                this.#selectedEntity = null;
             }
         });
     }
@@ -84,19 +80,20 @@ export class GameInterface implements IUI {
         ctx.font = '20pt visitor';
         ctx.fillStyle = '#fff';
 
-        var lineHeight = 25, line = 1, margin = 20;
+        const lineHeight = 25, margin = 20;
+        let line = 1;
 
-        var health = this.#game.player.getComponent('health').value;
+        const health = this.#game.player.getComponent('health').value;
         if (this.#lastHealth !== health) {
             ctx.fillStyle = '#f00';
             this.#lastHealth = health;
         }
-        ctx.fillText('Health: ' + health, margin, this.#game.canvas.height - lineHeight * line++);
+        ctx.fillText(`Health: ${health}`, margin, this.#game.canvas.height - lineHeight * line++);
 
         ctx.fillStyle = '#fff';
 
-        ctx.fillText('Score: ' + this.#game.logic.score, margin, this.#game.canvas.height - lineHeight * line++);
-        ctx.fillText('Wave: ' + this.#game.logic.wave, margin, this.#game.canvas.height - lineHeight * line++);
+        ctx.fillText(`Score: ${this.#game.logic.score}`, margin, this.#game.canvas.height - lineHeight * line++);
+        ctx.fillText(`Wave: ${this.#game.logic.wave}`, margin, this.#game.canvas.height - lineHeight * line++);
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) {
@@ -104,23 +101,23 @@ export class GameInterface implements IUI {
         if (selected !== null) {
             ctx.fillStyle = '#fff';
             ctx.font = '10pt visitor';
-            ctx.fillText('ID: ' + selected.id + ' Type: ' + selected.type + ' Instance: ' + selected.constructor.name, 5, 10);
-            var space = 5;
-            var spaceGap = 5;
-            var line = 20;
-            var lineGap = 10;
+            ctx.fillText(`ID: ${selected.id} Type: ${selected.type} Instance: ${selected.constructor.name}`, 5, 10);
+            let space = 5;
+            const spaceGap = 5;
+            let line = 20;
+            const lineGap = 10;
             loop(selected);
             function loop(obj : object) {
                 for (const [key, value] of Object.entries(obj)) {
                     if (key[0] !== '_' && typeof value !== 'function' && !(value instanceof Image)) {
                         if (typeof value === 'object' && value !== null) {
-                            ctx.fillText(key + ':', space, line);
+                            ctx.fillText(`${key}:`, space, line);
                             line += lineGap;
                             space += spaceGap;
                             loop(value);
                             space -= spaceGap;
                         } else {
-                            ctx.fillText(key + ': ' + value, space, line);
+                            ctx.fillText(`${key}: ${value}`, space, line);
                             line += lineGap;
                         }
                     }

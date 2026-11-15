@@ -1,4 +1,4 @@
-import { TileFactory } from '../factories/TileFactory';
+import { spawnTile } from '../factories/TileFactory';
 import { MapGenerator } from '../tilemap/MapGenerator';
 import { Tile, TileType } from '../tilemap/Tile';
 import { Canvas } from '../../lib/Canvas';
@@ -27,7 +27,7 @@ export class MapManager extends Box implements IUpdate {
     }
 
     loadMap(level : Level) {
-        var mg = new MapGenerator();
+        const mg = new MapGenerator();
         mg.generate(new Vector(42, 42), new Vector(this.width, this.height), 8, 4);
         this.mapGenerator = mg;
 
@@ -41,12 +41,11 @@ export class MapManager extends Box implements IUpdate {
 
         mg.getGird().loopThrough((tile : Tile, pos : Vector, tileSize : Vector) => {
             if (tile.type !== TileType.EMPTY) {
-                var entityTile = TileFactory.spawnTile(pos, tileSize, tile);
+                const entityTile = spawnTile(pos, tileSize, tile);
                 level.addEntity(entityTile);
 
                 if (tile.type === TileType.WALL && entityTile.pos.x !== 0 && entityTile.pos.y !== 0 && entityTile.pos.x !== 928 && entityTile.pos.y !== 992) { //TODO: SUPER HACK
-                    this.segments = this.segments.concat(entityTile.geometry.toPolygon());
-                    console.log("TILE");
+                    this.segments.push(...entityTile.geometry.toPolygon());
                 }
             }
         });

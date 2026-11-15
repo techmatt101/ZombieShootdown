@@ -101,8 +101,8 @@ export class Vector implements IVector {
     }
 
     floor() {
-        this.x = ~~this.x;
-        this.y = ~~this.y;
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
     }
 
     clamp(min : IVector, max : IVector) {
@@ -113,7 +113,7 @@ export class Vector implements IVector {
     }
 
     normalize() {
-        var d = this.len();
+        const d = this.len();
         if (d > 0) {
             this.x = this.x / d;
             this.y = this.y / d;

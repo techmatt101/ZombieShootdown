@@ -38,40 +38,38 @@ export class MapGenerator {
         this.#grid.width = this.#grid.getGird().length;
         this.#grid.height = this.#grid.getGird()[0].length;
 
-        var pos = new Vector(0, 0);
-        var gridBoundary = new Vector(this.#grid.width, this.#grid.height);  //TODO: hmmm...
+        const pos = new Vector(0, 0);
+        const gridBoundary = new Vector(this.#grid.width, this.#grid.height);  //TODO: hmmm...
 
-        var col = [];
-        var lastRoom : Room | null = null;
-        var maxout = 0;
-        var isGirdFilled = false;
+        const col = [];
+        const lastRoom : Room | null = null;
+        let maxout = 0;
+        let isGirdFilled = false;
 
-        var gridPos = new Vector(0, 0);
+        const gridPos = new Vector(0, 0);
 
         while (!isGirdFilled) {
             maxout++;
             pos.y = 0;
             while (pos.y + minRoomSize < this.#grid.height) {
-                var roomSizeMax = new Vector(maxRoomSize, maxRoomSize);
+                const roomSizeMax = new Vector(maxRoomSize, maxRoomSize);
                 gridPos.copy(gridBoundary).sub(pos);
 
                 // Create Room
-                var room = new Room( //TODO: better room random size that is based on cubic space
+                const room = new Room( //TODO: better room random size that is based on cubic space
                     //randInt(roomSizeMax.x, minRoomSize),
                     //randInt(roomSizeMax.y, minRoomSize),
                     30, 8,
                     Vector.From(pos)
                 );
-                var roomSize = new Vector(room.width, room.height);
+                const roomSize = new Vector(room.width, room.height);
 
                 // get last col
 
                 //Align to last col
 
                 //Find Height Limit
-                for (var i = 0; i < col.length; i++) {
-                    //if(col[i].y > pos.y && pos.y + )
-                }
+                //TODO: for each col: if(col[i].y > pos.y && pos.y + )
 
                 //Clamp to Grid
                 roomSizeMax.min(gridPos); //TODO: hmmm...
@@ -125,10 +123,10 @@ export class MapGenerator {
 
 
         //TODO: hmmm...
-        for (var i = 0; i < this.#rooms.length; i++) {
-            this.#rooms[i].pos.multiply(this.#grid.tileSize);
-            this.#rooms[i].width *= this.#grid.tileSize.x;
-            this.#rooms[i].height *= this.#grid.tileSize.y;
+        for (const room of this.#rooms) {
+            room.pos.multiply(this.#grid.tileSize);
+            room.width *= this.#grid.tileSize.x;
+            room.height *= this.#grid.tileSize.y;
         }
 
         //TODO: add some monsters, items, and gold in random areas of the map.
@@ -146,10 +144,10 @@ export class MapGenerator {
 
     #placeRoom(room : Room, position : Vector) {
         room.pos.copy(position).floor();
-        var tx = 0, ty = 0;
+        let tx = 0, ty = 0;
         //copy the tiles from the room onto the grid
-        for (var x = room.pos.x; x < (room.pos.x + room.width); ++x) {
-            for (var y = room.pos.y; y < (room.pos.y + room.height); ++y) {
+        for (let x = room.pos.x; x < (room.pos.x + room.width); ++x) {
+            for (let y = room.pos.y; y < (room.pos.y + room.height); ++y) {
                 this.#grid.getGird()[x][y] = room.tiles[tx][ty];
                 ty++;
             }

@@ -1,4 +1,3 @@
-import { fastAtan2 } from './helpers';
 import { getIntersection, type Intersection } from './raytracing';
 import type { IVector } from '../lib/geometry/IVector';
 import type { Segment } from '../lib/geometry/Segment';
@@ -11,85 +10,48 @@ export interface LightRequest {
 
 type AngledIntersection = Intersection & { angle : number };
 
-self.addEventListener('message', function (e : MessageEvent<LightRequest>) {
-
-    //var fuzzyRadius = 10;
-    //var numberOfRays = 6;
-
-    var polygons = [getSightPolygon(e.data.x, e.data.y, e.data.s)];
-
-    //for (var angle = 0; angle < Math.PI * 2; angle += (Math.PI * 2) / numberOfRays) {
-    //    var dx = Math.cos(angle) * fuzzyRadius;
-    //    var dy = Math.sin(angle) * fuzzyRadius;
-    //    polygons.push(getSightPolygon(e.data.x + dx, e.data.y + dy, e.data.s));
-    //}
-
+self.addEventListener('message', (e : MessageEvent<LightRequest>) => {
+    const polygons = [getSightPolygon(e.data.x, e.data.y, e.data.s)];
     self.postMessage(polygons);
 });
 
-function getSightPolygon (sightX : number, sightY : number, segments : Segment[]) : AngledIntersection[] {
-    // Get all unique points
-    var points : IVector[] = [];
-    for (var i = 0; i < segments.length; i++) {
-        points.push(segments[i].a, segments[i].b);
-    }
-
-    var uniquePoints : IVector[] = [];
-    var set : Record<string, boolean> = {}, key = '';
-    for (var i = 0; i < points.length; i++) {
-        key = points[i].x + "," + points[i].y;
-        if (typeof set[key] !== 'undefined') {
-            continue;
+function getSightPolygon(sightX : number, sightY : number, segments : Segment[]) : AngledIntersection[] {
+    // Get all unique segment end points
+    const uniquePoints = new Map<string, IVector>();
+    for (const { a, b } of segments) {
+        for (const point of [a, b]) {
+            uniquePoints.set(`${point.x},${point.y}`, point);
         }
-        set[key] = true;
-        uniquePoints.push(points[i]);
     }
 
-    // Get all angles
-    var uniqueAngles : number[] = [];
-    for (var j = 0; j < uniquePoints.length; j++) {
-        var uniquePoint = uniquePoints[j];
-        var angle = fastAtan2(uniquePoint.x - sightX, uniquePoint.y - sightY);
+    // Cast three rays per point: at it and slightly either side, to see past corners
+    const uniqueAngles : number[] = [];
+    for (const point of uniquePoints.values()) {
+        const angle = Math.atan2(point.y - sightY, point.x - sightX);
         uniqueAngles.push(angle - 0.00001, angle, angle + 0.00001);
     }
 
-    // RAYS IN ALL DIRECTIONS
-    var intersects : AngledIntersection[] = [];
-    for (var j = 0; j < uniqueAngles.length; j++) {
-        var angle = uniqueAngles[j];
-
-        // Calculate dx & dy from angle
-        var dx = Math.cos(angle);
-        var dy = Math.sin(angle);
-
-        // Ray from center of screen to mouse
-        var ray = {
-            a: {x: sightX, y: sightY},
-            b: {x: sightX + dx, y: sightY + dy}
+    const intersects : AngledIntersection[] = [];
+    for (const angle of uniqueAngles) {
+        const ray : Segment = {
+            a: { x: sightX, y: sightY },
+            b: { x: sightX + Math.cos(angle), y: sightY + Math.sin(angle) },
         };
 
-        // Find CLOSEST intersection
-        var closestIntersect : Intersection | null = null;
-        for (var i = 0; i < segments.length; i++) {
-            var intersect = getIntersection(ray, segments[i]);
-            if (!intersect) continue;
-            if (!closestIntersect || intersect.param < closestIntersect.param) {
+        // Find the closest wall hit along this ray
+        let closestIntersect : Intersection | null = null;
+        for (const segment of segments) {
+            const intersect = getIntersection(ray, segment);
+            if (intersect && (!closestIntersect || intersect.param < closestIntersect.param)) {
                 closestIntersect = intersect;
             }
         }
 
-        // Intersect angle
-        if (!closestIntersect) continue;
-
-        // Add to list of intersects
-        intersects.push({ ...closestIntersect, angle: angle });
+        if (closestIntersect) {
+            intersects.push({ ...closestIntersect, angle });
+        }
     }
 
-    // Sort intersects by angle
-    intersects = intersects.sort(function (a, b) {
-        return a.angle - b.angle;
-    });
-
-    // Polygon is intersects, in order of angle
-    return intersects;
+    // Polygon is the intersects, in order of angle
+    return intersects.sort((a, b) => a.angle - b.angle);
 }

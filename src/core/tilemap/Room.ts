@@ -22,7 +22,7 @@ export class Room extends Box {
 
     build() {
         //create walls round edge of room tiles
-        for (var x = 1; x < this.width - 1; x++) {
+        for (let x = 1; x < this.width - 1; x++) {
             this.addSolidWall(new Wall(
                 new Vector(x, 0),
                 this.tiles[x][0],
@@ -35,7 +35,7 @@ export class Room extends Box {
             );
         }
 
-        for (var y = 1; y < this.height - 1; y++) {
+        for (let y = 1; y < this.height - 1; y++) {
             this.addSolidWall(new Wall(
                 new Vector(0, y),
                 this.tiles[0][y],
@@ -79,7 +79,7 @@ export class Room extends Box {
         this.tiles[4][0].type = TileType.DOOR;
         this.tiles[5][0].type = TileType.DOOR;
 
-        for (var i = 11; i < 20; i++) {
+        for (let i = 11; i < 20; i++) {
             this.tiles[i][0].type = TileType.FLOOR;
             this.tiles[i][this.height - 1].type = TileType.FLOOR;
         }

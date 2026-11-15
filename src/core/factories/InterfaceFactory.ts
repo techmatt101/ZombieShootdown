@@ -7,24 +7,21 @@ import { InputState } from '../../lib/controllers/InputState';
 import { Box } from '../../lib/geometry/Box';
 import { Point } from '../../lib/geometry/Point';
 import { Vector } from '../../lib/geometry/Vector';
-import { ResourceManager } from '../../lib/ResourceManager';
+import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
-export class InterfaceFactory {
+export function spawnPointer(input : InputState, camera : Camera) {
+    const pointer = new Entity('Pointer', new Point(0, 0, 0), new Box(0, 0));
+    const material = pointer.addComponent(new Material());
+    pointer.addComponent(new Pointer(pointer.pos, material, input, camera));
 
-    static spawnPointer(input : InputState, camera : Camera) {
-        var pointer = new Entity('Pointer', new Point(0, 0, 0), new Box(0, 0));
-        const material = pointer.addComponent(new Material());
-        pointer.addComponent(new Pointer(pointer.pos, material, input, camera));
+    material.zIndex = ZIndexLayer.OVERLAY;
 
-        material.zIndex = ZIndexLayer.OVERLAY;
+    loadImage('crosshair').then((img) => {
+        material.setTexture(new Texture(img, new Vector(-16, -16), 32, 32));
+    });
 
-        ResourceManager.retrieveImage('crosshair', (img : HTMLImageElement) => {
-            material.setTexture(new Texture(img, new Vector(-16, -16), 32, 32));
-        });
+    pointer.build();
 
-        pointer.build();
-
-        return pointer;
-    }
+    return pointer;
 }

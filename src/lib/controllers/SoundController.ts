@@ -3,11 +3,11 @@ export enum Sound {
 }
 
 export class SoundController {
-    #audioClips : {[index : string] : HTMLAudioElement} = {};
+    #audioClips = new Map<Sound, HTMLAudioElement>();
 
 
     load(name : Sound, audio : HTMLAudioElement) {
-        this.#audioClips[name] = audio;
+        this.#audioClips.set(name, audio);
     }
 
     play(key : Sound) {
@@ -17,8 +17,8 @@ export class SoundController {
     }
 
     pauseAll() {
-        for (var key in this.#audioClips) {
-            this.#audioClips[key].pause();
+        for (const clip of this.#audioClips.values()) {
+            clip.pause();
         }
     }
 }

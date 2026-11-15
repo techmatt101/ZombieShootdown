@@ -5,10 +5,10 @@ export interface GameConfig {
     sound : boolean;
     lighting : boolean;
     skipMenu : boolean;
+    /** Keyboard `KeyboardEvent.code` values and mouse buttons (`Mouse<button>`). */
     keyMappings : KeyMappings;
-    // Referenced by Game.ts but not currently defined, so controllers receive no mappings.
-    gamepadKeyMappings? : KeyMappings;
-    mouseKeyMappings? : KeyMappings;
+    /** Standard-layout gamepad buttons (`Button<index>`). */
+    gamepadKeyMappings : KeyMappings;
 }
 
 export const Config : GameConfig = {
@@ -18,17 +18,19 @@ export const Config : GameConfig = {
     skipMenu: false,
 
     keyMappings: {
-        87: 'UP', //W Key
-        68: 'RIGHT', //D Key
-        65: 'LEFT', //A Key
-        83: 'DOWN', //S Key
-        38: 'UP', //UP Key
-        40: 'DOWN', //DOWN Key
-        37: 'LEFT', //LEFT Key
-        39: 'RIGHT', //RIGHT Key
-        32: 'ACTION_1', //Space Key
-        0: 'ACTION_1', //Left Click
-        2: 'ACTION_2', //Right Click
-        27: 'MENU' //Escape
-    }
+        KeyW: 'UP',
+        KeyD: 'RIGHT',
+        KeyA: 'LEFT',
+        KeyS: 'DOWN',
+        ArrowUp: 'UP',
+        ArrowDown: 'DOWN',
+        ArrowLeft: 'LEFT',
+        ArrowRight: 'RIGHT',
+        Space: 'ACTION_1',
+        Mouse0: 'ACTION_1', // Left click
+        Mouse2: 'ACTION_2', // Right click
+        Escape: 'MENU',
+    },
+
+    gamepadKeyMappings: {},
 };

@@ -40,11 +40,11 @@ export class Collision implements IComponent, IObserver<CollisionEvent> {
     }
 
     testBehaviours(collision : Collision) {
-        for (var i = 0; i < this.#behaviourList.length; i++) {
-            var our = this.#behaviourList[i](this.behaviours),
-                their = this.#behaviourList[i](collision.behaviours);
+        for (const getBehaviour of this.#behaviourList) {
+            const our = getBehaviour(this.behaviours),
+                their = getBehaviour(collision.behaviours);
 
-            if (typeof our !== 'undefined' && typeof their !== 'undefined') {
+            if (our !== undefined && their !== undefined) {
                 if (our.dominant && their.passive) {
                     our.action(their);
                 }

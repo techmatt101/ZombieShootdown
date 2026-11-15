@@ -48,7 +48,7 @@ export class BunnyTesterGame {
         this.level = new Level(this.systems);
 
         this.bunnyTest = new BunnyTest((bunnyData) => {
-            var bunny = new Entity('Bunny', new Point(0, 0, 0), new Box(bunnyData.width, bunnyData.height));
+            const bunny = new Entity('Bunny', new Point(0, 0, 0), new Box(bunnyData.width, bunnyData.height));
             const material = bunny.addComponent(new Material());
             bunny.addComponent(new Movement(bunny.pos));
             bunny.addComponent(new Collision(bunny.geometry));

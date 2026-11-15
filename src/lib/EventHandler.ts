@@ -9,17 +9,17 @@ export class EventHandler<T extends PropertyKey> {
     #listeners = new Map<T, Listener[]>();
 
     fire(key : T, data? : unknown) {
-        var listeners = this.#listeners.get(key);
-        if (typeof listeners !== 'undefined') {
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i](data);
+        const listeners = this.#listeners.get(key);
+        if (listeners !== undefined) {
+            for (const listener of listeners) {
+                listener(data);
             }
         }
     }
 
     add(key : T, callback : Listener) {
-        var listeners = this.#listeners.get(key);
-        if (typeof listeners === 'undefined') {
+        let listeners = this.#listeners.get(key);
+        if (listeners === undefined) {
             listeners = [];
             this.#listeners.set(key, listeners);
         }

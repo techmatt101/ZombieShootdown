@@ -3,6 +3,21 @@
   "plugins": ["typescript", "oxc", "unicorn"],
   "env": { "browser": true, "worker": true, "es2024": true },
   "rules": {
-    "no-unused-vars": ["warn", { "args": "none" }]
+    "no-unused-vars": ["warn", { "args": "none" }],
+
+    "no-var": "error",
+    "prefer-const": "error",
+    "eqeqeq": "error",
+    "prefer-template": "error",
+    "prefer-arrow-callback": "error",
+    "object-shorthand": "error",
+    "unicorn/no-typeof-undefined": "error",
+    "unicorn/prefer-math-trunc": "error",
+    "unicorn/prefer-number-properties": "error",
+    "unicorn/prefer-spread": "error",
+    "typescript/prefer-for-of": "error",
+    "typescript/no-this-alias": "error",
+    "typescript/consistent-type-assertions": "error",
+    "typescript/no-extraneous-class": "error"
   }
 }

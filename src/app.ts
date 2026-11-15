@@ -21,10 +21,10 @@ window.addEventListener('load', () => {
 });
 
 export function singlePlayerGameSetup() {
-    console.time("GameSetup");
+    console.time('GameSetup');
     const game = new SinglePlayerGame();
-    console.timeEnd("GameSetup");
-    game.load();
+    console.timeEnd('GameSetup');
+    void game.load();
 
     if (Config.debug) {
         window.game = game;

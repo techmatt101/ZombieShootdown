@@ -1,43 +1,30 @@
 import type { InputAction } from './InputAction';
-import type { InputActions } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
 
 export class InputState {
     movementCoordinates = new Vector(0, 0);
     directionCoordinates = new Vector(0, 0);
-    inputActions : InputActions;
 
-    // Keyed by stringified action; unmapped keys arrive as `undefined` and land on the 'undefined' slot.
-    #pressed : Record<string, boolean> = {};
+    #pressed = new Set<InputAction>();
 
+    isKeyDown(action : InputAction) {
+        return this.#pressed.has(action);
+    }
 
-    constructor(inputActions : InputActions) {
-        this.inputActions = inputActions;
-
-        // load all possible actions to prevent undefined on lookups
-        for (const action in inputActions) {
-            if (!isNaN(parseInt(action))) { // accept number enums only
-                this.#pressed[action] = false;
-            }
+    /** Unmapped inputs arrive as `undefined` and are ignored. */
+    setKeyPress(action : InputAction | undefined) {
+        if (action !== undefined) {
+            this.#pressed.add(action);
         }
-        this.#pressed['undefined'] = false; // silence undefined key events
     }
 
-    isKeyDown(actionKey : InputAction) {
-        return this.#pressed[actionKey] === true;
-    }
-
-    setKeyPress(actionKey : InputAction | undefined) {
-        this.#pressed[String(actionKey)] = true;
-    }
-
-    setKeyRelease(actionKey : InputAction | undefined) {
-        this.#pressed[String(actionKey)] = false;
+    setKeyRelease(action : InputAction | undefined) {
+        if (action !== undefined) {
+            this.#pressed.delete(action);
+        }
     }
 
     reset() {
-        for (const key in this.#pressed) {
-            this.#pressed[key] = false;
-        }
+        this.#pressed.clear();
     }
 }

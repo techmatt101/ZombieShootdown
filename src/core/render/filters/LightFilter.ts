@@ -4,7 +4,7 @@ import { Camera } from '../../../lib/Camera';
 import { Canvas } from '../../../lib/Canvas';
 import { Vector } from '../../../lib/geometry/Vector';
 import type { IUpdate } from '../../../lib/IUpdate';
-import { ResourceManager } from '../../../lib/ResourceManager';
+import { loadImage } from '../../../lib/assets';
 
 import type { IVector } from '../../../lib/geometry/IVector';
 
@@ -29,7 +29,7 @@ export class LightFilter implements IUpdate, IFilter {
             this.#polygons = e.data;
         };
 
-        ResourceManager.retrieveImage('vision', (img : HTMLImageElement) => {
+        loadImage('vision').then((img) => {
             this.#visionImage = img;
         });
     }
@@ -65,7 +65,7 @@ export class LightFilter implements IUpdate, IFilter {
     }
 
     draw(ctx : CanvasRenderingContext2D) {
-        for (var i = 1; i < this.#polygons.length; i++) {
+        for (let i = 1; i < this.#polygons.length; i++) {
             this.#drawPolygon(this.#polygons[i], ctx, "rgba(0,0,0,0.2)");
         }
         if (this.#polygons.length > 0) { //TODO: hmmm...
@@ -81,8 +81,8 @@ export class LightFilter implements IUpdate, IFilter {
         ctx.fillStyle = fillStyle;
         ctx.beginPath();
         ctx.moveTo(polygon[0].x, polygon[0].y);
-        for (var i = 1; i < polygon.length; i++) {
-            var intersect = polygon[i];
+        for (let i = 1; i < polygon.length; i++) {
+            const intersect = polygon[i];
             ctx.lineTo(intersect.x, intersect.y);
         }
         ctx.fill();

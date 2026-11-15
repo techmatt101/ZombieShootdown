@@ -13,52 +13,49 @@ import { Box } from '../../lib/geometry/Box';
 import { Point } from '../../lib/geometry/Point';
 import { Vector } from '../../lib/geometry/Vector';
 import { randInt } from '../../lib/helpers';
-import { ResourceManager } from '../../lib/ResourceManager';
+import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
-export class EnemyFactory {
+export function spawnZombie(target : Entity) {
+    const zombie = new Entity('Zombie', new Point(0, 0, 0), new Box(48, 48));
 
-    static spawnZombie(target : Entity) {
-        var zombie = new Entity('Zombie', new Point(0, 0, 0), new Box(48, 48));
+    zombie.addComponent(new AI(new ZombieAI(zombie, target)));
+    zombie.addComponent(new Movement(zombie.pos, randInt(14, 25), 1));
+    const collision = zombie.addComponent(new Collision(zombie.geometry));
 
-        zombie.addComponent(new AI(new ZombieAI(zombie, target)));
-        zombie.addComponent(new Movement(zombie.pos, randInt(14, 25), 1));
-        const collision = zombie.addComponent(new Collision(zombie.geometry));
+    const material = zombie.addComponent(new Material());
+    zombie.addComponent(new SpriteAnimator(material));
 
-        const material = zombie.addComponent(new Material());
-        zombie.addComponent(new SpriteAnimator(material));
+    const health = zombie.addComponent(new Health(100));
+    const damage = zombie.addComponent(new Damage(1));
 
-        const health = zombie.addComponent(new Health(100));
-        const damage = zombie.addComponent(new Damage(1));
+    collision.behaviours.zombieDamage = new DamageCollisionBehavior()
+        .inflictDamage(damage);
 
-        collision.behaviours.zombieDamage = new DamageCollisionBehavior()
-            .inflictDamage(damage);
+    collision.behaviours.playerDamage = new DamageCollisionBehavior()
+        .acceptDamage(health);
 
-        collision.behaviours.playerDamage = new DamageCollisionBehavior()
-            .acceptDamage(health);
+    loadImage('zombie').then((img) => {
+        material.setTexture(new Texture(img, new Vector(0, 0), 62, 48, new Vector(0, 0), 28, 20));
+    });
 
-        ResourceManager.retrieveImage('zombie', (img : HTMLImageElement) => {
-            material.setTexture(new Texture(img, new Vector(0, 0), 62, 48, new Vector(0, 0), 28, 20));
-        });
+    zombie.build();
 
-        zombie.build();
+    return zombie;
+}
 
-        return zombie;
-    }
+export function spawnDeadZombie() {
+    const zombie = new Entity('Dead Zombie', new Point(0, 0, 0), new Box(48, 48, new Vector(0, 0)));
 
-    static spawnDeadZombie() {
-        var zombie = new Entity('Dead Zombie', new Point(0, 0, 0), new Box(48, 48, new Vector(0, 0)));
+    const material = zombie.addComponent(new Material());
 
-        const material = zombie.addComponent(new Material());
+    loadImage('zombie-death').then((img) => {
+        material.setTexture(new Texture(img, new Vector(0, 0), 48, 48, new Vector(66, 2), 30, 30));
+    });
 
-        ResourceManager.retrieveImage('zombie-death', (img : HTMLImageElement) => {
-            material.setTexture(new Texture(img, new Vector(0, 0), 48, 48, new Vector(66, 2), 30, 30));
-        });
+    material.zIndex = ZIndexLayer.BACKGROUND;
 
-        material.zIndex = ZIndexLayer.BACKGROUND;
+    zombie.build();
 
-        zombie.build();
-
-        return zombie;
-    }
+    return zombie;
 }

@@ -13,18 +13,18 @@ export class Grid {
     }
 
     loopThrough(loopCycle : (tile : Tile, pos : Vector, tileSize : Vector) => void) {
-        for (var x = 0; x < this.#grid.length; x++) {
-            for (var y = 0; y < this.#grid[x].length; y++) {
+        for (let x = 0; x < this.#grid.length; x++) {
+            for (let y = 0; y < this.#grid[x].length; y++) {
                 loopCycle(this.#grid[x][y], new Vector(x, y).multiply(this.tileSize), this.tileSize);
             }
         }
     }
 
     fill(gridSize : Vector, fillType : TileType) {
-        var grid : Tile[][] = [];
-        for (var x = 0; x < gridSize.x; ++x) {
+        const grid : Tile[][] = [];
+        for (let x = 0; x < gridSize.x; ++x) {
             grid[x] = [];
-            for (var y = 0; y < gridSize.y; ++y) {
+            for (let y = 0; y < gridSize.y; ++y) {
                 grid[x][y] = new Tile(fillType);
             }
         }
@@ -32,10 +32,10 @@ export class Grid {
     }
 
     createEmptyGrid(gridSize : Vector, fillType : TileType) {
-        var grid : Tile[][] = [];
-        for (var x = 0; x < gridSize.x; x++) {
+        const grid : Tile[][] = [];
+        for (let x = 0; x < gridSize.x; x++) {
             grid[x] = [];
-            for (var y = 0; y < gridSize.y; y++) {
+            for (let y = 0; y < gridSize.y; y++) {
                 grid[x][y] = new Tile(fillType);
             }
         }
@@ -43,15 +43,16 @@ export class Grid {
     }
 
     toString() {
-        var yLength = this.#grid[0].length;
-        for (var y = 0; y < yLength; y++) {
-            var out = y + 100 + ' ';
-            for (var x = 0; x < this.#grid.length; x++) {
-                if (typeof this.#grid[x][y] === 'undefined') {
+        const yLength = this.#grid[0].length;
+        for (let y = 0; y < yLength; y++) {
+            let out = `${y + 100} `;
+            for (const column of this.#grid) {
+                const tile = column[y];
+                if (tile === undefined) {
                     out += '?';
                     continue;
                 }
-                switch (this.#grid[x][y].type) {
+                switch (tile.type) {
                     default:
                     case TileType.EMPTY :
                         out += '.';

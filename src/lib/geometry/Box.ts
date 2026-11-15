@@ -18,7 +18,7 @@ export class Box implements IShape {
     }
 
     getOffset(box : Box) {
-        var offset = this.getIntersectionDepth(box);
+        const offset = this.getIntersectionDepth(box);
 
         if (Math.abs(offset.x) <= Math.abs(offset.y)) {
             offset.y = 0;
@@ -40,20 +40,20 @@ export class Box implements IShape {
     }
 
     toPolygon() : Segment[] {
-        var x = this.pos.x - this.width / 2;
-        var y = this.pos.y - this.height / 2;
-        var width = this.pos.x + this.width / 2;
-        var height = this.pos.y + this.height / 2;
+        const x = this.pos.x - this.width / 2;
+        const y = this.pos.y - this.height / 2;
+        const width = this.pos.x + this.width / 2;
+        const height = this.pos.y + this.height / 2;
 
         return [
-            { a: { x: x, y: y }, b: { x: width, y: y } },
-            { a: { x: width, y: y }, b: { x: width, y: height } },
-            { a: { x: width, y: height }, b: { x: x, y: height } },
-            { a: { x: x, y: height }, b: { x: x, y: y } }
+            { a: { x, y }, b: { x: width, y } },
+            { a: { x: width, y }, b: { x: width, y: height } },
+            { a: { x: width, y: height }, b: { x, y: height } },
+            { a: { x, y: height }, b: { x, y } }
         ]
     }
 
     toString() {
-        return 'Box: {width: ' + this.width + ', height: ' + this.height + '}';
+        return `Box: {width: ${this.width}, height: ${this.height}}`;
     }
 }

@@ -23,7 +23,7 @@ export class MouseAndKeyboardAdaptor implements IInputController {
         this.#mouseAndKeyboardController.load(inputState);
     }
 
-    loadKeyMappings(mappings : KeyMappings | undefined) {
+    loadKeyMappings(mappings : KeyMappings) {
         this.#mouseAndKeyboardController.loadKeyMappings(mappings);
     }
 
@@ -34,7 +34,7 @@ export class MouseAndKeyboardAdaptor implements IInputController {
         if (this.#inputState.isKeyDown(InputAction.DOWN)) this.#inputState.movementCoordinates.y += 1;
 
         if(!this.#lastPos.equal(this.#mouseAndKeyboardController.pointerPos)) {
-            var pointOnCanvas = new Vector(
+            const pointOnCanvas = new Vector(
                 this.#mouseAndKeyboardController.pointerPos.x + this.#camera.pos.x - this.#camera.viewportOffset.x,
                 this.#mouseAndKeyboardController.pointerPos.y + this.#camera.pos.y - this.#camera.viewportOffset.y
             );
@@ -55,7 +55,7 @@ export class MouseAndKeyboardAdaptor implements IInputController {
                 pointOnCanvas.y = this.#camera.viewport.pos.y;
             }
 
-            var target = this.#camera.target ?? this.#camera.pos;
+            const target = this.#camera.target ?? this.#camera.pos;
             this.#inputState.directionCoordinates.x = pointOnCanvas.x - target.x;
             this.#inputState.directionCoordinates.y = pointOnCanvas.y - target.y;
 

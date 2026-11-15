@@ -23,29 +23,26 @@ export class BunnyTest<T> {
 
     addBunny() {
         console.log("Bunny Added");
-        for (var i = 0; i < 10; i++) {
+        for (let i = 0; i < 10; i++) {
             this.bunnies.push(this.bunnyFactory(this.bunny));
         }
     }
 
     start() {
-        var timer = setInterval(() => {
+        const timer = setInterval(() => {
             if (this.fps > 56) {
                 this.addBunny();
             } else {
                 clearInterval(timer);
-                console.info('Total Bunnies Running: ' + this.bunnies.length);
+                console.info(`Total Bunnies Running: ${this.bunnies.length}`);
             }
         }, 200);
     }
 
     update(dt : number) {
         if (this.fpsBuffer.length > 64) {
-            var sum = 0;
-            for (var i = 0; i < this.fpsBuffer.length; i++) {
-                sum += this.fpsBuffer[i];
-            }
-            this.fps = ~~(sum / this.fpsBuffer.length);
+            const sum = this.fpsBuffer.reduce((total, fps) => total + fps, 0);
+            this.fps = Math.trunc(sum / this.fpsBuffer.length);
             this.fpsBuffer = [];
         }
         this.fpsBuffer.push(60 / (dt * 6));

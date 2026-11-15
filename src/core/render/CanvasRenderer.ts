@@ -34,35 +34,35 @@ export class CanvasRenderer {
     paint() {
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
         this.#ctx.scale(this.#camera.zoom, this.#camera.zoom);
-        this.#ctx.translate(~~-this.#camera.viewport.pos.x, ~~-this.#camera.viewport.pos.y);
+        this.#ctx.translate(Math.trunc(-this.#camera.viewport.pos.x), Math.trunc(-this.#camera.viewport.pos.y));
 
-        for (var i = 0; i < this.#filters.length; i++) {
-            this.#filters[i].init(this.#ctx, this.#canvas, this.#camera);
+        for (const filter of this.#filters) {
+            filter.init(this.#ctx, this.#canvas, this.#camera);
         }
 
         this.#ctx.fillStyle = '#000';
 
-        for (var i = 0; i < this.#entities.length; i++) {
-            if (this.#entities[i].hasActiveComponent(Material)) { //TODO: hmmm...
-                this.#drawEntity(this.#entities[i]);
+        for (const entity of this.#entities) {
+            if (entity.hasActiveComponent(Material)) { //TODO: hmmm...
+                this.#drawEntity(entity);
             }
         }
 
-        for (var i = 0; i < this.#filters.length; i++) {
-            this.#filters[i].close(this.#ctx, this.#canvas, this.#camera);
+        for (const filter of this.#filters) {
+            filter.close(this.#ctx, this.#canvas, this.#camera);
         }
 
-        this.#ctx.translate(~~this.#camera.viewport.pos.x, ~~this.#camera.viewport.pos.y);
+        this.#ctx.translate(Math.trunc(this.#camera.viewport.pos.x), Math.trunc(this.#camera.viewport.pos.y));
         this.#ctx.scale(1 / this.#camera.zoom, 1 / this.#camera.zoom);
     }
 
     #drawEntity(entity : Entity) {
-        var texture = entity.components.material?.texture ?? null;
+        const texture = entity.components.material?.texture ?? null;
 
         this.#ctx.save();
         this.#ctx.rotate(entity.pos.direction);
 
-        var rx = Math.cos(-entity.pos.direction),
+        const rx = Math.cos(-entity.pos.direction),
             ry = Math.sin(-entity.pos.direction);
 
         if (texture === null) {

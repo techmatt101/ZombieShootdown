@@ -6,48 +6,37 @@ import { byId } from '../../lib/dom';
 export class MenuInterface implements IUI {
 
     constructor() {
-        var play = byId('play');
-        var menu = byId('interface');
-        var about = byId('about');
-        var option = byId('option');
-        var view = byId('game-container');
+        const play = byId('play');
+        const menu = byId('interface');
+        const about = byId('about');
+        const option = byId('option');
+        const view = byId('game-container');
+        const canvas = byId<HTMLCanvasElement>('game');
 
-        function launchIntoFullScreen(element : HTMLElement) {
-            element.requestFullscreen();
-
-            setTimeout(function() {
-                var g = byId<HTMLCanvasElement>('game');
-                var r = element.getBoundingClientRect();
-                g.width = r.width;
-                g.height = r.height;
-            }, 1000)
-        }
-
-        about.addEventListener('click', function() {
-            launchIntoFullScreen(view);
+        // Match the canvas to the container once it has gone fullscreen
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === view) {
+                const { width, height } = view.getBoundingClientRect();
+                canvas.width = width;
+                canvas.height = height;
+            }
         });
 
-        function playSingleGame() {
-            menu.hidden = true;
-            setTimeout(() => {
-                singlePlayerGameSetup();
-            }, 0);
-        }
+        about.addEventListener('click', () => {
+            view.requestFullscreen().catch((error) => console.warn('Fullscreen unavailable', error));
+        });
 
-        function bunnyTest() {
+        // Hide the menu, then start on the next task so the browser can repaint first
+        const startGame = (setup : () => void) => {
             menu.hidden = true;
-            setTimeout(() => {
-                bunnyTestSetup();
-            }, 0);
-        }
+            setTimeout(setup, 0);
+        };
 
-        play.addEventListener('click', playSingleGame);
-        option.addEventListener('click', bunnyTest);
+        play.addEventListener('click', () => startGame(singlePlayerGameSetup));
+        option.addEventListener('click', () => startGame(bunnyTestSetup));
 
         if (Config.skipMenu) {
-            setTimeout(function() {
-                playSingleGame();
-            }, 100);
+            setTimeout(() => startGame(singlePlayerGameSetup), 100);
         }
     }
 

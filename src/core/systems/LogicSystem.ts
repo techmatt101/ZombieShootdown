@@ -10,8 +10,8 @@ export class LogicSystem implements ISystem<Entity> {
     }
 
     update(dt : number) {
-        for (var i = 0; i < this.#entities.length; i++) {
-            this.#entities[i].update(dt);
+        for (const entity of this.#entities) {
+            entity.update(dt);
         }
     }
 }

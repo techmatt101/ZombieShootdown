@@ -4,7 +4,6 @@ import { WeaponHolder } from './WeaponHolder';
 import { Entity } from '../Entity';
 import { InputAction } from '../../lib/controllers/InputAction';
 import { InputState } from '../../lib/controllers/InputState';
-import { fastAtan2 } from '../../lib/helpers';
 
 export class InputControl implements IComponent {
     active = true;
@@ -28,7 +27,7 @@ export class InputControl implements IComponent {
     update(dt : number) {
         this.#entity.components.movement?.direction.copy(this.#input.movementCoordinates);
         if(this.#input.directionCoordinates.x !== 0 || this.#input.directionCoordinates.y !== 0) {
-            this.#entity.pos.direction = fastAtan2(this.#input.directionCoordinates.x, this.#input.directionCoordinates.y);
+            this.#entity.pos.direction = Math.atan2(this.#input.directionCoordinates.y, this.#input.directionCoordinates.x);
         }
 
         if (this.#input.isKeyDown(InputAction.ACTION_1) && this.#entity.hasActiveComponent(WeaponHolder)) {

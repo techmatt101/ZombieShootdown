@@ -63,11 +63,11 @@ export class Camera implements IUpdate {
 
     update(dt : number) {
         if (this.target === null) return;
-        var distanceToTravelX = this.target.x - this.pos.x;
-        var distanceToTravelY = this.target.y - this.pos.y;
+        const distanceToTravelX = this.target.x - this.pos.x;
+        const distanceToTravelY = this.target.y - this.pos.y;
 
-        var x = distanceToTravelX * distanceToTravelX * distanceToTravelX;
-        var y = distanceToTravelY * distanceToTravelY * distanceToTravelY;
+        const x = distanceToTravelX * distanceToTravelX * distanceToTravelX;
+        const y = distanceToTravelY * distanceToTravelY * distanceToTravelY;
 
         this.pos.x += x * this.#smoothing.x;
         this.pos.y += y * this.#smoothing.y;

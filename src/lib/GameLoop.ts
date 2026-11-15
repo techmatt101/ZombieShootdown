@@ -1,6 +1,7 @@
+/** Drives `update(dt)` from requestAnimationFrame; `dt` is in tenths of a second, capped at 1. */
 export class GameLoop {
-    #lastGameLoopFrame = 0;
-    #requestedAnimationFrame = 0;
+    #lastFrameTime = 0;
+    #frameRequest = 0;
     #update : (dt : number) => void;
 
 
@@ -9,26 +10,20 @@ export class GameLoop {
     }
 
     start() {
-        this.#lastGameLoopFrame = new Date().getTime();
-        window.requestAnimationFrame(this.loop.bind(this));
-    }
-
-    loop() {
-        var now = new Date().getTime(),
-            dt = (now - this.#lastGameLoopFrame) / 100;
-        if (dt > 1) {// Prevent fast-forwarding by limiting the length of a single frame. //todo: needed?
-            dt = 1;
-        }
-        this.#requestedAnimationFrame = window.requestAnimationFrame(this.loop.bind(this));
-        this.#lastGameLoopFrame = now;
-        this.#update(dt);
+        this.#lastFrameTime = performance.now();
+        this.#frameRequest = requestAnimationFrame(this.#loop);
     }
 
     pause() {
-        window.cancelAnimationFrame(this.#requestedAnimationFrame);
+        cancelAnimationFrame(this.#frameRequest);
     }
 
-    lag() {
-        //var self = this; setTimeout(function() {window.requestAnimationFrame(self.loop.bind(self))}, 800); //force lag //todo: add debugging tools for this :D
-    }
+    #loop = (now : DOMHighResTimeStamp) => {
+        // Prevent fast-forwarding by limiting the length of a single frame.
+        const dt = Math.min(Math.max(now - this.#lastFrameTime, 0) / 100, 1);
+        // Queue the next frame before updating so update() can pause the loop.
+        this.#frameRequest = requestAnimationFrame(this.#loop);
+        this.#lastFrameTime = now;
+        this.#update(dt);
+    };
 }

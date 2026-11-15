@@ -1,21 +1,18 @@
-import type { InputAction } from './InputAction';
+import { InputAction } from './InputAction';
 
-/** Config format: physical key/button code -> InputAction name, e.g. `{ 87: 'UP' }`. */
-export type KeyMappings = Record<number, string>;
-/** Resolved lookup: physical key/button code -> InputAction. */
-export type KeyBindings = Record<number, InputAction>;
-export type InputActions = typeof InputAction;
+export type InputActionName = keyof typeof InputAction;
+/** Config format: input code -> InputAction name, e.g. `{ KeyW: 'UP', Mouse0: 'ACTION_1' }`. */
+export type KeyMappings = Partial<Record<string, InputActionName>>;
+/** Resolved lookup: input code -> InputAction. */
+export type KeyBindings = Map<string, InputAction>;
 
-export class KeyMapper {
-    static loadKeyMappings(keys : KeyBindings, mappings : KeyMappings | undefined, inputActions : InputActions) {
-        for (const [code, actionName] of Object.entries(mappings ?? {})) {
-            const mappedInputAction : InputAction | undefined = inputActions[actionName as keyof InputActions];
-            if (typeof mappedInputAction !== 'undefined') {
-                keys[Number(code)] = mappedInputAction;
-            } else {
-                console.warn('Unable to find ' + actionName + ' mapping in input actions');
-            }
+export function resolveKeyMappings(mappings : KeyMappings) : KeyBindings {
+    const bindings : KeyBindings = new Map();
+    for (const [code, actionName] of Object.entries(mappings)) {
+        if (actionName !== undefined) {
+            bindings.set(code, InputAction[actionName]);
         }
-        console.info('Key Mappings Loaded');
     }
+    console.info('Key Mappings Loaded');
+    return bindings;
 }
