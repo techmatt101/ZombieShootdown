@@ -1,5 +1,5 @@
 import { DamageCollisionBehavior } from '../behaviours/DamageCollisionBehavior';
-import { Collision, CollisionEvent } from '../components/Collision';
+import { Collision, CollisionEvent, CollisionLayer } from '../components/Collision';
 import { Damage } from '../components/Damage';
 import { Material } from '../components/Material';
 import { Movement } from '../components/Movement';
@@ -8,13 +8,13 @@ import { Gun } from '../gameobjects/Gun';
 import { ZIndexLayer } from '../level/ZIndexLayer';
 import { Box } from '../../lib/geometry/Box';
 import { Point } from '../../lib/geometry/Point';
-import { Pool } from '../../lib/Pool';
+import type { Pool } from '../../lib/Pool';
 
 export function spawnBullet() {
     const bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));
 
     const material = bullet.addComponent(new Material());
-    const collision = bullet.addComponent(new Collision(bullet.geometry));
+    const collision = bullet.addComponent(new Collision(bullet.geometry, CollisionLayer.PROJECTILE, CollisionLayer.ENEMY));
     bullet.addComponent(new Movement(bullet.pos, 80));
     const damage = bullet.addComponent(new Damage(30));
 

@@ -1,7 +1,7 @@
 import { ui } from '../app';
 import type { IGameLogic } from './logic/IGameLogic';
 import { Config } from '../config';
-import { Entity } from '../core/Entity';
+import type { Entity } from '../core/Entity';
 import { TopDownLevel } from '../core/level/TopDownLevel';
 import { CanvasRenderer } from '../core/render/CanvasRenderer';
 import { LightFilter } from '../core/render/filters/LightFilter';
@@ -18,7 +18,7 @@ import { Canvas } from '../lib/Canvas';
 import { GamepadAdaptor } from '../lib/controllers/GamepadAdaptor';
 import { GamepadController } from '../lib/controllers/GamepadController';
 import { InputHandler } from '../lib/controllers/InputHandler';
-import { InputState } from '../lib/controllers/InputState';
+import type { InputState } from '../lib/controllers/InputState';
 import { MouseAndKeyboardAdaptor } from '../lib/controllers/MouseAndKeyboardAdaptor';
 import { MouseAndKeyboardController } from '../lib/controllers/MouseAndKeyboardController';
 import { Sound, SoundController } from '../lib/controllers/SoundController';
@@ -66,9 +66,9 @@ export abstract class Game {
 
         this.chunks = new ChunkStreamer(seed);
         this.tileMap = new TileMap(this.chunks);
-        this.camera = new Camera(this.canvas);
+        this.camera = new Camera(this.canvas.center);
 
-        this.sound = new SoundController();
+        this.sound = new SoundController(Config.sound);
         this.input = new InputHandler();
         this.inputState = this.input.getState();
 
@@ -109,6 +109,7 @@ export abstract class Game {
                 mouseAndKeyboardController.loadKeyMappings(Config.keyMappings);
 
                 void loadSound('horror-ambient').then((audio) => {
+                    audio.loop = true;
                     this.sound.load(Sound.AMBIENT, audio);
                     this.sound.play(Sound.AMBIENT);
                 });
@@ -118,7 +119,7 @@ export abstract class Game {
                 doorSpawner.useAtlas(tileAtlas);
                 await this.chunks.start(tileAtlas);
                 const spawnChunkCentre = { x: CHUNK_SIZE / 2, y: CHUNK_SIZE / 2 };
-                await this.chunks.whenLoadedAround(spawnChunkCentre, this.camera.viewportOffset.x, this.camera.viewportOffset.y);
+                await this.chunks.whenLoadedAround(spawnChunkCentre, this.camera.screenCentre.x, this.camera.screenCentre.y);
             });
     }
 
@@ -172,7 +173,7 @@ export abstract class Game {
 
     #streamWorld() {
         const focus = this.camera.target ?? this.camera.pos;
-        this.chunks.update(focus, this.camera.viewportOffset.x / this.camera.zoom, this.camera.viewportOffset.y / this.camera.zoom);
+        this.chunks.update(focus, this.camera.halfView.x, this.camera.halfView.y);
     }
 
     onLoaded() {

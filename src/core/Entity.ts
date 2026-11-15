@@ -1,7 +1,7 @@
 import type { IComponent } from './components/IComponent';
 import type { IComponentDirectory } from './components/IComponentDirectory';
-import { Box } from '../lib/geometry/Box';
-import { Point } from '../lib/geometry/Point';
+import type { Box } from '../lib/geometry/Box';
+import type { Point } from '../lib/geometry/Point';
 import type { IUpdate } from '../lib/IUpdate';
 import type { IPool } from '../lib/Pool';
 
@@ -60,6 +60,10 @@ export class Entity implements IUpdate, IPool {
 
     reset() {
         this.active = true;
+        const componentList = this.#componentList;
+        for (let i = 0; i < componentList.length; i++) {
+            componentList[i].reset?.();
+        }
     }
 
     update(dt : number) {

@@ -100,6 +100,7 @@ export class Door implements IComponent, IObserver<DoorEvent> {
         this.#eventHandler.add(event, callback);
     }
 
-    off() {
+    off(event : DoorEvent, callback : Listener) {
+        this.#eventHandler.remove(event, callback);
     }
 }

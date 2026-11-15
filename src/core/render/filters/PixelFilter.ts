@@ -1,6 +1,6 @@
 import type { IFilter } from './IFilter';
-import { Camera } from '../../../lib/Camera';
-import { Canvas } from '../../../lib/Canvas';
+import type { Camera } from '../../../lib/Camera';
+import type { Canvas } from '../../../lib/Canvas';
 
 export class PixelFilter implements IFilter {
     init(ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {

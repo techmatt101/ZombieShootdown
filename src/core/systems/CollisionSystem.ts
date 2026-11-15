@@ -1,6 +1,6 @@
 import { Collision } from '../components/Collision';
 import { Movement } from '../components/Movement';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import type { ISystem } from './ISystem';
 import { Box } from '../../lib/geometry/Box';
 import { SpatialHash } from '../../lib/SpatialHash';
@@ -47,7 +47,9 @@ export class CollisionSystem implements ISystem<Entity> {
         }
 
         for (let i = 0; i < active.length; i++) {
-            this.#collideWithNearbyEntities(active[i]);
+            if (active[i].hasActiveComponent(Collision)) {
+                this.#collideWithNearbyEntities(active[i]);
+            }
         }
 
         const tileMap = this.#tileMap;
@@ -66,8 +68,10 @@ export class CollisionSystem implements ISystem<Entity> {
         const order = this.#order.get(entity)!;
         this.#hash.query(box.pos.x - box.width / 2, box.pos.y - box.height / 2, box.pos.x + box.width / 2, box.pos.y + box.height / 2, (other) => {
             if (this.#order.get(other)! <= order) return;
-            this.pairsTested++;
+            if (!entity.hasActiveComponent(Collision) || !other.hasActiveComponent(Collision)) return;
             const otherCollision = other.getComponent('collision');
+            if (!collision.canCollideWith(otherCollision)) return;
+            this.pairsTested++;
             if (!collision.test(otherCollision)) return;
 
             collision.setAsCollided();

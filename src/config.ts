@@ -29,7 +29,12 @@ export const Config : GameConfig = {
         KeyE: 'INTERACT',
         Mouse2: 'INTERACT',
         Escape: 'MENU',
+        Equal: 'ZOOM_IN',
+        Minus: 'ZOOM_OUT',
     },
 
-    gamepadKeyMappings: {},
+    gamepadKeyMappings: {
+        Button0: 'INTERACT',
+        Button7: 'ACTION_1',
+    },
 };

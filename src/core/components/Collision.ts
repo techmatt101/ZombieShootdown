@@ -3,15 +3,26 @@ import type { CollisionBehaviourList } from '../CollisionBehaviourList';
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
 import { EventHandler, type IObserver, type Listener } from '../../lib/EventHandler';
-import { Box } from '../../lib/geometry/Box';
+import type { Box } from '../../lib/geometry/Box';
 
 export enum CollisionEvent {
     COLLIDE
 }
 
+export enum CollisionLayer {
+    DEFAULT = 1,
+    PLAYER = 2,
+    ENEMY = 4,
+    PROJECTILE = 8,
+}
+
+export const COLLIDES_WITH_EVERYTHING = 0xffff;
+
 export class Collision implements IComponent, IObserver<CollisionEvent> {
     active = true;
     behaviours : CollisionBehaviourList = {};
+    layer : CollisionLayer;
+    mask : number;
 
     #box : Box;
     #isTouching = false;
@@ -22,8 +33,14 @@ export class Collision implements IComponent, IObserver<CollisionEvent> {
         return components.collision;
     }
 
-    constructor(box : Box) {
+    constructor(box : Box, layer = CollisionLayer.DEFAULT, mask = COLLIDES_WITH_EVERYTHING) {
         this.#box = box;
+        this.layer = layer;
+        this.mask = mask;
+    }
+
+    canCollideWith(other : Collision) {
+        return (this.mask & other.layer) !== 0 && (other.mask & this.layer) !== 0;
     }
 
     getBoundary() {
@@ -69,6 +86,10 @@ export class Collision implements IComponent, IObserver<CollisionEvent> {
         this.#isTouching = false;
     }
 
+    reset() {
+        this.#isTouching = false;
+    }
+
     drawDebug(ctx : CanvasRenderingContext2D) : void {
         ctx.strokeStyle = (this.#isTouching) ? '#FFFF00' : '#F00';
         ctx.strokeRect(this.#box.pos.x - this.#box.width / 2, this.#box.pos.y - this.#box.height / 2, this.#box.width, this.#box.height);
@@ -83,6 +104,7 @@ export class Collision implements IComponent, IObserver<CollisionEvent> {
         this.#eventHandler.add(event_type, callback);
     }
 
-    off() {
+    off(event : CollisionEvent, callback : Listener) {
+        this.#eventHandler.remove(event, callback);
     }
 }

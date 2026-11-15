@@ -1,4 +1,4 @@
-import { ChunkEvent, chunkIndexOf, type Chunk, type ChunkStreamer } from './ChunkStreamer';
+import { ChunkEvent, chunkIndexOf, type Chunk, type ChunkSource } from './ChunkStreamer';
 import { CHUNK_SHIFT, CHUNK_SIZE, LAST_TILE } from './constants';
 import type { Random } from './random';
 import { castRay, hasClearLine } from './raycast';
@@ -7,11 +7,11 @@ import type { IVector } from '../lib/geometry/IVector';
 import { Vector } from '../lib/geometry/Vector';
 
 export class TileMap {
-    #chunks : ChunkStreamer;
+    #chunks : ChunkSource;
     #cachedChunk : Chunk | null = null;
     #edits = 0;
 
-    constructor(chunks : ChunkStreamer) {
+    constructor(chunks : ChunkSource) {
         this.#chunks = chunks;
         chunks.on(ChunkEvent.UNLOADED, (chunk : Chunk) => {
             if (this.#cachedChunk === chunk) {

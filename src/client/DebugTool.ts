@@ -1,5 +1,5 @@
-import { Game } from './Game';
-import { Entity } from '../core/Entity';
+import type { Game } from './Game';
+import type { Entity } from '../core/Entity';
 
 export class DebugTool {
     #game : Game;

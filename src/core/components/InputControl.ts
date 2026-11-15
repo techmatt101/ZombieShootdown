@@ -1,9 +1,9 @@
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
 import { WeaponHolder } from './WeaponHolder';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import { InputAction } from '../../lib/controllers/InputAction';
-import { InputState } from '../../lib/controllers/InputState';
+import type { InputState } from '../../lib/controllers/InputState';
 
 export class InputControl implements IComponent {
     active = true;

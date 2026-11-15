@@ -1,8 +1,8 @@
 import { Material } from '../components/Material';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import type { IFilter } from './filters/IFilter';
-import { Camera } from '../../lib/Camera';
-import { Canvas } from '../../lib/Canvas';
+import type { Camera } from '../../lib/Camera';
+import type { Canvas } from '../../lib/Canvas';
 
 const SUBPIXEL_SNAP_MARGIN = 1;
 
@@ -45,7 +45,7 @@ export class CanvasRenderer {
     paint() {
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
         this.#ctx.scale(this.#camera.zoom, this.#camera.zoom);
-        this.#ctx.translate(Math.trunc(-this.#camera.viewport.pos.x), Math.trunc(-this.#camera.viewport.pos.y));
+        this.#ctx.translate(Math.trunc(-this.#camera.view.left), Math.trunc(-this.#camera.view.top));
 
         const filters = this.#filters;
         for (let i = 0; i < filters.length; i++) {
@@ -67,7 +67,7 @@ export class CanvasRenderer {
             filters[i].close(this.#ctx, this.#canvas, this.#camera);
         }
 
-        this.#ctx.translate(Math.trunc(this.#camera.viewport.pos.x), Math.trunc(this.#camera.viewport.pos.y));
+        this.#ctx.translate(Math.trunc(this.#camera.view.left), Math.trunc(this.#camera.view.top));
         this.#ctx.scale(1 / this.#camera.zoom, 1 / this.#camera.zoom);
     }
 

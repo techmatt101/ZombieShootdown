@@ -1,5 +1,5 @@
 import type { IInputController } from './IInputController';
-import { InputState } from './InputState';
+import type { InputState } from './InputState';
 import { resolveKeyMappings, type KeyBindings, type KeyMappings } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
 

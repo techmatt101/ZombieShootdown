@@ -1,7 +1,7 @@
 import { ZombieAI } from '../ai/ZombieAI';
 import { DamageCollisionBehavior } from '../behaviours/DamageCollisionBehavior';
 import { AI } from '../components/AI';
-import { Collision } from '../components/Collision';
+import { Collision, CollisionLayer } from '../components/Collision';
 import { Damage } from '../components/Damage';
 import { Health } from '../components/Health';
 import { Material } from '../components/Material';
@@ -16,18 +16,25 @@ import { randInt } from '../../lib/helpers';
 import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
+const MIN_CHASE_SPEED = 14;
+const MAX_CHASE_SPEED = 25;
+const BITE_DAMAGE = 6;
+const BITE_COOLDOWN = 1;
+const ZOMBIE_COLLIDES_WITH = CollisionLayer.PLAYER | CollisionLayer.ENEMY | CollisionLayer.PROJECTILE;
+
 export function spawnZombie(target : Entity) {
     const zombie = new Entity('Zombie', new Point(0, 0, 0), new Box(48, 48));
 
-    zombie.addComponent(new AI(new ZombieAI(zombie, target)));
-    zombie.addComponent(new Movement(zombie.pos, randInt(14, 25), 1));
-    const collision = zombie.addComponent(new Collision(zombie.geometry));
+    const chaseSpeed = randInt(MIN_CHASE_SPEED, MAX_CHASE_SPEED);
+    zombie.addComponent(new AI(new ZombieAI(zombie, target, chaseSpeed)));
+    zombie.addComponent(new Movement(zombie.pos, chaseSpeed, 1));
+    const collision = zombie.addComponent(new Collision(zombie.geometry, CollisionLayer.ENEMY, ZOMBIE_COLLIDES_WITH));
 
     const material = zombie.addComponent(new Material());
     zombie.addComponent(new SpriteAnimator(material));
 
     const health = zombie.addComponent(new Health(100));
-    const damage = zombie.addComponent(new Damage(1));
+    const damage = zombie.addComponent(new Damage(BITE_DAMAGE, BITE_COOLDOWN));
 
     collision.behaviours.zombieDamage = new DamageCollisionBehavior()
         .inflictDamage(damage);

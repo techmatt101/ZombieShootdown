@@ -26,10 +26,6 @@ export class Health implements IComponent, IObserver<HealthEvent> {
         this.isDead = false;
     }
 
-    give(n : number) {
-        this.value += n;
-    }
-
     take(n : number) {
         this.value -= n;
 
@@ -54,6 +50,7 @@ export class Health implements IComponent, IObserver<HealthEvent> {
         this.#eventHandler.add(event_type, callback);
     }
 
-    off() {
+    off(event : HealthEvent, callback : Listener) {
+        this.#eventHandler.remove(event, callback);
     }
 }

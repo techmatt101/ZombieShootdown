@@ -14,7 +14,7 @@ export class Pool <T extends IPool> {
         this.#factory = factory;
 
         for (let i = 0; i < prepopulate; i++) {
-            this.#buildNew();
+            this.#buildNew().available = true;
         }
         this.#updateAvailability();
     }

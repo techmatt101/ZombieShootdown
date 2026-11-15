@@ -18,6 +18,7 @@
     "unicorn/no-array-for-each": "error",
     "typescript/no-this-alias": "error",
     "typescript/consistent-type-assertions": "error",
-    "typescript/no-extraneous-class": "error"
+    "typescript/no-extraneous-class": "error",
+    "typescript/consistent-type-imports": "error"
   }
 }

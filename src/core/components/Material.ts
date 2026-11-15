@@ -1,7 +1,7 @@
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
 import { ZIndexLayer } from '../level/ZIndexLayer';
-import { Texture } from '../../lib/Texture';
+import type { Texture } from '../../lib/Texture';
 
 export class Material implements IComponent {
     active = false;

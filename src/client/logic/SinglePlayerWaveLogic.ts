@@ -1,11 +1,11 @@
 import { DeadBodies } from './DeadBodies';
 import type { IGameLogic } from './IGameLogic';
 import { HealthEvent } from '../../core/components/Health';
-import { Entity } from '../../core/Entity';
+import type { Entity } from '../../core/Entity';
 import { spawnZombie } from '../../core/factories/EnemyFactory';
-import { TopDownLevel } from '../../core/level/TopDownLevel';
+import type { TopDownLevel } from '../../core/level/TopDownLevel';
 import { EventCollection } from '../../lib/EventCollection';
-import { Vector } from '../../lib/geometry/Vector';
+import type { Vector } from '../../lib/geometry/Vector';
 import { shuffle } from '../../lib/helpers';
 import { Pool } from '../../lib/Pool';
 import { ChunkEvent, isInChunk, type Chunk } from '../../world/ChunkStreamer';

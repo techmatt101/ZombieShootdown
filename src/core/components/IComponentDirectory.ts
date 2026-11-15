@@ -1,16 +1,16 @@
-import { AI } from './AI';
-import { Collision } from './Collision';
-import { Damage } from './Damage';
-import { Health } from './Health';
-import { InputControl } from './InputControl';
-import { Door } from './Door';
-import { Interactable } from './Interactable';
-import { Interactor } from './Interactor';
-import { Material } from './Material';
-import { Movement } from './Movement';
-import { Pointer } from './Pointer';
-import { SpriteAnimator } from './SpriteAnimator';
-import { WeaponHolder } from './WeaponHolder';
+import type { AI } from './AI';
+import type { Collision } from './Collision';
+import type { Damage } from './Damage';
+import type { Health } from './Health';
+import type { InputControl } from './InputControl';
+import type { Door } from './Door';
+import type { Interactable } from './Interactable';
+import type { Interactor } from './Interactor';
+import type { Material } from './Material';
+import type { Movement } from './Movement';
+import type { Pointer } from './Pointer';
+import type { SpriteAnimator } from './SpriteAnimator';
+import type { WeaponHolder } from './WeaponHolder';
 
 export interface IComponentDirectory {
     controller? : InputControl;

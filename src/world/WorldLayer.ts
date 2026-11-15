@@ -1,4 +1,4 @@
-import type { ChunkStreamer } from './ChunkStreamer';
+import type { ChunkSource } from './ChunkStreamer';
 import { CHUNK_SIZE } from './constants';
 import type { Camera } from '../lib/Camera';
 import { Vector } from '../lib/geometry/Vector';
@@ -6,11 +6,11 @@ import { Vector } from '../lib/geometry/Vector';
 const HALF_CHUNK = CHUNK_SIZE / 2;
 
 export class WorldLayer {
-    #chunks : ChunkStreamer;
+    #chunks : ChunkSource;
     #camera : Camera;
     #chunkCentre = new Vector(0, 0);
 
-    constructor(chunks : ChunkStreamer, camera : Camera) {
+    constructor(chunks : ChunkSource, camera : Camera) {
         this.#chunks = chunks;
         this.#camera = camera;
     }

@@ -37,7 +37,7 @@ export class BunnyTesterGame {
 
         this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
 
-        this.camera = new Camera(this.canvas);
+        this.camera = new Camera(this.canvas.center);
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
 
         this.systems = new Systems();

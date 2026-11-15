@@ -1,5 +1,5 @@
-import { Entity } from '../Entity';
-import { Systems } from '../Systems';
+import type { Entity } from '../Entity';
+import type { Systems } from '../Systems';
 import type { IUpdate } from '../../lib/IUpdate';
 
 export class Level {

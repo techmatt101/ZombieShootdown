@@ -1,7 +1,7 @@
 import { Game } from './Game';
 import type { IGameLogic } from './logic/IGameLogic';
 import { giveGun } from '../core/decorators/WeaponiseDecorator';
-import { Entity } from '../core/Entity';
+import type { Entity } from '../core/Entity';
 import { spawnPointer } from '../core/factories/InterfaceFactory';
 import { spawnPlayer } from '../core/factories/PlayerFactory';
 import { spawnBullet, spawnGun } from '../core/factories/WeaponFactory';

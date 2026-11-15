@@ -1,8 +1,7 @@
-import type { IShape } from './IShape';
 import type { IVector } from './IVector';
 import { Vector } from './Vector';
 
-export class Box implements IShape {
+export class Box {
     #offset = new Vector(0, 0);
 
     constructor(public width : number,

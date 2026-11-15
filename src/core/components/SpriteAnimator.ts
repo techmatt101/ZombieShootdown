@@ -1,7 +1,7 @@
 import { SpriteAnimation } from '../animation/SpriteAnimation';
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
-import { Material } from './Material';
+import type { Material } from './Material';
 
 export class SpriteAnimator implements IComponent {
     active = true;

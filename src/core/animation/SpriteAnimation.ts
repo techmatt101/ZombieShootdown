@@ -4,7 +4,7 @@ export interface ISpriteAnimationData {
     animationTime : number;
     spriteSequence : ISpriteAnimationSequence[];
 }
-import { Texture } from '../../lib/Texture';
+import type { Texture } from '../../lib/Texture';
 
 export class SpriteAnimation {
     #step = 0;
@@ -20,25 +20,22 @@ export class SpriteAnimation {
 
     update(dt : number, texture : Texture) {
         this.#time += dt;
-
+        let step = this.#step;
         if (this.#time > this.#length) {
-            this.#time = 0;
-            this.#step = 0;
-
-            texture.sourcePos.x = this.#sequence[this.#step].x;
-            texture.sourcePos.y = this.#sequence[this.#step].y;
-            texture.sourceWidth = this.#sequence[this.#step].width;
-            texture.sourceHeight = this.#sequence[this.#step].height;
-        } else {
-            if (this.#time > this.#sequence[this.#step].time) {
-                while (this.#time > this.#sequence[this.#step].time) {
-                    this.#step++;
-                }
-                texture.sourcePos.x = this.#sequence[this.#step].x;
-                texture.sourcePos.y = this.#sequence[this.#step].y;
-                texture.sourceWidth = this.#sequence[this.#step].width;
-                texture.sourceHeight = this.#sequence[this.#step].height;
-            }
+            this.#time %= this.#length;
+            step = 0;
+        }
+        const lastStep = this.#sequence.length - 1;
+        while (step < lastStep && this.#time > this.#sequence[step].time) {
+            step++;
+        }
+        if (step !== this.#step) {
+            this.#step = step;
+            const frame = this.#sequence[step];
+            texture.sourcePos.x = frame.x;
+            texture.sourcePos.y = frame.y;
+            texture.sourceWidth = frame.width;
+            texture.sourceHeight = frame.height;
         }
     }
 }

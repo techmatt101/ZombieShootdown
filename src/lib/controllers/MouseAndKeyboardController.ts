@@ -1,4 +1,4 @@
-import { InputState } from './InputState';
+import type { InputState } from './InputState';
 import { resolveKeyMappings, type KeyBindings, type KeyMappings } from './KeyMapper';
 import { Vector } from '../geometry/Vector';
 
@@ -73,13 +73,18 @@ export class MouseAndKeyboardController {
     #onPointerLockChange() {
         this.#pointerLockEnabled = document.pointerLockElement === this.#canvas;
         if (!this.#pointerLockEnabled) {
-            window.addEventListener('click', async () => {
-                try {
-                    await this.#canvas.requestPointerLock();
-                } catch (error) {
-                    console.warn('Pointer lock unavailable', error);
-                }
-            }, { once: true });
+            this.#requestPointerLockOnNextClick();
         }
+    }
+
+    #requestPointerLockOnNextClick() {
+        window.addEventListener('click', async () => {
+            try {
+                await this.#canvas.requestPointerLock();
+            } catch (error) {
+                console.warn('Pointer lock unavailable, retrying on next click', error);
+                this.#requestPointerLockOnNextClick();
+            }
+        }, { once: true });
     }
 }

@@ -1,4 +1,4 @@
-import { Entity } from '../../core/Entity';
+import type { Entity } from '../../core/Entity';
 
 export interface IGameLogic {
     score : number;

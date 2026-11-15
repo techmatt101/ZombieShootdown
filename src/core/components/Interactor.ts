@@ -3,7 +3,7 @@ import type { IComponentDirectory } from './IComponentDirectory';
 import type { Entity } from '../Entity';
 import type { InteractionBehaviourList } from '../InteractionBehaviourList';
 import { InputAction } from '../../lib/controllers/InputAction';
-import { InputState } from '../../lib/controllers/InputState';
+import type { InputState } from '../../lib/controllers/InputState';
 import { TILE_SIZE } from '../../world/constants';
 
 export class Interactor implements IComponent {

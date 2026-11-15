@@ -1,7 +1,7 @@
-import { Camera } from '../Camera';
-import { GamepadController } from './GamepadController';
+import type { Camera } from '../Camera';
+import type { GamepadController } from './GamepadController';
 import type { IInputController } from './IInputController';
-import { InputState } from './InputState';
+import type { InputState } from './InputState';
 import type { KeyMappings } from './KeyMapper';
 
 export class GamepadAdaptor implements IInputController {
@@ -30,7 +30,7 @@ export class GamepadAdaptor implements IInputController {
         const isRightStickAiming = this.#gamepadController.rightAxes.len() > 0;
         if (isRightStickAiming) {
             this.#inputState.aimSource = 'gamepad';
-            this.#inputState.directionCoordinates.copy(this.#gamepadController.rightAxes).scale(Math.min(this.#camera.size.x, this.#camera.size.y) / 2);
+            this.#inputState.directionCoordinates.copy(this.#gamepadController.rightAxes).scale(Math.min(this.#camera.halfView.x, this.#camera.halfView.y) / 2);
         }
     }
 }

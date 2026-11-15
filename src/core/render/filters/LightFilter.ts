@@ -1,8 +1,8 @@
 import type { IFilter } from './IFilter';
 import { computeVisibilityPolygon } from '../../../lighting/visibility';
 import { loadImage } from '../../../lib/assets';
-import { Camera } from '../../../lib/Camera';
-import { Canvas } from '../../../lib/Canvas';
+import type { Camera } from '../../../lib/Camera';
+import type { Canvas } from '../../../lib/Canvas';
 import { Vector } from '../../../lib/geometry/Vector';
 import type { IUpdate } from '../../../lib/IUpdate';
 import type { TileMap } from '../../../world/TileMap';
@@ -40,7 +40,8 @@ export class LightFilter implements IUpdate, IFilter {
 
     init(ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(camera.pos.x - camera.viewportOffset.x, camera.pos.y - camera.viewportOffset.y, canvas.width, canvas.height);
+        const view = camera.view;
+        ctx.fillRect(view.left, view.top, view.right - view.left, view.bottom - view.top);
         this.#drawLitArea(ctx);
         ctx.globalCompositeOperation = 'source-atop';
     }

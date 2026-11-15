@@ -1,6 +1,6 @@
 import { Material } from '../components/Material';
-import { Entity } from '../Entity';
-import { CanvasRenderer } from '../render/CanvasRenderer';
+import type { Entity } from '../Entity';
+import type { CanvasRenderer } from '../render/CanvasRenderer';
 import type { ISystem } from './ISystem';
 
 export class RenderSystem implements ISystem<Entity> {

@@ -1,9 +1,9 @@
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
-import { Material } from './Material';
-import { Camera } from '../../lib/Camera';
-import { InputState } from '../../lib/controllers/InputState';
-import { Vector } from '../../lib/geometry/Vector';
+import type { Material } from './Material';
+import type { Camera } from '../../lib/Camera';
+import type { InputState } from '../../lib/controllers/InputState';
+import type { Vector } from '../../lib/geometry/Vector';
 
 const MIN_VISIBLE_AIM_DISTANCE = 10;
 

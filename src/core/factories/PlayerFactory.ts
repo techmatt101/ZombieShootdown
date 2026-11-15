@@ -1,13 +1,13 @@
 import { DamageCollisionBehavior } from '../behaviours/DamageCollisionBehavior';
 import { DoorInteractionBehavior } from '../behaviours/DoorInteractionBehavior';
-import { Collision } from '../components/Collision';
+import { Collision, CollisionLayer } from '../components/Collision';
 import { Health } from '../components/Health';
 import { InputControl } from '../components/InputControl';
 import { Interactor } from '../components/Interactor';
 import { Material } from '../components/Material';
 import { Movement } from '../components/Movement';
 import { Entity } from '../Entity';
-import { InputState } from '../../lib/controllers/InputState';
+import type { InputState } from '../../lib/controllers/InputState';
 import { Box } from '../../lib/geometry/Box';
 import type { IVector } from '../../lib/geometry/IVector';
 import { Point } from '../../lib/geometry/Point';
@@ -21,7 +21,7 @@ export function spawnPlayer(position : IVector, input : InputState) {
     player.addComponent(new InputControl(player, input));
     const interactor = player.addComponent(new Interactor(input));
     player.addComponent(new Movement(player.pos, 30, 1));
-    const collision = player.addComponent(new Collision(player.geometry));
+    const collision = player.addComponent(new Collision(player.geometry, CollisionLayer.PLAYER, CollisionLayer.ENEMY));
 
     const material = player.addComponent(new Material());
 

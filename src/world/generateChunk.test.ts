@@ -129,6 +129,24 @@ describe('generateChunk', () => {
         expect(doorCount).toBeGreaterThan(0);
     });
 
+    it('marks the ends of each doorway as light-blocking corners while the door is closed', () => {
+        let doorsChecked = 0;
+        for (const { cx, cy } of sampleChunkCoords(SAMPLE_COUNT)) {
+            const chunk = generateChunk(SEED, cx, cy);
+            const corners = new Set<string>();
+            for (let i = 0; i < chunk.corners.length; i += 2) corners.add(`${chunk.corners[i]},${chunk.corners[i + 1]}`);
+            for (let i = 0; i < chunk.doors.length; i++) {
+                const door = chunk.doors[i];
+                if (door.side !== DoorSide.TOP) continue;
+                const originX = cx * CHUNK_TILES * 42, originY = cy * CHUNK_TILES * 42;
+                expect(corners.has(`${originX + door.start * 42},${originY}`)).toBe(true);
+                expect(corners.has(`${originX + (door.start + door.width) * 42},${originY}`)).toBe(true);
+                doorsChecked++;
+            }
+        }
+        expect(doorsChecked).toBeGreaterThan(0);
+    });
+
     it('never offers a door tile as open floor', () => {
         for (const { cx, cy } of sampleChunkCoords(SAMPLE_COUNT)) {
             const chunk = generateChunk(SEED, cx, cy);

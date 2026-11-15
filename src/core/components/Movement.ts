@@ -1,6 +1,6 @@
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
-import { Point } from '../../lib/geometry/Point';
+import type { Point } from '../../lib/geometry/Point';
 import { Vector } from '../../lib/geometry/Vector';
 
 export class Movement implements IComponent {
@@ -27,6 +27,10 @@ export class Movement implements IComponent {
         if (this.friction < 1) {
             this.#pos.trajectFromDirection((this.speed - this.speed * this.friction) * dt);
         }
+    }
+
+    reset() {
+        this.direction.reset();
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

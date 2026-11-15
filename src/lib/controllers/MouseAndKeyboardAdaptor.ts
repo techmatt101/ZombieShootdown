@@ -1,14 +1,15 @@
-import { Camera } from '../Camera';
+import type { Camera } from '../Camera';
 import type { IInputController } from './IInputController';
 import { InputAction } from './InputAction';
-import { InputState } from './InputState';
+import type { InputState } from './InputState';
 import type { KeyMappings } from './KeyMapper';
-import { MouseAndKeyboardController } from './MouseAndKeyboardController';
+import type { MouseAndKeyboardController } from './MouseAndKeyboardController';
 import { Vector } from '../geometry/Vector';
 
 export class MouseAndKeyboardAdaptor implements IInputController {
     #mouseAndKeyboardController : MouseAndKeyboardController;
-    #lastPos = new Vector(0,0);
+    #lastPos = new Vector(0, 0);
+    #aimPoint = new Vector(0, 0);
     #camera : Camera;
     #inputState! : InputState;
 
@@ -43,33 +44,16 @@ export class MouseAndKeyboardAdaptor implements IInputController {
     }
 
     #aimAtPointer() {
-        const pointOnCanvas = new Vector(
-            this.#mouseAndKeyboardController.pointerPos.x + this.#camera.pos.x - this.#camera.viewportOffset.x,
-            this.#mouseAndKeyboardController.pointerPos.y + this.#camera.pos.y - this.#camera.viewportOffset.y
-        );
+        const camera = this.#camera;
+        const pointer = this.#mouseAndKeyboardController.pointerPos;
+        const aimPoint = camera.screenToWorld(pointer, this.#aimPoint);
+        const clampedX = Math.min(Math.max(aimPoint.x, camera.view.left), camera.view.right);
+        const clampedY = Math.min(Math.max(aimPoint.y, camera.view.top), camera.view.bottom);
+        pointer.x += (clampedX - aimPoint.x) * camera.zoom;
+        pointer.y += (clampedY - aimPoint.y) * camera.zoom;
 
-        if (pointOnCanvas.x > this.#camera.viewport.width) {
-            this.#mouseAndKeyboardController.pointerPos.x -= pointOnCanvas.x - this.#camera.viewport.width;
-            pointOnCanvas.x = this.#camera.viewport.width;
-        } else if (pointOnCanvas.x < this.#camera.viewport.pos.x) {
-            this.#mouseAndKeyboardController.pointerPos.x += this.#camera.viewport.pos.x - pointOnCanvas.x;
-            pointOnCanvas.x = this.#camera.viewport.pos.x;
-        }
-
-        if (pointOnCanvas.y > this.#camera.viewport.height) {
-            this.#mouseAndKeyboardController.pointerPos.y -= pointOnCanvas.y - this.#camera.viewport.height;
-            pointOnCanvas.y = this.#camera.viewport.height;
-        } else if (pointOnCanvas.y < this.#camera.viewport.pos.y) {
-            this.#mouseAndKeyboardController.pointerPos.y += this.#camera.viewport.pos.y - pointOnCanvas.y;
-            pointOnCanvas.y = this.#camera.viewport.pos.y;
-        }
-
-        const target = this.#camera.target ?? this.#camera.pos;
-        this.#inputState.directionCoordinates.x = pointOnCanvas.x - target.x;
-        this.#inputState.directionCoordinates.y = pointOnCanvas.y - target.y;
-
-        this.#inputState.directionCoordinates.scale(1 / this.#camera.zoom);
-
-        this.#lastPos.copy(this.#mouseAndKeyboardController.pointerPos);
+        const target = camera.target ?? camera.pos;
+        this.#inputState.directionCoordinates.set(clampedX - target.x, clampedY - target.y);
+        this.#lastPos.copy(pointer);
     }
 }

@@ -1,5 +1,5 @@
 import { WeaponHolder } from '../components/WeaponHolder';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import type { IWeapon } from '../gameobjects/IWeapon';
 
 export function giveGun(entity : Entity, weapon : IWeapon) {

@@ -1,8 +1,10 @@
-import { Game } from '../Game';
+import type { Game } from '../Game';
 import type { IUI } from './IUI';
-import { Entity } from '../../core/Entity';
+import type { Entity } from '../../core/Entity';
 import { InputAction } from '../../lib/controllers/InputAction';
 import { byId } from '../../lib/dom';
+
+const ZOOM_SPEED = 0.1;
 
 export class GameInterface implements IUI {
     #game : Game;
@@ -21,6 +23,7 @@ export class GameInterface implements IUI {
             if (e.code === 'Escape') {
                 if (this.#paused) {
                     this.hide();
+                    this.#game.sound.resumeAll();
                     this.#game.loop.start();
                     this.#paused = false;
                 } else {
@@ -59,12 +62,12 @@ export class GameInterface implements IUI {
     }
 
     update(dt : number) {
-        if(this.#game.inputState.isKeyDown(InputAction.ZOOM_IN)) {
-            this.#game.camera.zoom += 0.1 * dt;
+        if (this.#game.inputState.isKeyDown(InputAction.ZOOM_IN)) {
+            this.#game.camera.zoomBy(ZOOM_SPEED * dt);
         }
 
-        if(this.#game.inputState.isKeyDown(InputAction.ZOOM_OUT)) {
-            this.#game.camera.zoom -= 0.1 * dt;
+        if (this.#game.inputState.isKeyDown(InputAction.ZOOM_OUT)) {
+            this.#game.camera.zoomBy(-ZOOM_SPEED * dt);
         }
     }
 

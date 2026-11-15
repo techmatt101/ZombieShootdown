@@ -9,7 +9,8 @@ pnpm dev          # dev server; ?dev boots the endless dev level, ?seed=<n> fixe
 pnpm build        # typecheck + production build
 pnpm typecheck
 pnpm lint         # oxlint (rules in .oxlintrc.json)
-pnpm test         # vitest, pure-logic unit tests (*.test.ts next to the module)
+pnpm test         # vitest unit tests (*.test.ts next to the module)
+pnpm check        # typecheck + lint + tests; run before committing
 ```
 
 Set `debug: true` in `src/config.ts` for the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs), collision boxes, and `window.game` / `window.debug` console access.
@@ -25,6 +26,19 @@ Write all code to be as fast as possible. The game loop runs every frame, so per
 - **Use typed arrays** (`Uint8Array`, `Float32Array`) for bulk world data, and pass them to/from workers as transferables.
 - **Cost must not grow with world size.** Query only what is near the player: chunks around the camera, `SpatialHash` neighbours, grid raycasts. Recompute cached results only when inputs change (e.g. lighting reruns when the light moves or `World.version` changes).
 - **Measure changes** with the perf overlay before and after.
+
+## Testing
+
+- **Coverage:** every piece of game logic has unit tests next to it (`Foo.ts` → `Foo.test.ts`). New logic gets tests; bug fixes get a test that fails without the fix.
+- **Environment:** tests run in Node with no DOM library.
+  - Stub browser globals per test with `vi.stubGlobal` (`Worker`, `OffscreenCanvas`, `requestAnimationFrame`, `window`, `navigator`).
+  - Mock image loading with `vi.mock('…/lib/assets', () => ({ loadImage: () => new Promise(() => {}) }))`.
+- **Shared fixtures** live in `src/testing/`. They are never imported by game code.
+  - `chunksFromRows([...])` builds a tile world from ASCII (`#` wall, `.` floor, `D` door, space rock).
+  - `generatedChunks(seed, radius)` builds a world from the real generator.
+  - `levelOn(chunks)` assembles a `TopDownLevel` with a `TileMap` and `Camera`.
+  - `recordingContext()` / `fakeCanvas()` record canvas draw calls.
+- **Dependencies:** depend on interfaces (e.g. `ChunkSource`, not `ChunkStreamer`) so systems can be tested with fakes.
 
 ## Code style
 
@@ -48,6 +62,8 @@ The engine is entity/component based: entities are built from components, system
     - `InteractionSystem`: nearest `Interactable` in reach; when interact is pressed, runs the matching behaviours.
     - `AISystem`: a per-frame think budget; passes the `TileMap` to `IAI.think`.
     - `LogicSystem` and `RenderSystem`.
+  - **Collision layers:** `Collision` has a `layer` and a `mask` (`CollisionLayer.PLAYER` / `ENEMY` / `PROJECTILE`). A pair only interacts when each mask includes the other's layer. Walls and closed doors block every moving entity.
+  - **Pooling:** pooled entities call `reset()` on every component when reused, so stateful components (AI, movement, damage cooldowns) implement `reset()`.
   - **Behaviours:** `behaviours/` with `CollisionBehaviourList` (damage) and `InteractionBehaviourList` (`openDoor`). Pairs fire when one side is dominant and the other passive.
   - **Doors:**
     - Entities from `factories/DoorFactory.ts` (`Material` + `Door` + `Interactable`), pooled and placed per chunk by `level/DoorSpawner.ts`, which also remembers open doors across unloads.

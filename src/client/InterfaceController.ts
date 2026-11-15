@@ -1,4 +1,4 @@
-import { Game } from './Game';
+import type { Game } from './Game';
 import { GameInterface } from './interfaces/GameInterface';
 import type { IUI } from './interfaces/IUI';
 import { MenuInterface } from './interfaces/MenuInterface';
@@ -6,7 +6,6 @@ import type { IUpdate } from '../lib/IUpdate';
 
 export class InterfaceController implements IUpdate {
     #ui : IUI;
-    #game : Game | null = null;
 
 
     constructor() {
@@ -14,7 +13,6 @@ export class InterfaceController implements IUpdate {
     }
 
     loaded(game : Game) {
-        this.#game = game;
         this.#ui = new GameInterface(game);
     }
 

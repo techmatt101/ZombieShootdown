@@ -1,5 +1,5 @@
 import { AI } from '../components/AI';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import type { ISystem } from './ISystem';
 import type { TileMap } from '../../world/TileMap';
 
@@ -22,13 +22,14 @@ export class AISystem implements ISystem<Entity> {
 
     update(dt : number) {
         const entities = this.#entities;
-        const thinkCount = Math.min(THINKS_PER_FRAME, entities.length);
-        for (let i = 0; i < thinkCount; i++) {
+        let thinks = 0;
+        for (let visited = 0; visited < entities.length && thinks < THINKS_PER_FRAME; visited++) {
             const entity = entities[this.#nextIndex];
+            this.#nextIndex = (this.#nextIndex + 1) % entities.length;
             if (entity.hasActiveComponent(AI)) {
                 entity.getComponent('ai').getAI().think(this.#tileMap);
+                thinks++;
             }
-            this.#nextIndex = (this.#nextIndex + 1) % entities.length;
         }
     }
 }

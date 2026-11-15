@@ -23,6 +23,10 @@ export class AI implements IComponent {
         this.#ai.update(dt);
     }
 
+    reset() {
+        this.#ai.reset();
+    }
+
     drawDebug(ctx : CanvasRenderingContext2D) : void {
     }
 

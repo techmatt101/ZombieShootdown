@@ -240,11 +240,11 @@ function isSurroundedByFloor(plan : FloorPlan, x : number, y : number) {
     return true;
 }
 
-function isCornerVertex(plan : FloorPlan, vx : number, vy : number) {
-    const topLeft = plan.isFloor(vx - 1, vy - 1);
-    const topRight = plan.isFloor(vx, vy - 1);
-    const bottomLeft = plan.isFloor(vx - 1, vy);
-    const bottomRight = plan.isFloor(vx, vy);
+function isCornerVertex(letsLightThrough : (x : number, y : number) => boolean, vx : number, vy : number) {
+    const topLeft = letsLightThrough(vx - 1, vy - 1);
+    const topRight = letsLightThrough(vx, vy - 1);
+    const bottomLeft = letsLightThrough(vx - 1, vy);
+    const bottomRight = letsLightThrough(vx, vy);
     const floorCount = Number(topLeft) + Number(topRight) + Number(bottomLeft) + Number(bottomRight);
     const isDiagonalPair = floorCount === 2 && topLeft === bottomRight;
     return floorCount === 1 || floorCount === 3 || isDiagonalPair;
@@ -266,6 +266,8 @@ export function generateChunk(seed : number, cx : number, cy : number) : ChunkDa
         }
         return false;
     };
+
+    const letsLightThroughWhenDoorsClosed = (x : number, y : number) => plan.isFloor(x, y) && !isDoorTile(x, y);
 
     const tiles = new Uint8Array(CHUNK_TILES * CHUNK_TILES);
     const wallDirections = new Uint8Array(CHUNK_TILES * CHUNK_TILES);
@@ -293,7 +295,7 @@ export function generateChunk(seed : number, cx : number, cy : number) : ChunkDa
             } else {
                 tiles[index] = TileType.ROCK;
             }
-            if (isCornerVertex(plan, x, y)) {
+            if (isCornerVertex(letsLightThroughWhenDoorsClosed, x, y)) {
                 corners.push((originX + x) * TILE_SIZE, (originY + y) * TILE_SIZE);
             }
         }

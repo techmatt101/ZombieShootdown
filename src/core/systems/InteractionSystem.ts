@@ -1,6 +1,6 @@
 import { Interactable } from '../components/Interactable';
 import { Interactor } from '../components/Interactor';
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import type { InteractionBehaviourList } from '../InteractionBehaviourList';
 import type { ISystem } from './ISystem';
 

@@ -2,7 +2,7 @@ export type Listener = (data? : any) => void;
 
 export interface IObserver<T = number> {
     on(event_type : T, callback : Listener) : void;
-    off() : void;
+    off(event_type : T, callback : Listener) : void;
 }
 
 export class EventHandler<T extends PropertyKey> {
@@ -26,7 +26,13 @@ export class EventHandler<T extends PropertyKey> {
         listeners.push(callback);
     }
 
-    remove() {
+    remove(key : T, callback : Listener) {
+        const listeners = this.#listeners.get(key);
+        if (listeners === undefined) return;
+        const index = listeners.indexOf(callback);
+        if (index !== -1) {
+            listeners.splice(index, 1);
+        }
     }
 
     clear() {

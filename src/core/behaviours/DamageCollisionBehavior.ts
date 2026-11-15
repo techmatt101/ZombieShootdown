@@ -1,6 +1,6 @@
 import type { IBehavior } from './IBehavior';
-import { Damage } from '../components/Damage';
-import { Health } from '../components/Health';
+import type { Damage } from '../components/Damage';
+import type { Health } from '../components/Health';
 
 export class DamageCollisionBehavior implements IBehavior {
     dominant = false;
@@ -25,8 +25,10 @@ export class DamageCollisionBehavior implements IBehavior {
     }
 
     action(opposingBehavior : IBehavior) {
-        if (this.#damage !== null) {
-            opposingBehavior.reaction(this.#damage.value);
+        const damage = this.#damage;
+        if (damage !== null && damage.isReady) {
+            opposingBehavior.reaction(damage.value);
+            damage.dealt();
         }
     }
 

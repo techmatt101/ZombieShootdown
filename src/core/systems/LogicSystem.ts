@@ -1,4 +1,4 @@
-import { Entity } from '../Entity';
+import type { Entity } from '../Entity';
 import type { ISystem } from './ISystem';
 
 export class LogicSystem implements ISystem<Entity> {

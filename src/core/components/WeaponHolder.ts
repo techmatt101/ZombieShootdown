@@ -1,7 +1,7 @@
 import type { IComponent } from './IComponent';
 import type { IComponentDirectory } from './IComponentDirectory';
 import type { IWeapon } from '../gameobjects/IWeapon';
-import { Point } from '../../lib/geometry/Point';
+import type { Point } from '../../lib/geometry/Point';
 
 export class WeaponHolder implements IComponent {
     active = true;

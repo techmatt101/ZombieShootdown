@@ -15,6 +15,13 @@ export enum ChunkEvent {
     UNLOADED,
 }
 
+export interface ChunkSource {
+    readonly version : number;
+    chunkAt(cx : number, cy : number) : Chunk | undefined;
+    chunks() : readonly Chunk[];
+    on(event : ChunkEvent, callback : Listener) : void;
+}
+
 interface ChunkRange {
     minCx : number;
     maxCx : number;
@@ -45,7 +52,7 @@ export function isInChunk(chunk : ChunkData, point : IVector) {
     return chunkIndexOf(point.x) === chunk.cx && chunkIndexOf(point.y) === chunk.cy;
 }
 
-export class ChunkStreamer implements IObserver<ChunkEvent> {
+export class ChunkStreamer implements IObserver<ChunkEvent>, ChunkSource {
     readonly seed : number;
     #chunks = new Map<string, Chunk>();
     #chunkList : Chunk[] = [];
@@ -94,7 +101,8 @@ export class ChunkStreamer implements IObserver<ChunkEvent> {
         this.#eventHandler.add(event, callback);
     }
 
-    off() {
+    off(event : ChunkEvent, callback : Listener) {
+        this.#eventHandler.remove(event, callback);
     }
 
     update(focus : IVector, halfWidth : number, halfHeight : number) {
