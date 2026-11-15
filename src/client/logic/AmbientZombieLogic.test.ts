@@ -1,16 +1,24 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AmbientZombieLogic } from './AmbientZombieLogic';
 import { GameLogicEvent, type IGameLogic } from './IGameLogic';
 import { spawnPlayer } from '../../core/factories/PlayerFactory';
 import { InputState } from '../../lib/controllers/InputState';
+import { FakeOffscreenCanvas } from '../../testing/fakeCanvas';
 import { levelOn } from '../../testing/levelFixtures';
 import { FakeChunkSource } from '../../testing/worldFixtures';
 import { generateChunk } from '../../world/generateChunk';
 
-vi.mock('../../lib/assets', () => ({ loadImage: () => new Promise(() => {}) }));
+const deathSheetLoaded = vi.hoisted(() => Promise.resolve({ width: 144, height: 33 }));
+
+vi.mock('../../lib/assets', () => ({ loadImage: (name : string) => name === 'zombie-death' ? deathSheetLoaded : new Promise(() => {}) }));
 
 beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.stubGlobal('OffscreenCanvas', FakeOffscreenCanvas);
+});
+
+afterEach(() => {
+    vi.unstubAllGlobals();
 });
 
 const SEED = 8;
@@ -67,8 +75,9 @@ describe('AmbientZombieLogic', () => {
         expect(zombies().length).toBe(count);
     });
 
-    it('keeps killed zombies dead when their chunk comes back, and scores the kill', () => {
+    it('keeps killed zombies dead when their chunk comes back, and scores the kill', async () => {
         const { chunks, logic, player, zombies, level } = setUp();
+        await deathSheetLoaded;
         logic.start(player);
         const chunk = chunks.load(chunkWithZombies(2));
         const count = chunk.zombieSpawns.length / 2;

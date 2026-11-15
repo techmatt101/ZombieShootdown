@@ -1,18 +1,26 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameLogicEvent } from './IGameLogic';
 import { SinglePlayerWaveLogic } from './SinglePlayerWaveLogic';
 import type { Entity } from '../../core/Entity';
 import { spawnPlayer } from '../../core/factories/PlayerFactory';
 import { InputState } from '../../lib/controllers/InputState';
 import { Vector } from '../../lib/geometry/Vector';
+import { FakeOffscreenCanvas } from '../../testing/fakeCanvas';
 import { levelOn } from '../../testing/levelFixtures';
 import { generatedChunks } from '../../testing/worldFixtures';
 import { CHUNK_SIZE, TILE_SIZE } from '../../world/constants';
 
-vi.mock('../../lib/assets', () => ({ loadImage: () => new Promise(() => {}) }));
+const deathSheetLoaded = vi.hoisted(() => Promise.resolve({ width: 144, height: 33 }));
+
+vi.mock('../../lib/assets', () => ({ loadImage: (name : string) => name === 'zombie-death' ? deathSheetLoaded : new Promise(() => {}) }));
 
 beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.stubGlobal('OffscreenCanvas', FakeOffscreenCanvas);
+});
+
+afterEach(() => {
+    vi.unstubAllGlobals();
 });
 
 function setUp() {
@@ -53,8 +61,9 @@ describe('SinglePlayerWaveLogic', () => {
         }
     });
 
-    it('scores kills and starts a bigger wave once every zombie is dead', () => {
+    it('scores kills and starts a bigger wave once every zombie is dead', async () => {
         const { logic, zombies, level } = setUp();
+        await deathSheetLoaded;
         killAll(zombies());
         expect(logic.score).toBe(4 * 10 + 100);
         expect(logic.wave).toBe(2);

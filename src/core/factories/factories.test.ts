@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fitDoor, spawnDoor } from './DoorFactory';
-import { spawnZombie } from './EnemyFactory';
+import { DYING, spawnDeadZombie, spawnZombie } from './EnemyFactory';
 import { animateFiring, spawnPlayer, spawnTorch } from './PlayerFactory';
 import { spawnBullet } from './WeaponFactory';
 import { AI } from '../components/AI';
@@ -37,6 +37,32 @@ describe('spawnZombie', () => {
         expect(collision.canCollideWith(player.getComponent('collision'))).toBe(true);
         expect(zombie.getComponent('movement').speed).toBeGreaterThanOrEqual(14);
         expect(zombie.getComponent('damage').cooldown).toBeGreaterThan(0);
+    });
+});
+
+describe('spawnDeadZombie', () => {
+    it('falls, bursts into blood, then settles into a spreading pool that stays', () => {
+        const body = spawnDeadZombie({ width: 144, height: 33 } as unknown as ImageBitmap);
+        const texture = body.getComponent('material').texture!;
+        body.getComponent('spriteAnimator').play();
+
+        const shown : number[] = [];
+        for (let time = 0; time < DYING.animationTime * 2; time += 0.5) {
+            body.update(0.5);
+            if (shown.at(-1) !== texture.sourcePos.x) shown.push(texture.sourcePos.x);
+        }
+        expect(shown).toEqual(DYING.spriteSequence.map((frame) => frame.x));
+        expect(texture.sourceWidth).toBe(texture.sourceHeight);
+    });
+
+    it('crops every death frame the same size and inside the sheet, so the body never jumps in size', () => {
+        const frames = DYING.spriteSequence;
+        for (let i = 0; i < frames.length; i++) {
+            expect(frames[i]).toMatchObject({ y: 0, width: frames[0].width, height: frames[0].height });
+            expect(frames[i].x).toBeGreaterThanOrEqual(0);
+            expect(frames[i].x + frames[i].width).toBeLessThanOrEqual(144);
+            if (i > 0) expect(frames[i].x).toBeGreaterThan(frames[i - 1].x);
+        }
     });
 });
 

@@ -18,7 +18,7 @@ import { randInt } from '../../lib/helpers';
 import { loadImage } from '../../lib/assets';
 import { normalMapOf } from '../../lib/spriteNormals';
 import type { ISpriteAnimationData } from '../animation/SpriteAnimation';
-import { Texture } from '../../lib/Texture';
+import { Texture, type TextureSource } from '../../lib/Texture';
 
 const MIN_CHASE_SPEED = 14;
 const MAX_CHASE_SPEED = 25;
@@ -28,6 +28,29 @@ const BODY_RADIUS = 21;
 const ZOMBIE_COLLIDES_WITH = CollisionLayer.PLAYER | CollisionLayer.ENEMY | CollisionLayer.PROJECTILE | CollisionLayer.PROP;
 const ZOMBIE_FRAME_WIDTH = 28;
 const ZOMBIE_FRAME_HEIGHT = 20;
+
+const DEATH_CELL = 33;
+const DEATH_DRAWN_SCALE = 2.2;
+const DEATH_DRAWN_SIZE = Math.round(DEATH_CELL * DEATH_DRAWN_SCALE);
+const FALLING_BODY_X = 1;
+const BLOOD_BURST_X = 32;
+const BLOOD_POOL_X = 64;
+const SPREAD_POOL_X = 111;
+
+function deathFrame(x : number, shownUntil : number) {
+    return { x, y: 0, width: DEATH_CELL, height: DEATH_CELL, time: shownUntil };
+}
+
+export const DYING : ISpriteAnimationData = {
+    animationTime: 7,
+    playsOnce: true,
+    spriteSequence: [
+        deathFrame(FALLING_BODY_X, 1.5),
+        deathFrame(BLOOD_BURST_X, 3),
+        deathFrame(BLOOD_POOL_X, 6),
+        deathFrame(SPREAD_POOL_X, 7),
+    ],
+};
 
 const SHAMBLE : ISpriteAnimationData = {
     animationTime: 4,
@@ -70,16 +93,19 @@ export function spawnZombie(target : Entity) {
     return zombie;
 }
 
-export function spawnDeadZombie() {
-    const zombie = new Entity('Dead Zombie', new Point(0, 0, 0), new Box(48, 48, new Vector(0, 0)));
+export function loadDeathSheet() {
+    return loadImage('zombie-death');
+}
+
+export function spawnDeadZombie(deathSheet : TextureSource) {
+    const zombie = new Entity('Dead Zombie', new Point(0, 0, 0), new Box(DEATH_DRAWN_SIZE, DEATH_DRAWN_SIZE, new Vector(0, 0)));
 
     const material = zombie.addComponent(new Material());
+    zombie.addComponent(new SpriteAnimator(material, DYING));
 
-    loadImage('zombie-death').then((img) => {
-        const texture = new Texture(img, new Vector(0, 0), 48, 48, new Vector(66, 2), 30, 30);
-        texture.normals = normalMapOf(img);
-        material.setTexture(texture);
-    });
+    const texture = new Texture(deathSheet, new Vector(0, 0), DEATH_DRAWN_SIZE, DEATH_DRAWN_SIZE, new Vector(FALLING_BODY_X, 0), DEATH_CELL, DEATH_CELL);
+    texture.normals = normalMapOf(deathSheet);
+    material.setTexture(texture);
 
     material.zIndex = ZIndexLayer.BACKGROUND;
 
