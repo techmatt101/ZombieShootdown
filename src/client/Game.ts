@@ -17,8 +17,10 @@ import { LogicSystem } from '../core/systems/LogicSystem';
 import { RenderSystem } from '../core/systems/RenderSystem';
 import { Camera } from '../lib/Camera';
 import { Canvas, HudCanvas } from '../lib/Canvas';
+import { ActionToggle } from '../lib/controllers/ActionToggle';
 import { GamepadAdaptor } from '../lib/controllers/GamepadAdaptor';
 import { GamepadController } from '../lib/controllers/GamepadController';
+import { InputAction } from '../lib/controllers/InputAction';
 import { InputHandler } from '../lib/controllers/InputHandler';
 import type { InputState } from '../lib/controllers/InputState';
 import { MouseAndKeyboardAdaptor } from '../lib/controllers/MouseAndKeyboardAdaptor';
@@ -45,7 +47,8 @@ export abstract class Game {
     lighting? : LightField;
     renderer : GpuRenderer;
     systems : Systems<Entity>;
-    debugSystem? : DebugSystem;
+    debugSystem : DebugSystem;
+    debugView : ActionToggle;
 
     chunks : ChunkStreamer;
     tileMap : TileMap;
@@ -101,12 +104,11 @@ export abstract class Game {
         this.systems.schedule(this.collisionSystem);
         this.systems.schedule(new InteractionSystem());
         this.systems.schedule(new RenderSystem(this.renderer));
-        if (Config.debug) {
-            this.debugSystem = new DebugSystem(this.camera);
-            this.systems.schedule(this.debugSystem);
-            if (this.lighting !== undefined) {
-                this.debugSystem.addOverlay(this.lighting);
-            }
+        this.debugView = new ActionToggle(this.inputState, InputAction.TOGGLE_DEBUG, Config.debug);
+        this.debugSystem = new DebugSystem(this.camera);
+        this.systems.schedule(this.debugSystem);
+        if (this.lighting !== undefined) {
+            this.debugSystem.addOverlay(this.lighting);
         }
         this.level = new TopDownLevel(this.chunks, this.tileMap, this.camera, this.systems);
         const doorSpawner = new DoorSpawner(this.level);
@@ -142,6 +144,7 @@ export abstract class Game {
         this.perf.begin('update');
         this.#streamWorld();
         this.input.update(dt);
+        this.debugView.update();
         this.systems.update(dt);
         this.camera.update(dt);
         ui.update(dt);
@@ -157,15 +160,16 @@ export abstract class Game {
 
         const ctx = this.hud.context;
         this.hud.beginFrame();
-        if (Config.debug) {
-            this.debugSystem?.paint(ctx);
+        const isDebugViewOn = this.debugView.isOn;
+        if (isDebugViewOn) {
+            this.debugSystem.paint(ctx);
             this.camera.drawDebug(ctx);
             ui.drawDebug(ctx);
         }
 
         ui.paint(ctx);
 
-        if (Config.debug) {
+        if (isDebugViewOn) {
             this.perf.count('entities', this.#countActiveEntities());
             this.perf.count('chunks', this.chunks.loadedCount);
             this.perf.count('chunks pending', this.chunks.pendingCount);

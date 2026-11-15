@@ -2,7 +2,7 @@ import type { GpuContext } from './GpuContext';
 import { MaskTextures } from './MaskTextures';
 import {
     createPipelines, FAN_VERTEX_STRIDE, LIGHT_TARGET_FORMAT, MEMORY_INSTANCE_STRIDE,
-    SPRITE_STRIDE, STENCIL_FORMAT, type PipelineSettings, type Pipelines,
+    SPRITE_STRIDE, type PipelineSettings, type Pipelines,
 } from './pipelines';
 import { TextureStore } from './TextureStore';
 import { FLOATS_PER_SPRITE, SpriteKind, type SpriteBatch } from '../SpriteBatch';
@@ -14,14 +14,15 @@ import type { LitArea } from '../../../lighting/LightField';
 import { MEMORY_SIZE, type RememberedChunk } from '../../../lighting/MapMemory';
 
 export const MAX_LIGHTS = 32;
-const CAMERA_FLOATS = 8;
+const CAMERA_FLOATS = 12;
 const FLOATS_PER_LIGHT = 8;
 const MEMORY_FLOATS_PER_CHUNK = 2;
 const BYTES_PER_FLOAT = 4;
 const INITIAL_BUFFER_BYTES = 16384;
 const QUAD_VERTICES = 6;
 const FULLSCREEN_TRIANGLE_VERTICES = 3;
-const SIGHT_STENCIL_REFERENCE = 1;
+const BLUR_DOWNSCALE = 2;
+const SOFT_LIGHT_GROUP = 2;
 const MIN_POLYGON_FLOATS = 6;
 const BLACK : GPUColor = { r: 0, g: 0, b: 0, a: 1 };
 const UNLIT : GPUColor = { r: 0, g: 0, b: 0, a: 0 };
@@ -33,14 +34,26 @@ export interface LightingSource {
     rememberedInView(camera : Camera, out : RememberedChunk[]) : void;
 }
 
+export interface PainterSettings extends PipelineSettings {
+    nearShadowSoftness : number;
+    farShadowSoftness : number;
+    softestShadowDistance : number;
+}
+
+interface LightTarget {
+    texture : GPUTexture;
+    view : GPUTextureView;
+    asSource : GPUBindGroup;
+}
+
 interface RenderTargets {
     width : number;
     height : number;
-    lightTarget : GPUTexture;
-    lightView : GPUTextureView;
-    lightBindGroup : GPUBindGroup;
-    stencil : GPUTexture;
-    stencilView : GPUTextureView;
+    blurWidth : number;
+    blurHeight : number;
+    light : LightTarget;
+    blurredAcross : LightTarget;
+    softLight : LightTarget;
 }
 
 function hasFan(area : LitArea | undefined) : area is LitArea {
@@ -53,7 +66,8 @@ export class GpuPainter {
     #pipelines : Pipelines;
     #textures : TextureStore;
     #masks : MaskTextures;
-    #nearestSampler : GPUSampler;
+    #smoothSampler : GPUSampler;
+    #settings : PainterSettings;
     #visionTexture : GPUTexture;
     #cameraBuffer : GPUBuffer;
     #lightBuffer : GPUBuffer;
@@ -66,6 +80,7 @@ export class GpuPainter {
     #cameraData = new Float32Array(CAMERA_FLOATS);
     #lightData = new Float32Array(MAX_LIGHTS * FLOATS_PER_LIGHT);
     #lightCount = 0;
+    #hasGlow = false;
     #fanData = new Float32Array(INITIAL_BUFFER_BYTES / BYTES_PER_FLOAT);
     #fanFirst = new Uint32Array(MAX_LIGHTS);
     #fanCount = new Uint32Array(MAX_LIGHTS);
@@ -75,15 +90,17 @@ export class GpuPainter {
     #memoryData = new Float32Array(INITIAL_BUFFER_BYTES / BYTES_PER_FLOAT);
     #drawCalls = 0;
 
-    constructor(gpu : GpuContext, settings : PipelineSettings, vision : TextureSource) {
+    constructor(gpu : GpuContext, settings : PainterSettings, vision : TextureSource) {
         this.#gpu = gpu;
+        this.#settings = settings;
         const device = gpu.device;
         this.#device = device;
         this.#pipelines = createPipelines(device, gpu.format, settings);
 
-        this.#nearestSampler = device.createSampler({ label: 'nearest' });
+        const nearestSampler = device.createSampler({ label: 'nearest' });
         const smoothSampler = device.createSampler({ label: 'smooth', magFilter: 'linear', minFilter: 'linear' });
-        this.#textures = new TextureStore(device, this.#pipelines.textureLayout, this.#nearestSampler);
+        this.#smoothSampler = smoothSampler;
+        this.#textures = new TextureStore(device, this.#pipelines.textureLayout, nearestSampler);
         this.#masks = new MaskTextures(device, this.#pipelines.textureLayout, smoothSampler, MEMORY_SIZE);
 
         this.#cameraBuffer = this.#createBuffer('camera', CAMERA_FLOATS * BYTES_PER_FLOAT, GPUBufferUsage.UNIFORM);
@@ -113,8 +130,7 @@ export class GpuPainter {
         this.#textures.dispose();
         this.#masks.dispose();
         this.#visionTexture.destroy();
-        this.#targets?.lightTarget.destroy();
-        this.#targets?.stencil.destroy();
+        this.#destroyTargets();
         this.#targets = null;
         this.#cameraBuffer.destroy();
         this.#lightBuffer.destroy();
@@ -138,6 +154,8 @@ export class GpuPainter {
         const encoder = this.#device.createCommandEncoder();
         if (lighting !== null) {
             this.#paintLight(encoder, targets);
+            this.#paintBlur(encoder, this.#pipelines.blurAcross, targets.light, targets.blurredAcross);
+            this.#paintBlur(encoder, this.#pipelines.blurDown, targets.blurredAcross, targets.softLight);
         }
         this.#paintScene(encoder, targets, batch, lighting !== null);
         this.#device.queue.submit([encoder.finish()]);
@@ -148,7 +166,7 @@ export class GpuPainter {
     #paintLight(encoder : GPUCommandEncoder, targets : RenderTargets) {
         const pass = encoder.beginRenderPass({
             label: 'light',
-            colorAttachments: [{ view: targets.lightView, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' }],
+            colorAttachments: [{ view: targets.light.view, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' }],
         });
         pass.setBindGroup(0, this.#sceneBindGroup);
 
@@ -167,6 +185,21 @@ export class GpuPainter {
         for (let i = 0; i < this.#lightCount; i++) {
             this.#drawFan(pass, i);
         }
+        if (this.#hasGlow) {
+            this.#paintGlow(pass);
+        }
+        pass.end();
+    }
+
+    #paintBlur(encoder : GPUCommandEncoder, pipeline : GPURenderPipeline, source : LightTarget, target : LightTarget) {
+        const pass = encoder.beginRenderPass({
+            label: pipeline.label,
+            colorAttachments: [{ view: target.view, loadOp: 'clear', clearValue: UNLIT, storeOp: 'store' }],
+        });
+        pass.setPipeline(pipeline);
+        pass.setBindGroup(0, this.#sceneBindGroup);
+        pass.setBindGroup(1, source.asSource);
+        this.#draw(pass, FULLSCREEN_TRIANGLE_VERTICES, 1, 0, 0);
         pass.end();
     }
 
@@ -174,39 +207,28 @@ export class GpuPainter {
         const pass = encoder.beginRenderPass({
             label: 'scene',
             colorAttachments: [{ view: this.#gpu.context.getCurrentTexture().createView(), loadOp: 'clear', clearValue: BLACK, storeOp: 'store' }],
-            depthStencilAttachment: { view: targets.stencilView, stencilLoadOp: 'clear', stencilClearValue: 0, stencilStoreOp: 'discard' },
         });
         pass.setBindGroup(0, this.#sceneBindGroup);
-        pass.setStencilReference(SIGHT_STENCIL_REFERENCE);
-
         if (isLit) {
-            this.#paintSightStencil(pass);
+            pass.setBindGroup(SOFT_LIGHT_GROUP, targets.softLight.asSource);
         }
+
         this.#paintSprites(pass, batch, isLit, false);
         if (isLit) {
-            pass.setPipeline(this.#pipelines.multiply);
-            pass.setBindGroup(1, targets.lightBindGroup);
+            pass.setBindGroup(1, targets.softLight.asSource);
+            pass.setPipeline(this.#pipelines.darken);
             this.#draw(pass, FULLSCREEN_TRIANGLE_VERTICES, 1, 0, 0);
-            this.#paintGlow(pass);
+            if (this.#hasGlow) {
+                pass.setPipeline(this.#pipelines.warmGlow);
+                this.#draw(pass, FULLSCREEN_TRIANGLE_VERTICES, 1, 0, 0);
+            }
         }
         this.#paintSprites(pass, batch, isLit, true);
         pass.end();
     }
 
-    #paintSightStencil(pass : GPURenderPassEncoder) {
-        pass.setPipeline(this.#pipelines.sightStencil);
-        pass.setVertexBuffer(0, this.#fanBuffer);
-        const lights = this.#fanLights;
-        for (let i = 0; i < this.#lightCount; i++) {
-            if (lights[i].isSight) {
-                this.#drawFan(pass, i);
-            }
-        }
-    }
-
     #paintGlow(pass : GPURenderPassEncoder) {
         pass.setPipeline(this.#pipelines.glow);
-        pass.setVertexBuffer(0, this.#fanBuffer);
         const lights = this.#fanLights;
         for (let i = 0; i < this.#lightCount; i++) {
             if (lights[i].glow > 0) {
@@ -254,8 +276,16 @@ export class GpuPainter {
         data[0] = Math.trunc(camera.view.left);
         data[1] = Math.trunc(camera.view.top);
         data[2] = camera.zoom;
+        data[3] = this.#settings.softestShadowDistance;
         data[4] = targets.width;
         data[5] = targets.height;
+        data[6] = targets.blurWidth;
+        data[7] = targets.blurHeight;
+        const player = camera.target ?? camera.pos;
+        data[8] = player.x;
+        data[9] = player.y;
+        data[10] = this.#settings.nearShadowSoftness * camera.zoom;
+        data[11] = this.#settings.farShadowSoftness * camera.zoom;
         this.#device.queue.writeBuffer(this.#cameraBuffer, 0, data);
     }
 
@@ -270,6 +300,7 @@ export class GpuPainter {
         const lights = lighting.lights;
         const count = Math.min(lights.length, MAX_LIGHTS);
         const data = this.#lightData;
+        let hasGlow = false;
         for (let i = 0; i < count; i++) {
             const light = lights[i];
             const offset = i * FLOATS_PER_LIGHT;
@@ -278,8 +309,11 @@ export class GpuPainter {
             data[offset + 2] = light.radius;
             data[offset + 3] = light.intensity;
             data[offset + 4] = light.glow;
+            data[offset + 5] = light.isSight ? 1 : 0;
+            hasGlow ||= light.glow > 0;
         }
         this.#lightCount = count;
+        this.#hasGlow = hasGlow;
         if (count > 0) {
             this.#device.queue.writeBuffer(this.#lightBuffer, 0, data, 0, count * FLOATS_PER_LIGHT);
         }
@@ -357,33 +391,47 @@ export class GpuPainter {
         if (current !== null && current.width === width && current.height === height) {
             return current;
         }
-        current?.lightTarget.destroy();
-        current?.stencil.destroy();
+        this.#destroyTargets();
+        const blurWidth = Math.max(1, Math.ceil(width / BLUR_DOWNSCALE));
+        const blurHeight = Math.max(1, Math.ceil(height / BLUR_DOWNSCALE));
+        const targets = {
+            width,
+            height,
+            blurWidth,
+            blurHeight,
+            light: this.#createLightTarget('light', width, height),
+            blurredAcross: this.#createLightTarget('shadow blur', blurWidth, blurHeight),
+            softLight: this.#createLightTarget('soft light', blurWidth, blurHeight),
+        };
+        this.#targets = targets;
+        return targets;
+    }
 
-        const lightTarget = this.#device.createTexture({
-            label: 'light',
+    #createLightTarget(label : string, width : number, height : number) : LightTarget {
+        const texture = this.#device.createTexture({
+            label,
             size: [width, height],
             format: LIGHT_TARGET_FORMAT,
             usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
         });
-        const lightView = lightTarget.createView();
-        const stencil = this.#device.createTexture({
-            label: 'sight stencil',
-            size: [width, height],
-            format: STENCIL_FORMAT,
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-        const lightBindGroup = this.#device.createBindGroup({
-            label: 'light',
+        const view = texture.createView();
+        const asSource = this.#device.createBindGroup({
+            label,
             layout: this.#pipelines.textureLayout,
             entries: [
-                { binding: 0, resource: lightView },
-                { binding: 1, resource: this.#nearestSampler },
+                { binding: 0, resource: view },
+                { binding: 1, resource: this.#smoothSampler },
             ],
         });
-        const targets = { width, height, lightTarget, lightView, lightBindGroup, stencil, stencilView: stencil.createView() };
-        this.#targets = targets;
-        return targets;
+        return { texture, view, asSource };
+    }
+
+    #destroyTargets() {
+        const targets = this.#targets;
+        if (targets === null) return;
+        targets.light.texture.destroy();
+        targets.blurredAcross.texture.destroy();
+        targets.softLight.texture.destroy();
     }
 
     #uploadVision(vision : TextureSource) {

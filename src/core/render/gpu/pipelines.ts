@@ -1,11 +1,11 @@
+import blurShader from './shaders/blur.wgsl?raw';
 import commonShader from './shaders/common.wgsl?raw';
+import compositeShader from './shaders/composite.wgsl?raw';
 import fanShader from './shaders/fan.wgsl?raw';
 import memoryShader from './shaders/memory.wgsl?raw';
-import multiplyShader from './shaders/multiply.wgsl?raw';
 import spriteShader from './shaders/sprite.wgsl?raw';
 
-export const LIGHT_TARGET_FORMAT : GPUTextureFormat = 'r8unorm';
-export const STENCIL_FORMAT : GPUTextureFormat = 'stencil8';
+export const LIGHT_TARGET_FORMAT : GPUTextureFormat = 'rgba8unorm';
 export const SPRITE_STRIDE = 64;
 export const FAN_VERTEX_STRIDE = 8;
 export const MEMORY_INSTANCE_STRIDE = 8;
@@ -21,11 +21,13 @@ export interface Pipelines {
     sprite : GPURenderPipeline;
     spriteInSight : GPURenderPipeline;
     spriteAdditive : GPURenderPipeline;
-    sightStencil : GPURenderPipeline;
     brightness : GPURenderPipeline;
     glow : GPURenderPipeline;
     memory : GPURenderPipeline;
-    multiply : GPURenderPipeline;
+    blurAcross : GPURenderPipeline;
+    blurDown : GPURenderPipeline;
+    darken : GPURenderPipeline;
+    warmGlow : GPURenderPipeline;
 }
 
 const PREMULTIPLIED_ALPHA : GPUBlendState = {
@@ -41,21 +43,6 @@ const ADDITIVE : GPUBlendState = {
 const MULTIPLY : GPUBlendState = {
     color: { srcFactor: 'zero', dstFactor: 'src' },
     alpha: { srcFactor: 'zero', dstFactor: 'one' },
-};
-
-const IGNORE_STENCIL : GPUDepthStencilState = { format: STENCIL_FORMAT };
-
-const WRITE_STENCIL : GPUDepthStencilState = {
-    format: STENCIL_FORMAT,
-    stencilFront: { compare: 'always', passOp: 'replace' },
-    stencilBack: { compare: 'always', passOp: 'replace' },
-};
-
-const INSIDE_STENCIL : GPUDepthStencilState = {
-    format: STENCIL_FORMAT,
-    stencilFront: { compare: 'equal', passOp: 'keep' },
-    stencilBack: { compare: 'equal', passOp: 'keep' },
-    stencilWriteMask: 0,
 };
 
 const SPRITE_INSTANCE : GPUVertexBufferLayout = {
@@ -99,39 +86,57 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         ],
     });
     const withTexture = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, textureLayout] });
+    const withTextureAndSoftLight = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout, textureLayout, textureLayout] });
     const sceneOnly = device.createPipelineLayout({ bindGroupLayouts: [sceneLayout] });
 
     const module = (label : string, code : string) => device.createShaderModule({ label, code: commonShader + code });
     const spriteModule = module('sprite', spriteShader);
     const fanModule = module('fan', fanShader);
     const memoryModule = module('memory', memoryShader);
-    const multiplyModule = module('multiply', multiplyShader);
+    const blurModule = module('blur', blurShader);
+    const compositeModule = module('composite', compositeShader);
 
-    const sprite = (label : string, blend : GPUBlendState, depthStencil : GPUDepthStencilState) => device.createRenderPipeline({
+    const sprite = (label : string, entryPoint : string, blend : GPUBlendState, layout = withTexture) => device.createRenderPipeline({
         label,
-        layout: withTexture,
+        layout,
         vertex: { module: spriteModule, entryPoint: 'vertexMain', buffers: [SPRITE_INSTANCE] },
-        fragment: { module: spriteModule, entryPoint: 'fragmentMain', targets: [{ format: canvasFormat, blend }] },
-        depthStencil,
+        fragment: { module: spriteModule, entryPoint, targets: [{ format: canvasFormat, blend }] },
     });
 
-    const fan = (label : string, entryPoint : string, target : GPUColorTargetState, depthStencil? : GPUDepthStencilState) => device.createRenderPipeline({
+    const fan = (label : string, entryPoint : string) => device.createRenderPipeline({
         label,
         layout: sceneOnly,
         vertex: { module: fanModule, entryPoint: 'vertexMain', buffers: [FAN_VERTEX] },
-        fragment: { module: fanModule, entryPoint, targets: [target] },
-        depthStencil,
+        fragment: { module: fanModule, entryPoint, targets: [{ format: LIGHT_TARGET_FORMAT, blend: ADDITIVE }] },
+    });
+
+    const blur = (label : string, blurAxisX : number, blurAxisY : number) => device.createRenderPipeline({
+        label,
+        layout: withTexture,
+        vertex: { module: blurModule, entryPoint: 'vertexMain' },
+        fragment: {
+            module: blurModule,
+            entryPoint: 'fragmentMain',
+            targets: [{ format: LIGHT_TARGET_FORMAT }],
+            constants: { blurAxisX, blurAxisY },
+        },
+    });
+
+    const composite = (label : string, entryPoint : string, blend : GPUBlendState) => device.createRenderPipeline({
+        label,
+        layout: withTexture,
+        vertex: { module: compositeModule, entryPoint: 'vertexMain' },
+        fragment: { module: compositeModule, entryPoint, targets: [{ format: canvasFormat, blend }] },
     });
 
     return {
         sceneLayout,
         textureLayout,
-        sprite: sprite('sprite', PREMULTIPLIED_ALPHA, IGNORE_STENCIL),
-        spriteInSight: sprite('sprite in sight', PREMULTIPLIED_ALPHA, INSIDE_STENCIL),
-        spriteAdditive: sprite('sprite additive', ADDITIVE, IGNORE_STENCIL),
-        sightStencil: fan('sight stencil', 'stencilMain', { format: canvasFormat, writeMask: 0 }, WRITE_STENCIL),
-        brightness: fan('brightness', 'brightnessMain', { format: LIGHT_TARGET_FORMAT, blend: ADDITIVE }),
-        glow: fan('glow', 'glowMain', { format: canvasFormat, blend: ADDITIVE }, IGNORE_STENCIL),
+        sprite: sprite('sprite', 'fragmentMain', PREMULTIPLIED_ALPHA),
+        spriteInSight: sprite('sprite in sight', 'fragmentInSight', PREMULTIPLIED_ALPHA, withTextureAndSoftLight),
+        spriteAdditive: sprite('sprite additive', 'fragmentMain', ADDITIVE),
+        brightness: fan('brightness', 'brightnessMain'),
+        glow: fan('glow', 'glowMain'),
         memory: device.createRenderPipeline({
             label: 'memory',
             layout: withTexture,
@@ -148,12 +153,9 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
                 constants: { rememberedBrightness: settings.rememberedBrightness },
             },
         }),
-        multiply: device.createRenderPipeline({
-            label: 'multiply',
-            layout: withTexture,
-            vertex: { module: multiplyModule, entryPoint: 'vertexMain' },
-            fragment: { module: multiplyModule, entryPoint: 'fragmentMain', targets: [{ format: canvasFormat, blend: MULTIPLY }] },
-            depthStencil: IGNORE_STENCIL,
-        }),
+        blurAcross: blur('blur across', 1, 0),
+        blurDown: blur('blur down', 0, 1),
+        darken: composite('darken', 'darkenMain', MULTIPLY),
+        warmGlow: composite('warm glow', 'warmGlowMain', ADDITIVE),
     };
 }

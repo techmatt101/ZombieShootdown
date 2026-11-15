@@ -13,14 +13,17 @@ export interface RecordedDraw {
 export interface RecordedWrite {
     method : string;
     target : string;
+    data : number[];
 }
 
 export class FakeGpuTexture {
     label : string;
+    size : readonly number[];
     isDestroyed = false;
 
-    constructor(label : string) {
+    constructor(label : string, size : readonly number[] = []) {
         this.label = label;
+        this.size = size;
     }
 
     createView() {
@@ -59,7 +62,6 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
     const draws : RecordedDraw[] = [];
     const writes : RecordedWrite[] = [];
     const textures : FakeGpuTexture[] = [];
-    const stencilReferences : number[] = [];
     let isUnconfigured = false;
 
     const labelOf = (target : unknown) => {
@@ -76,9 +78,6 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
             },
             setBindGroup: () => {},
             setVertexBuffer: () => {},
-            setStencilReference: (reference : number) => {
-                stencilReferences.push(reference);
-            },
             draw: (vertexCount : number, instanceCount = 1, firstVertex = 0, firstInstance = 0) => {
                 draws.push({ pass, pipeline, vertexCount, instanceCount, firstVertex, firstInstance });
             },
@@ -89,7 +88,7 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
     const device = {
         createBuffer: (descriptor : GPUBufferDescriptor) => new FakeGpuBuffer(descriptor.label ?? '', descriptor.size, descriptor.usage),
         createTexture: (descriptor : GPUTextureDescriptor) => {
-            const texture = new FakeGpuTexture(descriptor.label ?? '');
+            const texture = new FakeGpuTexture(descriptor.label ?? '', [...(descriptor.size as Iterable<number>)]);
             textures.push(texture);
             return texture;
         },
@@ -101,9 +100,11 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
         createBindGroup: (descriptor : GPUBindGroupDescriptor) => ({ label: descriptor.label }),
         createCommandEncoder: () => ({ beginRenderPass, finish: () => ({}) }),
         queue: {
-            writeBuffer: (buffer : unknown) => writes.push({ method: 'writeBuffer', target: labelOf(buffer) }),
-            writeTexture: (destination : { texture : unknown }) => writes.push({ method: 'writeTexture', target: labelOf(destination.texture) }),
-            copyExternalImageToTexture: (source : unknown, destination : { texture : unknown }) => writes.push({ method: 'copyExternalImageToTexture', target: labelOf(destination.texture) }),
+            writeBuffer: (buffer : unknown, offset : number, data : Float32Array, dataOffset = 0, size = data.length - dataOffset) => {
+                writes.push({ method: 'writeBuffer', target: labelOf(buffer), data: [...data.subarray(dataOffset, dataOffset + size)] });
+            },
+            writeTexture: (destination : { texture : unknown }) => writes.push({ method: 'writeTexture', target: labelOf(destination.texture), data: [] }),
+            copyExternalImageToTexture: (source : unknown, destination : { texture : unknown }) => writes.push({ method: 'copyExternalImageToTexture', target: labelOf(destination.texture), data: [] }),
             submit: () => {},
         },
     };
@@ -118,15 +119,16 @@ export function fakeGpu(canvas = { width: 1200, height: 600 }) {
     const gpu = { device, context, format: 'bgra8unorm', canvas } as unknown as GpuContext;
     const pipelinesDrawn = () => draws.map((draw) => draw.pipeline);
     const writesTo = (target : string) => writes.filter((write) => write.target === target).length;
+    const lastWriteTo = (target : string) => writes.filter((write) => write.target === target).at(-1)?.data ?? [];
 
     return {
         gpu,
         draws,
         writes,
         textures,
-        stencilReferences,
         pipelinesDrawn,
         writesTo,
+        lastWriteTo,
         get isUnconfigured() {
             return isUnconfigured;
         },

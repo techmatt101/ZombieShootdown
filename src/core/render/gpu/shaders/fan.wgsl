@@ -1,5 +1,5 @@
-const WARM_GLOW_CORE = vec4f(1.0, 0.745, 0.353, 1.0);
-const WARM_GLOW_EDGE = vec4f(1.0, 0.471, 0.118, 0.0);
+const WARM_GLOW_GREEN_AT_CORE = 0.745;
+const WARM_GLOW_GREEN_AT_EDGE = 0.471;
 
 struct FanVertex {
     @builtin(position) position : vec4f,
@@ -21,19 +21,14 @@ fn brightnessMain(in : FanVertex) -> @location(0) vec4f {
     let light = lights[in.light];
     let uv = (in.world - light.centre) / (2.0 * light.radius) + 0.5;
     let brightness = textureSampleLevel(visionTexture, smoothSampler, uv, 0.0).a * light.intensity;
-    return vec4f(brightness, 0.0, 0.0, brightness);
+    return vec4f(brightness, light.isSight, 0.0, 0.0);
 }
 
 @fragment
 fn glowMain(in : FanVertex) -> @location(0) vec4f {
     let light = lights[in.light];
     let fromCentre = clamp(distance(in.world, light.centre) / light.radius, 0.0, 1.0);
-    let colour = mix(WARM_GLOW_CORE, WARM_GLOW_EDGE, fromCentre);
-    let alpha = colour.a * light.intensity * light.glow;
-    return vec4f(colour.rgb * alpha, alpha);
-}
-
-@fragment
-fn stencilMain() -> @location(0) vec4f {
-    return vec4f(0.0);
+    let amount = (1.0 - fromCentre) * light.intensity * light.glow;
+    let green = mix(WARM_GLOW_GREEN_AT_CORE, WARM_GLOW_GREEN_AT_EDGE, fromCentre);
+    return vec4f(0.0, 0.0, amount, amount * green);
 }

@@ -1,5 +1,7 @@
 @group(1) @binding(0) var spriteTexture : texture_2d<f32>;
 @group(1) @binding(1) var spriteSampler : sampler;
+@group(2) @binding(0) var softLightTexture : texture_2d<f32>;
+@group(2) @binding(1) var softLightSampler : sampler;
 
 struct SpriteVertex {
     @builtin(position) position : vec4f,
@@ -30,4 +32,10 @@ fn vertexMain(
 @fragment
 fn fragmentMain(in : SpriteVertex) -> @location(0) vec4f {
     return textureSample(spriteTexture, spriteSampler, in.uv) * in.tint;
+}
+
+@fragment
+fn fragmentInSight(in : SpriteVertex) -> @location(0) vec4f {
+    let sight = textureSample(softLightTexture, softLightSampler, in.position.xy / camera.viewport.xy).g;
+    return textureSample(spriteTexture, spriteSampler, in.uv) * in.tint * sight;
 }

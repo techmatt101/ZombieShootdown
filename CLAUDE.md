@@ -13,7 +13,7 @@ pnpm test         # vitest unit tests (*.test.ts next to the module)
 pnpm check        # typecheck + lint + tests; run before committing
 ```
 
-Set `debug: true` in `src/config.ts` for the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs, draw calls, light points), collision boxes, each light's visibility rays and outline (cyan for sight, orange otherwise), and `window.game` / `window.debug` console access.
+Press `` ` `` (backtick, or gamepad Back/View) in game to toggle the debug view; `debug: true` in `src/config.ts` starts it on and exposes `window.game` / `window.debug`. The debug view shows the perf overlay (fps, update/lighting/render ms, chunks, entities, collision pairs, draw calls, light points), collision boxes, each light's visibility rays and outline (cyan for sight, orange otherwise).
 
 ## Performance rules
 
@@ -77,11 +77,11 @@ The engine is entity/component based: entities are built from components, system
   - `SpriteBatch`: one reused `Float32Array` of sprite instances (placement, rect, crop, tint), grouped into runs of the same texture and `SpriteKind` (`SCENE`, `SCENE_IN_SIGHT`, `ADDITIVE`). Each run is one instanced draw.
   - `EntitySprites.ts`: culls entities outside the camera view and queues the rest in z order.
   - `GpuRenderer`: fills the batch (world layer, then entities) each frame and hands it to `gpu/GpuPainter`. `init()` is async (`createGpuContext`), and `paint()` does nothing until it is ready.
-  - `gpu/GpuPainter`: per frame, a light pass adds remembered map and each light's visibility fan into an `r8unorm` light target. Then the scene pass:
-    1. sight fans write a stencil;
-    2. scene sprites draw, with `isHiddenOutOfSight` sprites (zombies) only inside the stencil;
-    3. a fullscreen pass multiplies everything by the light target;
-    4. warm glow and additive sprites are added on top.
+  - `gpu/GpuPainter`: per frame:
+    1. A light pass adds the remembered map and each light's visibility fan into an `rgba8unorm` light target: r = brightness, g = sight (sight lights only), b/a = warm glow.
+    2. Two half-resolution blur passes (across, then down) soften it. The blur radius grows with distance from the player (`NEAR_SHADOW_SOFTNESS` → `FAR_SHADOW_SOFTNESS` over `SOFTEST_SHADOW_DISTANCE`, in `GpuRenderer`), so shadows are crisp close up and soft further out.
+    3. The scene pass draws sprites. `isHiddenOutOfSight` sprites (zombies) are faded by the soft sight channel, so they melt into the same shadows as the floor.
+    4. A fullscreen pass multiplies everything by the soft brightness, then adds the warm glow and additive sprites.
   - `gpu/GpuContext.ts`: one shared `GPUDevice` per page, reused across games, because Chrome can fail to create a fresh device right after destroying one. `dispose()` frees only the game's own textures and buffers.
   - `gpu/TextureStore` uploads any `TextureSource` once (keyed by the source object), and `gpu/MaskTextures` keeps map-memory masks in sync by version. Shaders live in `gpu/shaders/*.wgsl`, imported with `?raw`.
   - HUD text, the perf overlay and every `drawDebug` draw on the transparent 2D `#hud` canvas stacked over `#game` (`HudCanvas`).

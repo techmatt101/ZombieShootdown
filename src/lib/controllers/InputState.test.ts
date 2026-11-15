@@ -20,4 +20,16 @@ describe('InputState', () => {
         expect(state.isKeyDown(InputAction.LEFT)).toBe(false);
         expect(state.isKeyDown(InputAction.ACTION_1)).toBe(false);
     });
+
+    it('counts each new press, not key repeats while held', () => {
+        const state = new InputState();
+        state.setKeyPress(InputAction.TOGGLE_DEBUG);
+        state.setKeyPress(InputAction.TOGGLE_DEBUG);
+        state.setKeyPress(InputAction.TOGGLE_DEBUG);
+        expect(state.pressCount(InputAction.TOGGLE_DEBUG)).toBe(1);
+        state.setKeyRelease(InputAction.TOGGLE_DEBUG);
+        state.setKeyPress(InputAction.TOGGLE_DEBUG);
+        expect(state.pressCount(InputAction.TOGGLE_DEBUG)).toBe(2);
+        expect(state.pressCount(InputAction.UP)).toBe(0);
+    });
 });

@@ -8,4 +8,5 @@ export enum InputAction {
     ZOOM_IN,
     ZOOM_OUT,
     INTERACT,
+    TOGGLE_DEBUG,
 }

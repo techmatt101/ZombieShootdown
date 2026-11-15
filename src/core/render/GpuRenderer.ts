@@ -10,6 +10,9 @@ import type { TextureSource } from '../../lib/Texture';
 import { CHUNK_SIZE } from '../../world/constants';
 
 const REMEMBERED_BRIGHTNESS = 0.3;
+const NEAR_SHADOW_SOFTNESS = 0.1;
+const FAR_SHADOW_SOFTNESS = 10;
+const SOFTEST_SHADOW_DISTANCE = 500;
 
 export class GpuRenderer implements EntityRenderer, TextureOwner {
     #camera : Camera;
@@ -36,7 +39,13 @@ export class GpuRenderer implements EntityRenderer, TextureOwner {
     async init(gpu : GpuContext) {
         const vision = await loadImage('vision');
         if (this.#isDisposed) return;
-        this.#painter = new GpuPainter(gpu, { chunkSize: CHUNK_SIZE, rememberedBrightness: REMEMBERED_BRIGHTNESS }, vision);
+        this.#painter = new GpuPainter(gpu, {
+            chunkSize: CHUNK_SIZE,
+            rememberedBrightness: REMEMBERED_BRIGHTNESS,
+            nearShadowSoftness: NEAR_SHADOW_SOFTNESS,
+            farShadowSoftness: FAR_SHADOW_SOFTNESS,
+            softestShadowDistance: SOFTEST_SHADOW_DISTANCE,
+        }, vision);
     }
 
     setBackground(layer : SpriteLayer) {

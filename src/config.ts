@@ -31,10 +31,12 @@ export const Config : GameConfig = {
         Escape: 'MENU',
         Equal: 'ZOOM_IN',
         Minus: 'ZOOM_OUT',
+        Backquote: 'TOGGLE_DEBUG',
     },
 
     gamepadKeyMappings: {
         Button0: 'INTERACT',
         Button7: 'ACTION_1',
+        Button8: 'TOGGLE_DEBUG',
     },
 };

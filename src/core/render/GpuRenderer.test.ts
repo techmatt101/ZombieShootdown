@@ -79,7 +79,7 @@ describe('GpuRenderer', () => {
         expect(renderer.drawCalls).toBe(0);
     });
 
-    it('lights the scene: brightness, sight stencil, sprites, darkness, warm glow, then additive sprites', async () => {
+    it('lights then softens the light, then draws sprites, darkness, warm glow and additive sprites', async () => {
         const { renderer, gpu } = await readyRenderer();
         const eyes = new Light(new Vector(0, 0), { radius: 500, isSight: true });
         const lamp = new Light(new Vector(0, 0), { radius: 600, glow: 0.5 });
@@ -90,15 +90,52 @@ describe('GpuRenderer', () => {
             'light:memory',
             'light:brightness',
             'light:brightness',
-            'scene:sight stencil',
+            'light:glow',
+            'blur across:blur across',
+            'blur down:blur down',
             'scene:sprite',
             'scene:sprite in sight',
-            'scene:multiply',
-            'scene:glow',
+            'scene:darken',
+            'scene:warm glow',
             'scene:sprite additive',
         ]);
-        expect(renderer.drawCalls).toBe(9);
-        expect(gpu.stencilReferences).toEqual([1]);
+        expect(renderer.drawCalls).toBe(11);
+    });
+
+    it('skips the warm glow when no light glows', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 500, isSight: true })]));
+        renderer.paint();
+        expect(gpu.pipelinesDrawn()).not.toContain('glow');
+        expect(gpu.pipelinesDrawn()).not.toContain('warm glow');
+    });
+
+    it('tells the shaders which lights are sight, so only they reveal zombies', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 500, isSight: true }), new Light(new Vector(0, 0), { radius: 600 })]));
+        renderer.paint();
+        const lights = gpu.lastWriteTo('lights');
+        expect([lights[5], lights[8 + 5]]).toEqual([1, 0]);
+    });
+
+    it('softens shadows more the further they are from the player, by the same world distance at any zoom', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        const camera = cameraOnOrigin();
+        camera.setTarget(new Vector(100, 50));
+        const zoomedRenderer = new GpuRenderer(camera);
+        await zoomedRenderer.init(gpu.gpu);
+        renderer.setLighting(lightingWith([]));
+        zoomedRenderer.setLighting(lightingWith([]));
+
+        renderer.paint();
+        const [, , , softestDistance, , , , , , , near, far] = gpu.lastWriteTo('camera');
+        expect(far).toBeGreaterThan(near);
+        expect(softestDistance).toBeGreaterThan(0);
+
+        camera.zoomBy(1);
+        zoomedRenderer.paint();
+        const zoomed = gpu.lastWriteTo('camera');
+        expect(zoomed.slice(8)).toEqual([100, 50, near * 2, far * 2]);
     });
 
     it('draws each light as its own fan, tagged with the light it belongs to', async () => {
@@ -176,16 +213,19 @@ describe('GpuRenderer', () => {
         expect(gpu.writesTo('map memory')).toBe(2);
     });
 
-    it('rebuilds its light and stencil targets when the canvas is resized', async () => {
+    it('rebuilds its light targets when the canvas is resized, blurring at half resolution', async () => {
         const canvas = { width: 1200, height: 600 };
         const { renderer, gpu } = await readyRenderer(canvas);
         renderer.paint();
         renderer.paint();
-        const lightTargets = () => gpu.textures.filter((texture) => texture.label === 'light');
-        expect(lightTargets().length).toBe(1);
-        canvas.width = 1920;
+        const targets = (label : string) => gpu.textures.filter((texture) => texture.label === label);
+        expect(targets('light').map((texture) => texture.size)).toEqual([[1200, 600]]);
+        expect(targets('soft light').map((texture) => texture.size)).toEqual([[600, 300]]);
+        canvas.width = 1921;
         renderer.paint();
-        expect(lightTargets().map((texture) => texture.isDestroyed)).toEqual([true, false]);
+        expect(targets('light').map((texture) => texture.isDestroyed)).toEqual([true, false]);
+        expect(targets('shadow blur').map((texture) => texture.isDestroyed)).toEqual([true, false]);
+        expect(targets('soft light').at(-1)?.size).toEqual([961, 300]);
     });
 
     it('frees everything it made and lets go of the canvas when disposed, leaving the shared device alive', async () => {

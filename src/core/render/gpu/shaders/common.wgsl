@@ -1,6 +1,7 @@
 struct Camera {
     view : vec4f,
     viewport : vec4f,
+    shadow : vec4f,
 };
 
 struct Light {
@@ -8,7 +9,7 @@ struct Light {
     radius : f32,
     intensity : f32,
     glow : f32,
-    unused0 : f32,
+    isSight : f32,
     unused1 : f32,
     unused2 : f32,
 };
@@ -30,4 +31,9 @@ fn quadCorner(vertexIndex : u32) -> vec2f {
         vec2f(0.0, 1.0), vec2f(1.0, 0.0), vec2f(1.0, 1.0),
     );
     return corners[vertexIndex];
+}
+
+fn fullscreenTriangle(vertexIndex : u32) -> vec4f {
+    var corners = array<vec2f, 3>(vec2f(-1.0, -1.0), vec2f(3.0, -1.0), vec2f(-1.0, 3.0));
+    return vec4f(corners[vertexIndex], 0.0, 1.0);
 }
