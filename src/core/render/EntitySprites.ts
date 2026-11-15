@@ -2,6 +2,7 @@ import { SpriteKind, type SpriteBatch } from './SpriteBatch';
 import { Material } from '../components/Material';
 import type { Entity } from '../Entity';
 import type { Camera } from '../../lib/Camera';
+import type { Texture, TextureSource } from '../../lib/Texture';
 
 const SUBPIXEL_SNAP_MARGIN = 1;
 
@@ -11,6 +12,20 @@ export function queueEntitySprites(entities : readonly Entity[], camera : Camera
         if (!entity.hasActiveComponent(Material) || !camera.isInCurrentView(entity.pos, drawRadius(entity))) continue;
         queueEntity(entity, batch);
     }
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i];
+        const texture = entity.components.material?.texture ?? null;
+        if (texture === null || texture.emissive === null) continue;
+        if (!entity.hasActiveComponent(Material) || !camera.isInCurrentView(entity.pos, drawRadius(entity))) continue;
+        queueEmissive(entity, texture, texture.emissive, batch);
+    }
+}
+
+function queueEmissive(entity : Entity, texture : Texture, emissive : TextureSource, batch : SpriteBatch) {
+    const material = entity.getComponent('material');
+    const kind = material.isHiddenOutOfSight ? SpriteKind.ADDITIVE_IN_SIGHT : SpriteKind.ADDITIVE;
+    placeTexture(entity, texture, emissive, kind, batch);
+    batch.tint(1, 1, 1, material.opacity);
 }
 
 function drawRadius(entity : Entity) {
@@ -43,8 +58,17 @@ function queueEntity(entity : Entity, batch : SpriteBatch) {
         return;
     }
 
-    batch.place(texture.img, kind, x, y, direction,
-        texture.pos.x - halfWidth, texture.pos.y - halfHeight, texture.width, texture.height);
+    placeTexture(entity, texture, texture.img, kind, batch);
+    batch.tint(1, 1, 1, material.opacity);
+    if (texture.normals !== null) {
+        batch.withNormals(texture.normals);
+    }
+}
+
+function placeTexture(entity : Entity, texture : Texture, source : TextureSource, kind : SpriteKind, batch : SpriteBatch) {
+    const { x, y, direction } = entity.pos;
+    batch.place(source, kind, x, y, direction,
+        texture.pos.x - entity.geometry.width / 2, texture.pos.y - entity.geometry.height / 2, texture.width, texture.height);
     const imageWidth = texture.img.width, imageHeight = texture.img.height;
     batch.crop(
         texture.sourcePos.x / imageWidth,
@@ -52,8 +76,4 @@ function queueEntity(entity : Entity, batch : SpriteBatch) {
         (texture.sourcePos.x + texture.sourceWidth) / imageWidth,
         (texture.sourcePos.y + texture.sourceHeight) / imageHeight
     );
-    batch.tint(1, 1, 1, material.opacity);
-    if (texture.normals !== null) {
-        batch.withNormals(texture.normals);
-    }
 }

@@ -5,7 +5,7 @@ import {
     SHADOW_STENCIL_FORMAT, SPRITE_STRIDE, type PipelineSettings, type Pipelines,
 } from './pipelines';
 import { TextureStore } from './TextureStore';
-import { FLOATS_PER_SPRITE, SpriteKind, type SpriteBatch } from '../SpriteBatch';
+import { FLOATS_PER_SPRITE, isAdditiveKind, SpriteKind, type SpriteBatch } from '../SpriteBatch';
 import type { Light } from '../../components/Light';
 import type { Camera } from '../../../lib/Camera';
 import type { TextureSource } from '../../../lib/Texture';
@@ -279,8 +279,7 @@ export class GpuPainter {
         let current : GPURenderPipeline | null = null;
         for (let i = 0; i < batch.runCount; i++) {
             const run = batch.run(i);
-            const isAdditive = run.kind === SpriteKind.ADDITIVE;
-            if (isAdditive !== isAdditivePass) continue;
+            if (isAdditiveKind(run.kind) !== isAdditivePass) continue;
             const pipeline = this.#spritePipeline(run.kind, isLit);
             if (pipeline !== current) {
                 pass.setPipeline(pipeline);
@@ -292,8 +291,16 @@ export class GpuPainter {
     }
 
     #spritePipeline(kind : SpriteKind, isLit : boolean) {
-        if (kind === SpriteKind.ADDITIVE) return this.#pipelines.spriteAdditive;
-        return kind === SpriteKind.SCENE_IN_SIGHT && isLit ? this.#pipelines.spriteInSight : this.#pipelines.sprite;
+        switch (kind) {
+            case SpriteKind.ADDITIVE_IN_SIGHT:
+                return isLit ? this.#pipelines.spriteAdditiveInSight : this.#pipelines.spriteAdditive;
+            case SpriteKind.ADDITIVE:
+                return this.#pipelines.spriteAdditive;
+            case SpriteKind.SCENE_IN_SIGHT:
+                return isLit ? this.#pipelines.spriteInSight : this.#pipelines.sprite;
+            default:
+                return this.#pipelines.sprite;
+        }
     }
 
     #drawFan(pass : GPURenderPassEncoder, lightIndex : number) {

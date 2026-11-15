@@ -28,6 +28,7 @@ export interface Pipelines {
     sprite : GPURenderPipeline;
     spriteInSight : GPURenderPipeline;
     spriteAdditive : GPURenderPipeline;
+    spriteAdditiveInSight : GPURenderPipeline;
     shadow : GPURenderPipeline;
     brightness : GPURenderPipeline;
     glow : GPURenderPipeline;
@@ -181,6 +182,7 @@ export function createPipelines(device : GPUDevice, canvasFormat : GPUTextureFor
         sprite: sprite('sprite', 'fragmentMain', PREMULTIPLIED_ALPHA),
         spriteInSight: sprite('sprite in sight', 'fragmentInSight', PREMULTIPLIED_ALPHA, withSpriteAndSoftLight),
         spriteAdditive: sprite('sprite additive', 'fragmentMain', ADDITIVE),
+        spriteAdditiveInSight: sprite('sprite additive in sight', 'fragmentInSight', ADDITIVE, withSpriteAndSoftLight),
         shadow: fan('shadow', 'shadowMain', CASTS_SHADOW, noColour),
         brightness: fan('brightness', 'brightnessMain', STOPPED_BY_SHADOWS),
         glow: fan('glow', 'glowMain', IGNORES_SHADOWS),

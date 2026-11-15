@@ -17,7 +17,9 @@ import { DoorSide, generateChunk } from '../../world/generateChunk';
 import { TileMap } from '../../world/TileMap';
 import { TileType } from '../../world/TileType';
 
-vi.mock('../../lib/assets', () => ({ loadImage: () => new Promise(() => {}) }));
+const loadImage = vi.hoisted(() => vi.fn((_name : string) => new Promise(() => {})));
+
+vi.mock('../../lib/assets', () => ({ loadImage }));
 
 beforeEach(() => {
     vi.stubGlobal('OffscreenCanvas', FakeOffscreenCanvas);
@@ -37,6 +39,11 @@ describe('spawnZombie', () => {
         expect(collision.canCollideWith(player.getComponent('collision'))).toBe(true);
         expect(zombie.getComponent('movement').speed).toBeGreaterThanOrEqual(14);
         expect(zombie.getComponent('damage').cooldown).toBeGreaterThan(0);
+    });
+
+    it('loads glowing eyes alongside its sprite and normal map', () => {
+        spawnZombie(spawnPlayer({ x: 0, y: 0 }, new InputState()));
+        expect(loadImage).toHaveBeenCalledWith('zombie_e');
     });
 });
 

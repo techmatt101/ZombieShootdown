@@ -99,4 +99,38 @@ describe('queueEntitySprites', () => {
         expect([batch.data[3], batch.data[FLOATS_PER_SPRITE + 3]]).toEqual([0, 1]);
         expect(batch.run(1).normals).toBe(normals);
     });
+
+    it('adds glowing parts after every sprite, placed and framed like their sprite, glowing only in sight for hidden sprites', () => {
+        const eyes = { width: 100, height: 50 } as HTMLImageElement;
+        const zombie = new Entity('Zombie', new Point(10, 20, Math.PI / 2), new Box(48, 48));
+        const material = zombie.addComponent(new Material());
+        material.isHiddenOutOfSight = true;
+        zombie.build();
+        const texture = new Texture(sheet, new Vector(4, -2), 62, 48, new Vector(0, 20), 28, 20);
+        texture.emissive = eyes;
+        material.setTexture(texture);
+
+        const batch = queued([zombie, sprite(0, 0)]);
+        expect(batch.count).toBe(3);
+        expect(batch.run(2)).toMatchObject({ source: eyes, kind: SpriteKind.ADDITIVE_IN_SIGHT, first: 2, count: 1 });
+        expect(spriteData(batch, 2).slice(0, 12)).toEqual(spriteData(batch, 0).slice(0, 12));
+    });
+
+    it('lets the glowing parts of sprites seen everywhere glow everywhere', () => {
+        const glowing = sprite(0, 0);
+        const texture = new Texture(sheet, new Vector(0, 0), 40, 40);
+        texture.emissive = { width: 100, height: 50 } as HTMLImageElement;
+        glowing.getComponent('material').setTexture(texture);
+        expect(queued([glowing]).run(1).kind).toBe(SpriteKind.ADDITIVE);
+    });
+
+    it('adds no glow for sprites out of view or without glowing parts', () => {
+        const offscreen = sprite(0, -5000);
+        const texture = new Texture(sheet, new Vector(0, 0), 40, 40);
+        texture.emissive = { width: 100, height: 50 } as HTMLImageElement;
+        offscreen.getComponent('material').setTexture(texture);
+        const plain = sprite(0, 0);
+        plain.getComponent('material').setTexture(new Texture(sheet, new Vector(0, 0), 40, 40));
+        expect(queued([offscreen, plain]).count).toBe(1);
+    });
 });

@@ -4,6 +4,11 @@ export enum SpriteKind {
     SCENE,
     SCENE_IN_SIGHT,
     ADDITIVE,
+    ADDITIVE_IN_SIGHT,
+}
+
+export function isAdditiveKind(kind : SpriteKind) {
+    return kind === SpriteKind.ADDITIVE || kind === SpriteKind.ADDITIVE_IN_SIGHT;
 }
 
 export const FLOATS_PER_SPRITE = 16;

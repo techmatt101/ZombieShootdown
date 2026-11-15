@@ -84,9 +84,10 @@ export function spawnZombie(target : Entity) {
     collision.behaviours.playerDamage = new DamageCollisionBehavior()
         .acceptDamage(health);
 
-    void Promise.all([loadImage('zombie'), loadImage('zombie_n')]).then(([img, normals]) => {
+    void Promise.all([loadImage('zombie'), loadImage('zombie_n'), loadImage('zombie_e')]).then(([img, normals, glowingEyes]) => {
         const texture = new Texture(img, new Vector(0, 0), 62, 48, new Vector(0, 0), ZOMBIE_FRAME_WIDTH, ZOMBIE_FRAME_HEIGHT);
         texture.normals = normals;
+        texture.emissive = glowingEyes;
         material.setTexture(texture);
     });
 

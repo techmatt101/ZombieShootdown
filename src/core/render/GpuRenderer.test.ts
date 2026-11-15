@@ -52,6 +52,12 @@ function lightPassDraws(gpu : ReturnType<typeof fakeGpu>) {
     return draws.map((draw) => `${draw.pipeline}@${draw.stencilReference}`);
 }
 
+function glowingEyes() {
+    const zombie = sprite({ isHiddenOutOfSight: true });
+    zombie.getComponent('material').texture!.emissive = { width: 64, height: 64 } as HTMLImageElement;
+    return zombie;
+}
+
 function cameraOnOrigin() {
     const camera = new Camera({ x: 600, y: 300 });
     camera.setTarget(new Vector(0, 0));
@@ -287,9 +293,21 @@ describe('GpuRenderer', () => {
 
     it('draws everything in plain view without lighting', async () => {
         const { renderer, gpu } = await readyRenderer();
-        renderer.render([sprite(), sprite({ isHiddenOutOfSight: true }), sprite({ isAdditive: true })]);
+        renderer.render([sprite(), sprite({ isHiddenOutOfSight: true }), sprite({ isAdditive: true }), glowingEyes()]);
         renderer.paint();
-        expect(gpu.pipelinesDrawn()).toEqual(['sprite', 'sprite', 'sprite additive']);
+        expect(gpu.pipelinesDrawn()).toEqual(['sprite', 'sprite', 'sprite', 'sprite additive', 'sprite additive']);
+    });
+
+    it('adds glowing eyes after the darkness, faded by sight like the zombie wearing them', async () => {
+        const { renderer, gpu } = await readyRenderer();
+        renderer.setLighting(lightingWith([new Light(new Vector(0, 0), { radius: 500, isSight: true })]));
+        renderer.render([glowingEyes()]);
+        renderer.paint();
+        const sceneDraws = gpu.draws.filter((draw) => draw.pass === 'scene').map((draw) => draw.pipeline);
+        expect(sceneDraws).toEqual(['sprite in sight', 'shade', 'sprite additive in sight']);
+        const pipeline = gpu.pipelines.find((candidate) => candidate.label === 'sprite additive in sight')!;
+        expect(pipeline.fragment?.entryPoint).toBe('fragmentInSight');
+        expect([...pipeline.fragment!.targets][0]?.blend?.color).toEqual({ srcFactor: 'one', dstFactor: 'one' });
     });
 
     it('draws a run of sprites sharing a texture in one call', async () => {

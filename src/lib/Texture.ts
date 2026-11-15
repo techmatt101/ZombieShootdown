@@ -9,6 +9,7 @@ export class Texture extends Box {
     sourceWidth : number;
     sourceHeight : number;
     normals : TextureSource | null = null;
+    emissive : TextureSource | null = null;
 
     constructor(img : TextureSource,
                 pos : Vector,
