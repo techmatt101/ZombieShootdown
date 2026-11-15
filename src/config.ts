@@ -10,7 +10,7 @@ export interface GameConfig {
 }
 
 export const Config : GameConfig = {
-    debug: true,
+    debug: import.meta.env.DEV,
     sound: false,
     lighting: true,
     skipMenu: false,
