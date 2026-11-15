@@ -33,7 +33,7 @@ export class GameInterface implements IUI {
                     this.#paused = true;
                 }
             }
-        });
+        }, { signal: game.signal });
 
         this.#game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
@@ -49,7 +49,7 @@ export class GameInterface implements IUI {
                     console.log(this.#selectedEntity);
                 }
             }
-        });
+        }, { signal: game.signal });
     }
 
     pause() {

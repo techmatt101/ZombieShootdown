@@ -1,5 +1,5 @@
 import { ui } from '../app';
-import type { IGameLogic } from './logic/IGameLogic';
+import { GameLogicEvent, type IGameLogic } from './logic/IGameLogic';
 import { Config } from '../config';
 import type { Entity } from '../core/Entity';
 import { TopDownLevel } from '../core/level/TopDownLevel';
@@ -56,6 +56,7 @@ export abstract class Game {
 
     levelSetupTasks : TaskCollection;
     perf = new PerfStats();
+    #lifetime = new AbortController();
     #perfOverlay = new PerfOverlay(this.perf);
 
 
@@ -69,10 +70,10 @@ export abstract class Game {
         this.camera = new Camera(this.canvas.center);
 
         this.sound = new SoundController(Config.sound);
-        this.input = new InputHandler();
+        this.input = new InputHandler(this.signal);
         this.inputState = this.input.getState();
 
-        const mouseAndKeyboardController = new MouseAndKeyboardController(this.canvas.element);
+        const mouseAndKeyboardController = new MouseAndKeyboardController(this.canvas.element, this.signal);
         const mouseAndKeyboardControllerAdaptor = new MouseAndKeyboardAdaptor(mouseAndKeyboardController, this.camera);
         const gamepadController = new GamepadController();
         const gamepadControllerAdaptor = new GamepadAdaptor(gamepadController, this.camera);
@@ -176,9 +177,29 @@ export abstract class Game {
         this.chunks.update(focus, this.camera.halfView.x, this.camera.halfView.y);
     }
 
+    get signal() {
+        return this.#lifetime.signal;
+    }
+
     onLoaded() {
         ui.loaded(this);
+        this.logic.on(GameLogicEvent.OVER, () => this.end());
         this.loop.start();
+    }
+
+    end() {
+        this.loop.pause();
+        this.#lifetime.abort();
+        this.sound.pauseAll();
+        document.exitPointerLock?.();
+        ui.gameOver({ score: this.logic.score, wave: this.logic.wave });
+    }
+
+    dispose() {
+        this.loop.pause();
+        this.#lifetime.abort();
+        this.sound.stopAll();
+        this.chunks.stop();
     }
 
     async load() {

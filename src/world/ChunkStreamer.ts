@@ -105,6 +105,20 @@ export class ChunkStreamer implements IObserver<ChunkEvent>, ChunkSource {
         this.#eventHandler.remove(event, callback);
     }
 
+    stop() {
+        this.#worker?.terminate();
+        this.#worker = null;
+        const chunkList = this.#chunkList;
+        for (let i = 0; i < chunkList.length; i++) {
+            chunkList[i].bitmap?.close();
+        }
+        this.#chunks.clear();
+        this.#chunkList = [];
+        this.#pending.clear();
+        this.#loadWaiters = [];
+        this.#wanted = null;
+    }
+
     update(focus : IVector, halfWidth : number, halfHeight : number) {
         const kept = rangeAround(focus, halfWidth, halfHeight, UNLOAD_MARGIN_CHUNKS);
         const chunkList = this.#chunkList;

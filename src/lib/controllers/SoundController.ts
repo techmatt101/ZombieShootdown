@@ -40,6 +40,14 @@ export class SoundController {
         this.#pausedClips = [];
     }
 
+    stopAll() {
+        for (const clip of this.#audioClips.values()) {
+            clip.pause();
+            clip.currentTime = 0;
+        }
+        this.#pausedClips = [];
+    }
+
     #start(clip : HTMLAudioElement) {
         clip.play().catch((error : unknown) => console.warn('Audio playback was blocked', error));
     }

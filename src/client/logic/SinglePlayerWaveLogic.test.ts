@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { GameLogicEvent } from './IGameLogic';
 import { SinglePlayerWaveLogic } from './SinglePlayerWaveLogic';
 import type { Entity } from '../../core/Entity';
 import { spawnPlayer } from '../../core/factories/PlayerFactory';
@@ -32,6 +33,15 @@ function killAll(zombies : Entity[]) {
 }
 
 describe('SinglePlayerWaveLogic', () => {
+    it('ends the game once when the player dies', () => {
+        const { logic, player } = setUp();
+        let gameOvers = 0;
+        logic.on(GameLogicEvent.OVER, () => gameOvers++);
+        player.getComponent('health').take(1000);
+        player.getComponent('health').take(1000);
+        expect(gameOvers).toBe(1);
+    });
+
     it('starts wave one with zombies off screen, on open floor', () => {
         const { logic, zombies, camera, tileMap } = setUp();
         expect(logic.wave).toBe(1);

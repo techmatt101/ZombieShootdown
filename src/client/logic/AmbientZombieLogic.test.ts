@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AmbientZombieLogic } from './AmbientZombieLogic';
-import type { IGameLogic } from './IGameLogic';
+import { GameLogicEvent, type IGameLogic } from './IGameLogic';
 import { spawnPlayer } from '../../core/factories/PlayerFactory';
 import { InputState } from '../../lib/controllers/InputState';
 import { levelOn } from '../../testing/levelFixtures';
@@ -31,6 +31,20 @@ function setUp() {
 }
 
 describe('AmbientZombieLogic', () => {
+    it('ends the game when the player dies, and not after the listener is removed', () => {
+        const { logic, player } = setUp();
+        logic.start(player);
+        let gameOvers = 0;
+        const onGameOver = () => gameOvers++;
+        logic.on(GameLogicEvent.OVER, onGameOver);
+        player.getComponent('health').take(1000);
+        expect(gameOvers).toBe(1);
+        logic.off(GameLogicEvent.OVER, onGameOver);
+        player.getComponent('health').set(10);
+        player.getComponent('health').take(1000);
+        expect(gameOvers).toBe(1);
+    });
+
     it('waits for the player, then fills every loaded chunk with its zombies', () => {
         const { chunks, logic, player, zombies } = setUp();
         const chunk = chunks.load(chunkWithZombies(2));

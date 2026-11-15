@@ -4,6 +4,7 @@ import { Sound, SoundController } from './SoundController';
 function fakeClip() {
     const clip = {
         paused: true,
+        currentTime: 0,
         play: vi.fn(async () => {
             clip.paused = false;
         }),
@@ -40,6 +41,21 @@ describe('SoundController', () => {
         sound.pauseAll();
         sound.resumeAll();
         expect(clip.play).toHaveBeenCalledTimes(2);
+    });
+
+    it('stops and rewinds everything, forgetting what was paused', async () => {
+        const clip = fakeClip();
+        const sound = new SoundController(true);
+        sound.load(Sound.AMBIENT, clip as unknown as HTMLAudioElement);
+        sound.play(Sound.AMBIENT);
+        await Promise.resolve();
+        clip.currentTime = 42;
+        sound.pauseAll();
+        sound.stopAll();
+        expect(clip.paused).toBe(true);
+        expect(clip.currentTime).toBe(0);
+        sound.resumeAll();
+        expect(clip.play).toHaveBeenCalledTimes(1);
     });
 
     it('survives the browser blocking playback', async () => {

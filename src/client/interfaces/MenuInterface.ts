@@ -1,13 +1,22 @@
-import { arcadeGameSetup, bunnyTestSetup, devLevelSetup } from '../../app';
 import type { IUI } from './IUI';
 import { Config } from '../../config';
 import { byId } from '../../lib/dom';
 
-export class MenuInterface implements IUI {
+export interface MenuActions {
+    startArcade() : void;
+    startDevLevel() : void;
+    startBunnyTest() : void;
+}
 
-    constructor() {
+export class MenuInterface implements IUI {
+    #container : HTMLElement;
+    #welcome : HTMLElement;
+
+    constructor(actions : MenuActions) {
         const play = byId('play');
         const menu = byId('interface');
+        this.#container = menu;
+        this.#welcome = byId('welcome');
         const about = byId('about');
         const option = byId('option');
         const devLevel = byId('dev');
@@ -31,16 +40,25 @@ export class MenuInterface implements IUI {
             setTimeout(setup, 0);
         };
 
-        play.addEventListener('click', () => hideMenuThenStartAfterRepaint(arcadeGameSetup));
-        devLevel.addEventListener('click', () => hideMenuThenStartAfterRepaint(devLevelSetup));
-        option.addEventListener('click', () => hideMenuThenStartAfterRepaint(bunnyTestSetup));
+        play.addEventListener('click', () => hideMenuThenStartAfterRepaint(actions.startArcade));
+        devLevel.addEventListener('click', () => hideMenuThenStartAfterRepaint(actions.startDevLevel));
+        option.addEventListener('click', () => hideMenuThenStartAfterRepaint(actions.startBunnyTest));
 
         const startsInDevLevel = new URLSearchParams(location.search).has('dev');
         if (startsInDevLevel) {
-            setTimeout(() => hideMenuThenStartAfterRepaint(devLevelSetup), 100);
+            setTimeout(() => hideMenuThenStartAfterRepaint(actions.startDevLevel), 100);
         } else if (Config.skipMenu) {
-            setTimeout(() => hideMenuThenStartAfterRepaint(arcadeGameSetup), 100);
+            setTimeout(() => hideMenuThenStartAfterRepaint(actions.startArcade), 100);
         }
+    }
+
+    show() {
+        this.#container.hidden = false;
+        this.#welcome.hidden = false;
+    }
+
+    hide() {
+        this.#welcome.hidden = true;
     }
 
     update(dt : number) {

@@ -28,6 +28,8 @@ export class BunnyTest<T> {
         }
     }
 
+    #timer : ReturnType<typeof setInterval> | undefined;
+
     start() {
         const timer = setInterval(() => {
             if (this.fps > 56) {
@@ -37,6 +39,11 @@ export class BunnyTest<T> {
                 console.info(`Total Bunnies Running: ${this.bunnies.length}`);
             }
         }, 200);
+        this.#timer = timer;
+    }
+
+    stop() {
+        clearInterval(this.#timer);
     }
 
     update(dt : number) {

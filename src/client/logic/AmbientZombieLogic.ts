@@ -1,9 +1,10 @@
 import { DeadBodies } from './DeadBodies';
-import type { IGameLogic } from './IGameLogic';
+import { GameLogicEvent, type IGameLogic } from './IGameLogic';
 import { HealthEvent } from '../../core/components/Health';
 import type { Entity } from '../../core/Entity';
 import { spawnZombie } from '../../core/factories/EnemyFactory';
 import type { TopDownLevel } from '../../core/level/TopDownLevel';
+import { EventHandler, type Listener } from '../../lib/EventHandler';
 import { Pool } from '../../lib/Pool';
 import { ChunkEvent, isInChunk, type Chunk } from '../../world/ChunkStreamer';
 
@@ -12,6 +13,7 @@ const KILL_SCORE = 10;
 
 export class AmbientZombieLogic implements IGameLogic {
     score = 0;
+    #events = new EventHandler<GameLogicEvent>();
 
     #level : TopDownLevel;
     #player : Entity | null = null;
@@ -32,11 +34,17 @@ export class AmbientZombieLogic implements IGameLogic {
         chunks.on(ChunkEvent.UNLOADED, (chunk : Chunk) => this.#depopulate(chunk));
     }
 
+    on(event : GameLogicEvent, callback : Listener) {
+        this.#events.add(event, callback);
+    }
+
+    off(event : GameLogicEvent, callback : Listener) {
+        this.#events.remove(event, callback);
+    }
+
     start(player : Entity) {
         this.#player = player;
-        player.getComponent('health').on(HealthEvent.DEATH, () => {
-            console.log("GAME OVER MAN!");
-        });
+        player.getComponent('health').on(HealthEvent.DEATH, () => this.#events.fire(GameLogicEvent.OVER));
         const chunks = this.#level.getChunks().chunks();
         for (let i = 0; i < chunks.length; i++) {
             this.#populate(chunks[i]);

@@ -6,6 +6,7 @@ import { AmbientZombieLogic } from './client/logic/AmbientZombieLogic';
 import { SinglePlayerWaveLogic } from './client/logic/SinglePlayerWaveLogic';
 import { SinglePlayerGame, type LogicFactory } from './client/SinglePlayerGame';
 import { Config } from './config';
+import { byId } from './lib/dom';
 
 declare global {
     interface Window {
@@ -16,8 +17,17 @@ declare global {
 
 export let ui! : InterfaceController;
 
+let currentGame : SinglePlayerGame | BunnyTesterGame | null = null;
+let restartCurrentGame : (() => void) | null = null;
+
 window.addEventListener('load', () => {
-    ui = new InterfaceController();
+    ui = new InterfaceController({
+        startArcade: arcadeGameSetup,
+        startDevLevel: devLevelSetup,
+        startBunnyTest: bunnyTestSetup,
+        restart: restartGame,
+        mainMenu: returnToMenu,
+    });
 });
 
 function worldSeed() {
@@ -25,31 +35,46 @@ function worldSeed() {
     return seedParam === null ? Math.floor(Math.random() * 2 ** 32) : Number(seedParam) >>> 0;
 }
 
-function startSinglePlayerGame(createLogic : LogicFactory) {
-    console.time('GameSetup');
-    const game = new SinglePlayerGame(worldSeed(), createLogic);
-    console.timeEnd('GameSetup');
-    void game.load();
-
+function replaceCurrentGame(game : SinglePlayerGame | BunnyTesterGame | null) {
+    currentGame?.dispose();
+    currentGame = game;
     if (Config.debug) {
-        window.game = game;
-        window.debug = new DebugTool(game);
+        window.game = game ?? undefined;
+        window.debug = game instanceof SinglePlayerGame ? new DebugTool(game) : undefined;
     }
 }
 
-export function arcadeGameSetup() {
+function startSinglePlayerGame(createLogic : LogicFactory) {
+    const overlay = byId('overlay');
+    overlay.textContent = 'Loading...';
+    overlay.hidden = false;
+    const game = new SinglePlayerGame(worldSeed(), createLogic);
+    replaceCurrentGame(game);
+    restartCurrentGame = () => startSinglePlayerGame(createLogic);
+    void game.load();
+}
+
+function arcadeGameSetup() {
     startSinglePlayerGame((level) => new SinglePlayerWaveLogic(level));
 }
 
-export function devLevelSetup() {
+function devLevelSetup() {
     startSinglePlayerGame((level) => new AmbientZombieLogic(level));
 }
 
-export function bunnyTestSetup() {
+function bunnyTestSetup() {
     const game = new BunnyTesterGame();
+    replaceCurrentGame(game);
+    restartCurrentGame = bunnyTestSetup;
     game.load();
+}
 
-    if (Config.debug) {
-        window.game = game;
-    }
+function restartGame() {
+    restartCurrentGame?.();
+}
+
+function returnToMenu() {
+    replaceCurrentGame(null);
+    restartCurrentGame = null;
+    ui.showMenu();
 }

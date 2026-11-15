@@ -7,10 +7,10 @@ export class InputHandler implements IUpdate {
     #inputState = new InputState();
 
 
-    constructor() {
+    constructor(signal? : AbortSignal) {
         window.addEventListener('blur', () => {
             this.#inputState.reset();
-        });
+        }, { signal });
     }
 
     getState() {

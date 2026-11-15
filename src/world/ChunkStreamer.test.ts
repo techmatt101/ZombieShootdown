@@ -7,6 +7,7 @@ import type { WorldgenRequest, WorldgenResponse } from '../workers/worldgen';
 class FakeWorker {
     static latest : FakeWorker;
     requests : WorldgenRequest[] = [];
+    terminated = false;
     #listener : ((e : { data : WorldgenResponse }) => void) | null = null;
 
     constructor() {
@@ -15,6 +16,10 @@ class FakeWorker {
 
     addEventListener(type : string, listener : (e : { data : WorldgenResponse }) => void) {
         this.#listener = listener;
+    }
+
+    terminate() {
+        this.terminated = true;
     }
 
     postMessage(request : WorldgenRequest) {
@@ -104,6 +109,21 @@ describe('ChunkStreamer', () => {
         for (let i = 0; i < chunks.length; i++) {
             expect(chunks[i].listIndex).toBe(i);
         }
+    });
+
+    it('stops its worker and drops every chunk when stopped', async () => {
+        const streamer = await startedStreamer();
+        const ready = streamer.whenLoadedAround({ x: 0, y: 0 }, 600, 300);
+        loadEverything(FakeWorker.latest);
+        await ready;
+        const bitmap = streamer.chunks()[0].bitmap;
+        streamer.stop();
+        expect(FakeWorker.latest.terminated).toBe(true);
+        expect(streamer.loadedCount).toBe(0);
+        expect(streamer.chunkAt(0, 0)).toBeUndefined();
+        expect(bitmap?.close).toHaveBeenCalled();
+        streamer.update({ x: 0, y: 0 }, 600, 300);
+        expect(streamer.pendingCount).toBe(0);
     });
 
     it('knows which chunk a world position falls in', () => {

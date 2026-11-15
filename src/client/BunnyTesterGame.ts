@@ -67,6 +67,11 @@ export class BunnyTesterGame {
         this.systems.update(dt);
     }
 
+    dispose() {
+        this.loop.pause();
+        this.bunnyTest.stop();
+    }
+
     load() {
         this.bunnyTest.start();
         this.loop.start();

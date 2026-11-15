@@ -8,10 +8,15 @@ type Handler = (event : Record<string, unknown>) => void;
 function eventTarget() {
     const listeners = new Map<string, Array<{ handler : Handler; once : boolean }>>();
     return {
-        addEventListener(type : string, handler : Handler, options? : { once? : boolean }) {
+        addEventListener(type : string, handler : Handler, options? : { once? : boolean; signal? : AbortSignal }) {
+            const listener = { handler, once: options?.once === true };
             const forType = listeners.get(type) ?? [];
-            forType.push({ handler, once: options?.once === true });
+            forType.push(listener);
             listeners.set(type, forType);
+            options?.signal?.addEventListener('abort', () => {
+                const current = listeners.get(type) ?? [];
+                listeners.set(type, current.filter((candidate) => candidate !== listener));
+            });
         },
         dispatch(type : string, event : Record<string, unknown> = {}) {
             const current = listeners.get(type) ?? [];
@@ -43,9 +48,9 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-function setUp(requestPointerLock = vi.fn(async () => {})) {
+function setUp(requestPointerLock = vi.fn(async () => {}), signal? : AbortSignal) {
     const canvas = { ...eventTarget(), requestPointerLock };
-    const controller = new MouseAndKeyboardController(canvas as unknown as HTMLCanvasElement);
+    const controller = new MouseAndKeyboardController(canvas as unknown as HTMLCanvasElement, signal);
     const state = new InputState();
     controller.load(state);
     controller.loadKeyMappings({ KeyW: 'UP', Mouse0: 'ACTION_1' });
@@ -85,6 +90,17 @@ describe('MouseAndKeyboardController', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         windowTarget.dispatch('click');
         expect(requestPointerLock).toHaveBeenCalledTimes(2);
+    });
+
+    it('ignores all input once its signal is aborted', () => {
+        const lifetime = new AbortController();
+        const requestPointerLock = vi.fn(async () => {});
+        const { state } = setUp(requestPointerLock, lifetime.signal);
+        lifetime.abort();
+        windowTarget.dispatch('keydown', { code: 'KeyW' });
+        windowTarget.dispatch('click');
+        expect(state.isKeyDown(InputAction.UP)).toBe(false);
+        expect(requestPointerLock).not.toHaveBeenCalled();
     });
 
     it('stops the right-click menu on the canvas', () => {

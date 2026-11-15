@@ -10,11 +10,13 @@ export class MouseAndKeyboardController {
     #keys : KeyBindings = new Map();
     #inputState! : InputState;
     #canvas : HTMLCanvasElement;
+    #signal : AbortSignal | undefined;
     #pointerLockEnabled = false;
 
 
-    constructor(canvas : HTMLCanvasElement) {
+    constructor(canvas : HTMLCanvasElement, signal? : AbortSignal) {
         this.#canvas = canvas;
+        this.#signal = signal;
     }
 
     load(inputState : InputState) {
@@ -32,25 +34,25 @@ export class MouseAndKeyboardController {
     #listenForButtons() {
         window.addEventListener('keyup', (e) => {
             this.#inputState.setKeyRelease(this.#keys.get(e.code));
-        });
+        }, { signal: this.#signal });
 
         window.addEventListener('keydown', (e) => {
             this.#inputState.setKeyPress(this.#keys.get(e.code));
-        });
+        }, { signal: this.#signal });
 
         window.addEventListener('mousedown', (e) => {
             this.#inputState.setKeyPress(this.#keys.get(mouseButtonCode(e)));
-        });
+        }, { signal: this.#signal });
 
         window.addEventListener('mouseup', (e) => {
             this.#inputState.setKeyRelease(this.#keys.get(mouseButtonCode(e)));
-        });
+        }, { signal: this.#signal });
     }
 
     #disableContextMenu() {
         this.#canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-        });
+        }, { signal: this.#signal });
     }
 
     #trackPointer() {
@@ -62,11 +64,11 @@ export class MouseAndKeyboardController {
                 this.pointerPos.x = e.offsetX;
                 this.pointerPos.y = e.offsetY;
             }
-        });
+        }, { signal: this.#signal });
     }
 
     #enablePointerLock() {
-        document.addEventListener('pointerlockchange', () => this.#onPointerLockChange());
+        document.addEventListener('pointerlockchange', () => this.#onPointerLockChange(), { signal: this.#signal });
         this.#onPointerLockChange();
     }
 
@@ -85,6 +87,6 @@ export class MouseAndKeyboardController {
                 console.warn('Pointer lock unavailable, retrying on next click', error);
                 this.#requestPointerLockOnNextClick();
             }
-        }, { once: true });
+        }, { once: true, signal: this.#signal });
     }
 }

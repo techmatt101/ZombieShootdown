@@ -63,6 +63,7 @@ The engine is entity/component based: entities are built from components, system
     - `AISystem`: a per-frame think budget; passes the `TileMap` to `IAI.think`.
     - `LogicSystem` and `RenderSystem`.
   - **Collision layers:** `Collision` has a `layer` and a `mask` (`CollisionLayer.PLAYER` / `ENEMY` / `PROJECTILE`). A pair only interacts when each mask includes the other's layer. Walls and closed doors block every moving entity.
+  - **Game lifecycle:** every DOM/window listener a game adds must pass `{ signal: game.signal }`. `Game.end()` (player died) freezes the game and shows the game-over screen. `Game.dispose()` (restart, main menu) aborts all listeners, stops sound and terminates the world worker, so a new game starts clean.
   - **Pooling:** pooled entities call `reset()` on every component when reused, so stateful components (AI, movement, damage cooldowns) implement `reset()`.
   - **Behaviours:** `behaviours/` with `CollisionBehaviourList` (damage) and `InteractionBehaviourList` (`openDoor`). Pairs fire when one side is dominant and the other passive.
   - **Doors:**
