@@ -3,6 +3,7 @@ import { Interactor } from '../components/Interactor';
 import type { Entity } from '../Entity';
 import type { InteractionBehaviourList } from '../InteractionBehaviourList';
 import type { ISystem } from './ISystem';
+import { distanceToBox } from '../../lib/geometry/overlap';
 
 export class InteractionSystem implements ISystem<Entity> {
     #interactors : Entity[] = [];
@@ -38,7 +39,7 @@ export class InteractionSystem implements ISystem<Entity> {
         for (let i = 0; i < interactables.length; i++) {
             const candidate = interactables[i];
             if (!candidate.hasActiveComponent(Interactable)) continue;
-            const distance = candidate.geometry.distanceTo(actor.pos);
+            const distance = distanceToBox(candidate.geometry, actor.pos);
             if (distance <= nearestDistance) {
                 nearestDistance = distance;
                 nearest = candidate;

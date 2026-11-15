@@ -8,6 +8,7 @@ export class Movement implements IComponent {
     speed : number;
     friction : number;
     direction  = new Vector(0, 0);
+    stepStart = new Vector(0, 0);
 
     #pos : Point;
 
@@ -17,11 +18,13 @@ export class Movement implements IComponent {
 
     constructor(pos : Point, speed = 5, friction = 0) {
         this.#pos = pos;
+        this.stepStart.copy(pos);
         this.speed = speed;
         this.friction = friction;
     }
 
     update(dt : number) : void {
+        this.stepStart.copy(this.#pos);
         this.direction.normalize().scale(this.speed * dt);
         this.#pos.add(this.direction);
         if (this.friction < 1) {
@@ -31,6 +34,11 @@ export class Movement implements IComponent {
 
     reset() {
         this.direction.reset();
+        this.clearPath();
+    }
+
+    clearPath() {
+        this.stepStart.copy(this.#pos);
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) : void {

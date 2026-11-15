@@ -10,6 +10,7 @@ import { SpriteAnimator } from '../components/SpriteAnimator';
 import { Entity } from '../Entity';
 import { ZIndexLayer } from '../level/ZIndexLayer';
 import { Box } from '../../lib/geometry/Box';
+import { Circle } from '../../lib/geometry/Circle';
 import { Point } from '../../lib/geometry/Point';
 import { Vector } from '../../lib/geometry/Vector';
 import { randInt } from '../../lib/helpers';
@@ -20,6 +21,7 @@ const MIN_CHASE_SPEED = 14;
 const MAX_CHASE_SPEED = 25;
 const BITE_DAMAGE = 6;
 const BITE_COOLDOWN = 1;
+const BODY_RADIUS = 21;
 const ZOMBIE_COLLIDES_WITH = CollisionLayer.PLAYER | CollisionLayer.ENEMY | CollisionLayer.PROJECTILE;
 
 export function spawnZombie(target : Entity) {
@@ -28,7 +30,7 @@ export function spawnZombie(target : Entity) {
     const chaseSpeed = randInt(MIN_CHASE_SPEED, MAX_CHASE_SPEED);
     zombie.addComponent(new AI(new ZombieAI(zombie, target, chaseSpeed)));
     zombie.addComponent(new Movement(zombie.pos, chaseSpeed, 1));
-    const collision = zombie.addComponent(new Collision(zombie.geometry, CollisionLayer.ENEMY, ZOMBIE_COLLIDES_WITH));
+    const collision = zombie.addComponent(new Collision(new Circle(BODY_RADIUS, zombie.pos), CollisionLayer.ENEMY, ZOMBIE_COLLIDES_WITH));
 
     const material = zombie.addComponent(new Material());
     zombie.addComponent(new SpriteAnimator(material));

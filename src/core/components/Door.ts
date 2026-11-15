@@ -4,6 +4,7 @@ import type { Material } from './Material';
 import { EventHandler, type IObserver, type Listener } from '../../lib/EventHandler';
 import type { Entity } from '../Entity';
 import type { Box } from '../../lib/geometry/Box';
+import { boxesOverlap } from '../../lib/geometry/overlap';
 import type { Texture } from '../../lib/Texture';
 import type { TileMap } from '../../world/TileMap';
 import { TileType } from '../../world/TileType';
@@ -59,7 +60,7 @@ export class Door implements IComponent, IObserver<DoorEvent> {
 
     #moveOutOfDoorway(entity : Entity) {
         const door = this.#box, body = entity.geometry;
-        if (!door.isBoundingBoxWith(body)) return;
+        if (!boxesOverlap(door, body)) return;
 
         const spansHorizontally = door.width > door.height;
         if (spansHorizontally) {

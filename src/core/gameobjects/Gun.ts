@@ -32,7 +32,9 @@ export class Gun extends Entity implements IWeapon, IObserver<WeaponEvent> {
 
     attack() {
         if (this.#activeCoolDown <= 0) {
-            this.#bulletPool.acquire().pos.copy(this.pos);
+            const bullet = this.#bulletPool.acquire();
+            bullet.pos.copy(this.pos);
+            bullet.components.movement?.clearPath();
             this.#activeCoolDown = this.#coolDown;
             this.#events.fire(WeaponEvent.FIRED);
         }

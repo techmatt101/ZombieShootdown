@@ -45,6 +45,7 @@ Write all code to be as fast as possible. The game loop runs every frame, so per
 - **No comments** (including JSDoc and TODOs). Make intent readable through names: descriptive variables, named constants instead of magic numbers, small named methods.
 - **Types:** strict TypeScript; `#private` fields (not `private`); `import type` for type-only imports.
 - **Module shape:** ES modules; plain exported functions instead of static-only classes.
+- **Geometry:** `Vector`, `Point`, `Box` and `Circle` (`src/lib/geometry/`) are the value classes and keep their own vector maths. Relationships between shapes (overlap, push-out, swept entry, distance) are pure functions in `overlap.ts` that take shapes and write into a caller-owned scratch `Vector`.
 
 ## Architecture
 

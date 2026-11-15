@@ -9,6 +9,7 @@ import { InteractionSystem } from '../systems/InteractionSystem';
 import { InputAction } from '../../lib/controllers/InputAction';
 import { InputState } from '../../lib/controllers/InputState';
 import { Box } from '../../lib/geometry/Box';
+import { boxesOverlap } from '../../lib/geometry/overlap';
 import { Point } from '../../lib/geometry/Point';
 import { Vector } from '../../lib/geometry/Vector';
 import { Texture } from '../../lib/Texture';
@@ -69,7 +70,7 @@ describe('Door', () => {
         const opener = player(2 * TILE_SIZE, 1.5 * TILE_SIZE + 5).entity;
         door.toggle(opener);
         expect(door.isOpen).toBe(false);
-        expect(opener.geometry.isBoundingBoxWith(entity.geometry)).toBe(false);
+        expect(boxesOverlap(opener.geometry, entity.geometry)).toBe(false);
         expect(opener.pos.y).toBeCloseTo(2 * TILE_SIZE + 16);
     });
 });

@@ -3,6 +3,7 @@ import type { IUI } from './IUI';
 import type { Entity } from '../../core/Entity';
 import { InputAction } from '../../lib/controllers/InputAction';
 import { byId } from '../../lib/dom';
+import { boxesOverlap } from '../../lib/geometry/overlap';
 
 const ZOOM_SPEED = 0.1;
 
@@ -40,7 +41,7 @@ export class GameInterface implements IUI {
                 const entities = this.#game.level.getEntities();
                 this.#selectedEntity = null;
                 for (let i = entities.length - 1; i >= 0; i--) {
-                    if (entities[i].geometry.isBoundingBoxWith(this.#game.pointer.geometry)) {
+                    if (boxesOverlap(entities[i].geometry, this.#game.pointer.geometry)) {
                         this.#selectedEntity = entities[i];
                         break;
                     }

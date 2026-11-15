@@ -10,6 +10,7 @@ import { Movement } from '../components/Movement';
 import { Entity } from '../Entity';
 import type { InputState } from '../../lib/controllers/InputState';
 import { Box } from '../../lib/geometry/Box';
+import { Circle } from '../../lib/geometry/Circle';
 import type { IVector } from '../../lib/geometry/IVector';
 import { Point } from '../../lib/geometry/Point';
 import { Vector } from '../../lib/geometry/Vector';
@@ -17,6 +18,7 @@ import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
 const VISION_RADIUS = 500;
+const BODY_RADIUS = 21;
 
 export function spawnPlayer(position : IVector, input : InputState) {
     const player = new Entity('Player', new Point(position.x, position.y, 0), new Box(48, 48));
@@ -24,7 +26,7 @@ export function spawnPlayer(position : IVector, input : InputState) {
     player.addComponent(new InputControl(player, input));
     const interactor = player.addComponent(new Interactor(input));
     player.addComponent(new Movement(player.pos, 30, 1));
-    const collision = player.addComponent(new Collision(player.geometry, CollisionLayer.PLAYER, CollisionLayer.ENEMY));
+    const collision = player.addComponent(new Collision(new Circle(BODY_RADIUS, player.pos), CollisionLayer.PLAYER, CollisionLayer.ENEMY));
 
     const material = player.addComponent(new Material());
     player.addComponent(new Light(player.pos, { radius: VISION_RADIUS, isSight: true }));

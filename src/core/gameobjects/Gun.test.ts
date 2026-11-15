@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Gun, WeaponEvent } from './Gun';
+import { Movement } from '../components/Movement';
 import { WeaponHolder } from '../components/WeaponHolder';
 import { Entity } from '../Entity';
 import { Box } from '../../lib/geometry/Box';
@@ -10,6 +11,8 @@ function armedPlayer() {
     const bullets : Entity[] = [];
     const pool = new Pool<Entity>(() => {
         const bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));
+        bullet.addComponent(new Movement(bullet.pos, 80));
+        bullet.build();
         bullets.push(bullet);
         return bullet;
     });
@@ -51,5 +54,19 @@ describe('Gun', () => {
         gun.update(1.5);
         holder.attack();
         expect(shots).toBe(2);
+    });
+
+    it('starts a reused bullet\'s path at the gun, not where it last died', () => {
+        const { gun, holder, bullets } = armedPlayer();
+        holder.attack();
+        const bullet = bullets[0];
+        bullet.pos.set(5000, 5000);
+        bullet.components.movement!.update(1);
+        bullet.active = false;
+        bullet.available = true;
+        gun.update(1.5);
+        holder.attack();
+        expect(bullets.length).toBe(1);
+        expect(bullet.components.movement!.stepStart).toMatchObject({ x: gun.pos.x, y: gun.pos.y });
     });
 });

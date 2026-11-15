@@ -18,7 +18,7 @@ export function spawnBullet() {
     const bullet = new Entity('Bullet', new Point(0, 0, 0), new Box(8, 5));
 
     const material = bullet.addComponent(new Material());
-    const collision = bullet.addComponent(new Collision(bullet.geometry, CollisionLayer.PROJECTILE, CollisionLayer.ENEMY));
+    const collision = bullet.addComponent(new Collision(bullet.pos, CollisionLayer.PROJECTILE, CollisionLayer.ENEMY));
     bullet.addComponent(new Movement(bullet.pos, 80));
     const damage = bullet.addComponent(new Damage(30));
 
