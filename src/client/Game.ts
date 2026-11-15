@@ -30,6 +30,7 @@ import { Sound, SoundController } from '../lib/controllers/SoundController';
 import { GameLoop } from '../lib/GameLoop';
 import { byId } from '../lib/dom';
 import { PerfStats } from '../lib/PerfStats';
+import { Crosshair } from './Crosshair';
 import { PerfOverlay } from './PerfOverlay';
 import { loadImage, loadSound, whenAssetsLoaded } from '../lib/assets';
 import { CHUNK_SIZE } from '../world/constants';
@@ -59,12 +60,13 @@ export abstract class Game {
     abstract logic : IGameLogic;
 
     player! : Entity;
-    pointer! : Entity;
+    pointer? : Entity;
 
     levelSetupTasks : TaskCollection;
     perf = new PerfStats();
     #lifetime = new AbortController();
     #perfOverlay = new PerfOverlay(this.perf);
+    #crosshair : Crosshair;
 
 
     constructor(seed : number) {
@@ -76,6 +78,7 @@ export abstract class Game {
         this.chunks = new ChunkStreamer(seed);
         this.tileMap = new TileMap(this.chunks);
         this.camera = new Camera(this.canvas.center);
+        this.#crosshair = new Crosshair(this.camera);
 
         this.sound = new SoundController(Config.sound);
         this.input = new InputHandler(this.signal);
@@ -170,6 +173,7 @@ export abstract class Game {
         }
 
         ui.paint(ctx);
+        this.#crosshair.paint(ctx, this.pointer);
 
         if (isDebugViewOn) {
             this.perf.count('entities', this.#countActiveEntities());

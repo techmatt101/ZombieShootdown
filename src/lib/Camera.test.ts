@@ -66,4 +66,10 @@ describe('Camera', () => {
         expect(world).toMatchObject({ x: 100, y: 100 });
         expect(camera.screenToWorld({ x: 0, y: 0 }, new Vector(0, 0))).toMatchObject({ x: -200, y: -50 });
     });
+
+    it('converts world positions to screen pixels, matching how the world is drawn', () => {
+        const camera = cameraAt(100, 100, 2);
+        expect(camera.worldToScreen({ x: 100, y: 100 }, new Vector(0, 0))).toMatchObject({ x: 600, y: 300 });
+        expect(camera.worldToScreen({ x: -200, y: -50 }, new Vector(0, 0))).toMatchObject({ x: 0, y: 0 });
+    });
 });

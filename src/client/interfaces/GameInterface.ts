@@ -37,11 +37,12 @@ export class GameInterface implements IUI {
         }, { signal: game.signal });
 
         this.#game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
-            if (e.ctrlKey) {
+            const pointer = this.#game.pointer;
+            if (e.ctrlKey && pointer !== undefined) {
                 const entities = this.#game.level.getEntities();
                 this.#selectedEntity = null;
                 for (let i = entities.length - 1; i >= 0; i--) {
-                    if (boxesOverlap(entities[i].geometry, this.#game.pointer.geometry)) {
+                    if (boxesOverlap(entities[i].geometry, pointer.geometry)) {
                         this.#selectedEntity = entities[i];
                         break;
                     }

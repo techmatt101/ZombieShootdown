@@ -77,21 +77,20 @@ describe('Pointer', () => {
         const input = new InputState();
         const pointer = spawnPointer(input, camera);
         const pointerControl = pointer.getComponent('pointer');
-        const material = pointer.getComponent('material');
 
         input.directionCoordinates.set(3, 0);
         pointerControl.update(1);
-        expect(material.active).toBe(false);
+        expect(pointerControl.isShown).toBe(false);
 
         input.directionCoordinates.set(50, -20);
         pointerControl.update(1);
         expect(pointer.pos).toMatchObject({ x: 150, y: 80 });
-        expect(material.active).toBe(true);
+        expect(pointerControl.isShown).toBe(true);
     });
 
-    it('is drawn above everything else', () => {
+    it('is not part of the lit world, so the GPU never draws it', () => {
         const pointer = spawnPointer(new InputState(), new Camera({ x: 600, y: 300 }));
-        expect(pointer.getComponent('material').zIndex).toBeGreaterThan(new Material().zIndex);
+        expect(pointer.components.material).toBeUndefined();
     });
 });
 

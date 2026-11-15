@@ -99,7 +99,7 @@ The engine is entity/component based: entities are built from components, system
   - **Player firing:** `SpriteAnimator` takes its frames from the factory. The player's animation `playsOnce`: it rests on the idle frame, and `animateFiring` replays the muzzle and smoke frames each time the gun fires.
   - `gpu/GpuContext.ts`: one shared `GPUDevice` per page, reused across games, because Chrome can fail to create a fresh device right after destroying one. `dispose()` frees only the game's own textures and buffers.
   - `gpu/TextureStore` uploads any `TextureSource` once (keyed by the source object), and `gpu/MaskTextures` keeps map-memory masks in sync by version. Shaders live in `gpu/shaders/*.wgsl`, imported with `?raw`.
-  - HUD text, the perf overlay and every `drawDebug` draw on the transparent 2D `#hud` canvas stacked over `#game` (`HudCanvas`).
+  - HUD text, the crosshair (`client/Crosshair.ts`, placed with `Camera.worldToScreen`, so lighting never darkens it), the perf overlay and every `drawDebug` draw on the transparent 2D `#hud` canvas stacked over `#game` (`HudCanvas`).
 - `src/lighting/`:
   - `visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightField`. `cornerSight` decides each corner's rays from the tiles around it:
     - **hidden** (the tile in front of the corner is solid): no ray.

@@ -52,6 +52,12 @@ export class Camera implements IUpdate {
             || (this.target !== null && this.#isInViewAround(this.target, point, margin));
     }
 
+    worldToScreen(world : IVector, out : Vector) {
+        out.x = (world.x - Math.trunc(this.view.left)) * this.zoom;
+        out.y = (world.y - Math.trunc(this.view.top)) * this.zoom;
+        return out;
+    }
+
     screenToWorld(screen : IVector, out : Vector) {
         out.x = this.view.left + screen.x / this.zoom;
         out.y = this.view.top + screen.y / this.zoom;
