@@ -78,3 +78,27 @@ describe('RenderSystem', () => {
         expect(rendered).toEqual([bottom, top]);
     });
 });
+
+describe('CanvasRenderer sight', () => {
+    function hiddenOutOfSight(entity : Entity) {
+        entity.getComponent('material').isHiddenOutOfSight = true;
+        return entity;
+    }
+
+    it('draws things that need sight inside the sight clip, clipping once for a run of them', () => {
+        const { renderer, calls } = setUp();
+        let clips = 0;
+        renderer.setSightMask({ clipToSight: () => { clips++; } });
+        renderer.render([sprite(0, 0), hiddenOutOfSight(sprite(10, 0)), hiddenOutOfSight(sprite(20, 0)), sprite(30, 0)]);
+        renderer.paint();
+        expect(clips).toBe(1);
+        expect(calls.filter((call) => call.method === 'save').length).toBe(calls.filter((call) => call.method === 'restore').length);
+    });
+
+    it('draws everything normally without a sight mask', () => {
+        const { renderer, count } = setUp();
+        renderer.render([hiddenOutOfSight(sprite(0, 0))]);
+        renderer.paint();
+        expect(count('fillRect')).toBe(1);
+    });
+});

@@ -61,6 +61,7 @@ The engine is entity/component based: entities are built from components, system
     - `CollisionSystem`: `SpatialHash` for entity pairs, plus tile lookups.
     - `InteractionSystem`: nearest `Interactable` in reach; when interact is pressed, runs the matching behaviours.
     - `AISystem`: a per-frame think budget; passes the `TileMap` to `IAI.think`.
+    - `LightingSystem`: hands every shining `Light` (player vision, muzzle flash) to `LightFilter`.
     - `LogicSystem` and `RenderSystem`.
   - **Collision layers:** `Collision` has a `layer` and a `mask` (`CollisionLayer.PLAYER` / `ENEMY` / `PROJECTILE`). A pair only interacts when each mask includes the other's layer. Walls and closed doors block every moving entity.
   - **Game lifecycle:** every DOM/window listener a game adds must pass `{ signal: game.signal }`. `Game.end()` (player died) freezes the game and shows the game-over screen. `Game.dispose()` (restart, main menu) aborts all listeners, stops sound and terminates the world worker, so a new game starts clean.
@@ -70,8 +71,10 @@ The engine is entity/component based: entities are built from components, system
     - Entities from `factories/DoorFactory.ts` (`Material` + `Door` + `Interactable`), pooled and placed per chunk by `level/DoorSpawner.ts`, which also remembers open doors across unloads.
     - The `Door` component writes its tiles (door ↔ floor) into the `TileMap`, so collision, bullets, line of sight and light all respect it.
     - The player opens doors via `DoorInteractionBehavior` on its `Interactor`, bound to the `INTERACT` action (E / right click).
-  - `CanvasRenderer`: culls entities outside the camera view.
-- `src/lighting/visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightFilter`.
+  - `CanvasRenderer`: culls entities outside the camera view. Materials with `isHiddenOutOfSight` (zombies) are drawn clipped to the player's current view (`SightMask`), so they are cut by the same shadow edges as the floor.
+- `src/lighting/`:
+  - `visibility.ts`: visibility polygon from grid raycasts at nearby wall corners; used by `LightFilter`.
+  - `MapMemory.ts`: Monaco-style map discovery. The player's sight light (`Light.isSight`) paints its polygon into a low-res mask per chunk; `LightFilter` draws remembered areas dimly, never-seen areas stay black. Unloaded chunks keep their mask as a compact alpha `Uint8Array`.
 - `src/client/`:
   - Game modes: `SinglePlayerGame` with `SinglePlayerWaveLogic` (Arcade) or `AmbientZombieLogic` (Dev Level).
   - HUD, menu, perf overlay.

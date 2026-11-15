@@ -58,17 +58,63 @@ describe('LightFilter', () => {
         expect(computeVisibilityPolygon).toHaveBeenCalledTimes(5);
     });
 
-    it('adds every light together, spilling dimly behind walls only for lights that do', async () => {
+    it('adds every light together, each only inside what it can reach', async () => {
         const { filter } = await readyFilter();
-        const playerLight = new Light(new Vector(0, 0), { radius: 900, behindWalls: 0.5 });
+        const playerLight = new Light(new Vector(0, 0), { radius: 900, isSight: true });
         const flashLight = new Light(new Vector(0, 0), { radius: 650, intensity: 0.8 });
         filter.setLights([playerLight, flashLight]);
         filter.update(1);
         const { calls, afterInit } = paint(filter);
         const brightness = calls.slice(0, afterInit).filter((call) => call.method === 'drawImage');
-        expect(brightness.length).toBe(3);
+        expect(brightness.length).toBe(2);
         expect(brightness[0].args.slice(1)).toEqual([-900, -900, 1800, 1800]);
-        expect(brightness[2].args.slice(1)).toEqual([-650, -650, 1300, 1300]);
+        expect(brightness[1].args.slice(1)).toEqual([-650, -650, 1300, 1300]);
+        expect(calls.slice(0, afterInit).filter((call) => call.method === 'clip').length).toBe(2);
+    });
+
+    it('reveals the remembered map with what the player sees, only when their view changes', async () => {
+        const revealed : Float32Array[] = [];
+        const memory = { reveal: (polygon : Float32Array) => revealed.push(polygon), draw: () => {} };
+        const filter = new LightFilter(new TileMap(chunksFromRows(['....'])), memory);
+        const eyes = new Light(new Vector(10, 10), { radius: 900, isSight: true });
+        filter.setLights([eyes, new Light(new Vector(50, 50), { radius: 650 })]);
+        filter.update(1);
+        filter.update(1);
+        expect(revealed.length).toBe(1);
+        (eyes.pos as Vector).x += 5;
+        filter.update(1);
+        expect(revealed.length).toBe(2);
+    });
+
+    it('shows remembered places dimly, underneath the lights', async () => {
+        const drawnAt : { alpha : number; blend : string }[] = [];
+        const memory = {
+            reveal: () => {},
+            draw: (ctx : CanvasRenderingContext2D) => { drawnAt.push({ alpha: ctx.globalAlpha, blend: ctx.globalCompositeOperation }); },
+        };
+        const filter = new LightFilter(new TileMap(chunksFromRows(['....'])), memory);
+        await Promise.resolve();
+        filter.setLights([]);
+        paint(filter);
+        expect(drawnAt).toEqual([{ alpha: 0.3, blend: 'lighter' }]);
+    });
+
+    it('clips to what the player can see, ignoring lights that are not their eyes', async () => {
+        const { filter } = await readyFilter();
+        filter.setLights([new Light(new Vector(0, 0), { radius: 900, isSight: true }), new Light(new Vector(0, 0), { radius: 650 })]);
+        filter.update(1);
+        const { context, calls } = recordingContext();
+        filter.clipToSight(context);
+        expect(calls.filter((call) => call.method === 'moveTo').length).toBe(1);
+        expect(calls.at(-1)?.method).toBe('clip');
+    });
+
+    it('hides everything that needs sight when the player has no eyes', async () => {
+        const { filter } = await readyFilter();
+        filter.setLights([]);
+        const { context, calls } = recordingContext();
+        filter.clipToSight(context);
+        expect(calls.map((call) => call.method)).toEqual(['beginPath', 'clip']);
     });
 
     it('draws the scene only where there is light, then adds warm glow for glowing lights', async () => {

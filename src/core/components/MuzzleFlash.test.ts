@@ -74,6 +74,7 @@ describe('MuzzleFlash', () => {
         const flash = spawnMuzzleFlash(gun, shooter);
         const light = flash.getComponent('light');
         expect(light.pos).toBe(shooter.pos);
+        expect(light.isSight).toBe(true);
         expect(flash.getComponent('material').isAdditive).toBe(true);
         expect(flash.getComponent('material').texture).not.toBeNull();
         const muzzleFlash = flash.getComponent('muzzleFlash');

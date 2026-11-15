@@ -32,6 +32,8 @@ export function spawnZombie(target : Entity) {
 
     const material = zombie.addComponent(new Material());
     zombie.addComponent(new SpriteAnimator(material));
+    material.zIndex = ZIndexLayer.ENEMY;
+    material.isHiddenOutOfSight = true;
 
     const health = zombie.addComponent(new Health(100));
     const damage = zombie.addComponent(new Damage(BITE_DAMAGE, BITE_COOLDOWN));

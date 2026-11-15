@@ -10,6 +10,10 @@ export interface BackgroundLayer {
     draw(ctx : CanvasRenderingContext2D) : void;
 }
 
+export interface SightMask {
+    clipToSight(ctx : CanvasRenderingContext2D) : void;
+}
+
 export class CanvasRenderer {
     #ctx : CanvasRenderingContext2D;
     #canvas : Canvas;
@@ -17,6 +21,7 @@ export class CanvasRenderer {
     #filters : IFilter[] = [];
     #entities : Entity[] = [];
     #background : BackgroundLayer | null = null;
+    #sightMask : SightMask | null = null;
 
 
     constructor(canvas : Canvas, camera : Camera) {
@@ -32,6 +37,10 @@ export class CanvasRenderer {
 
     setBackground(layer : BackgroundLayer) {
         this.#background = layer;
+    }
+
+    setSightMask(mask : SightMask) {
+        this.#sightMask = mask;
     }
 
     addFilter(filter : IFilter) {
@@ -55,13 +64,7 @@ export class CanvasRenderer {
         this.#ctx.fillStyle = '#000';
         this.#background?.draw(this.#ctx);
 
-        const entities = this.#entities;
-        for (let i = 0; i < entities.length; i++) {
-            const entity = entities[i];
-            if (entity.hasActiveComponent(Material) && this.#isVisible(entity)) {
-                this.#drawEntity(entity);
-            }
-        }
+        this.#drawEntities();
 
         for (let i = 0; i < filters.length; i++) {
             filters[i].close(this.#ctx, this.#canvas, this.#camera);
@@ -69,6 +72,29 @@ export class CanvasRenderer {
 
         this.#ctx.translate(Math.trunc(this.#camera.view.left), Math.trunc(this.#camera.view.top));
         this.#ctx.scale(1 / this.#camera.zoom, 1 / this.#camera.zoom);
+    }
+
+    #drawEntities() {
+        const ctx = this.#ctx;
+        const sightMask = this.#sightMask;
+        const entities = this.#entities;
+        let isClippedToSight = false;
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
+            if (!entity.hasActiveComponent(Material) || !this.#isVisible(entity)) continue;
+            const needsSight = sightMask !== null && entity.getComponent('material').isHiddenOutOfSight;
+            if (needsSight && !isClippedToSight) {
+                ctx.save();
+                sightMask.clipToSight(ctx);
+            } else if (!needsSight && isClippedToSight) {
+                ctx.restore();
+            }
+            isClippedToSight = needsSight;
+            this.#drawEntity(entity);
+        }
+        if (isClippedToSight) {
+            ctx.restore();
+        }
     }
 
     #isVisible(entity : Entity) {

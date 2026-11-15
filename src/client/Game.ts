@@ -11,6 +11,7 @@ import { DoorSpawner } from '../core/level/DoorSpawner';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
 import { InteractionSystem } from '../core/systems/InteractionSystem';
 import { LightingSystem } from '../core/systems/LightingSystem';
+import { MapMemory } from '../lighting/MapMemory';
 import { DebugSystem } from '../core/systems/DebugSystem';
 import { LogicSystem } from '../core/systems/LogicSystem';
 import { RenderSystem } from '../core/systems/RenderSystem';
@@ -85,8 +86,9 @@ export abstract class Game {
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
         this.renderer.setBackground(new WorldLayer(this.chunks, this.camera));
         if (Config.lighting) {
-            this.lighting = new LightFilter(this.tileMap);
+            this.lighting = new LightFilter(this.tileMap, new MapMemory(this.chunks));
             this.renderer.addFilter(this.lighting);
+            this.renderer.setSightMask(this.lighting);
         }
         this.renderer.addFilter(new PixelFilter());
 

@@ -82,7 +82,7 @@ export function spawnMuzzleFlash(gun : Gun, holder : Entity) {
     material.setTexture(flashGlowTexture);
     material.zIndex = ZIndexLayer.FOREGROUND + 2;
     material.isAdditive = true;
-    const light = flash.addComponent(new Light(holder.pos, { radius: FLASH_LIGHT_RADIUS, intensity: 0, glow: FLASH_LIGHT_GLOW }));
+    const light = flash.addComponent(new Light(holder.pos, { radius: FLASH_LIGHT_RADIUS, intensity: 0, isSight: true, glow: FLASH_LIGHT_GLOW }));
     const muzzleFlash = flash.addComponent(new MuzzleFlash(light, { pos: flash.pos, material, muzzle: gun.pos, reach: GUN_LENGTH / 2 }));
 
     flash.build();

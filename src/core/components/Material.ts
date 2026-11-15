@@ -9,6 +9,7 @@ export class Material implements IComponent {
     zIndex = ZIndexLayer.FOREGROUND;
     opacity = 1;
     isAdditive = false;
+    isHiddenOutOfSight = false;
 
     static reference(components : IComponentDirectory) {
         return components.material;

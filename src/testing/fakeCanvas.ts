@@ -31,6 +31,10 @@ export function recordingContext() {
         fill: record('fill'),
         arc: record('arc'),
         clip: record('clip'),
+        closePath: record('closePath'),
+        putImageData: record('putImageData'),
+        getImageData: (x : number, y : number, width : number, height : number) => ({ data: new Uint8ClampedArray(width * height * 4), width, height }),
+        createImageData: (width : number, height : number) => ({ data: new Uint8ClampedArray(width * height * 4), width, height }),
         createRadialGradient: () => ({ addColorStop() {} }),
     };
     const count = (method : string) => {

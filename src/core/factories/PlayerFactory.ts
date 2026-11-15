@@ -16,8 +16,7 @@ import { Vector } from '../../lib/geometry/Vector';
 import { loadImage } from '../../lib/assets';
 import { Texture } from '../../lib/Texture';
 
-const VISION_RADIUS = 900;
-const SEEN_BEHIND_WALLS = 0.5;
+const VISION_RADIUS = 500;
 
 export function spawnPlayer(position : IVector, input : InputState) {
     const player = new Entity('Player', new Point(position.x, position.y, 0), new Box(48, 48));
@@ -28,7 +27,7 @@ export function spawnPlayer(position : IVector, input : InputState) {
     const collision = player.addComponent(new Collision(player.geometry, CollisionLayer.PLAYER, CollisionLayer.ENEMY));
 
     const material = player.addComponent(new Material());
-    player.addComponent(new Light(player.pos, { radius: VISION_RADIUS, behindWalls: SEEN_BEHIND_WALLS }));
+    player.addComponent(new Light(player.pos, { radius: VISION_RADIUS, isSight: true }));
 
     const health = player.addComponent(new Health(400));
 
