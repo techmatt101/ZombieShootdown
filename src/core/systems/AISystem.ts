@@ -1,16 +1,17 @@
 import { AI } from '../components/AI';
 import { Entity } from '../Entity';
-import { MapManager } from '../level/MapManager';
 import type { ISystem } from './ISystem';
+import type { TileMap } from '../../world/TileMap';
+
+const THINKS_PER_FRAME = 8;
 
 export class AISystem implements ISystem<Entity> {
     #entities : Entity[] = [];
-    #map : MapManager;
-    #index = 0;
+    #tileMap : TileMap;
+    #nextIndex = 0;
 
-
-    constructor(map : MapManager) {
-        this.#map = map;
+    constructor(tileMap : TileMap) {
+        this.#tileMap = tileMap;
     }
 
     add(entity : Entity) {
@@ -20,11 +21,14 @@ export class AISystem implements ISystem<Entity> {
     }
 
     update(dt : number) {
-        if (this.#entities.length === 0) return;
-        this.#entities[this.#index].components.ai?.getAI().updatePathFind(this.#map.segments);
-        this.#index++;
-        if (this.#index >= this.#entities.length) {
-            this.#index = 0;
+        const entities = this.#entities;
+        const thinkCount = Math.min(THINKS_PER_FRAME, entities.length);
+        for (let i = 0; i < thinkCount; i++) {
+            const entity = entities[this.#nextIndex];
+            if (entity.hasActiveComponent(AI)) {
+                entity.getComponent('ai').getAI().think(this.#tileMap);
+            }
+            this.#nextIndex = (this.#nextIndex + 1) % entities.length;
         }
     }
 }

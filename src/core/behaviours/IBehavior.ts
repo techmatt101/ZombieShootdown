@@ -1,7 +1,7 @@
-export interface IBehavior {
+export interface IBehavior<TData = number> {
     dominant : boolean;
     passive : boolean;
 
-    action(opposingBehavior : IBehavior) : void;
-    reaction(data : number) : void;
+    action(opposingBehavior : IBehavior<TData>) : void;
+    reaction(data : TData) : void;
 }

@@ -34,9 +34,14 @@ export class GameInterface implements IUI {
 
         this.#game.canvas.element.addEventListener('mousedown', (e : MouseEvent) => {
             if (e.ctrlKey) {
-                const isUnderPointer = (entity : Entity) => entity.geometry.isBoundingBoxWith(this.#game.pointer.geometry);
-                const topmostEntityUnderPointer = this.#game.level.getEntities().findLast(isUnderPointer);
-                this.#selectedEntity = topmostEntityUnderPointer ?? null;
+                const entities = this.#game.level.getEntities();
+                this.#selectedEntity = null;
+                for (let i = entities.length - 1; i >= 0; i--) {
+                    if (entities[i].geometry.isBoundingBoxWith(this.#game.pointer.geometry)) {
+                        this.#selectedEntity = entities[i];
+                        break;
+                    }
+                }
                 if (this.#selectedEntity !== null) {
                     console.log(this.#selectedEntity);
                 }
@@ -80,7 +85,17 @@ export class GameInterface implements IUI {
         ctx.fillStyle = '#fff';
 
         ctx.fillText(`Score: ${this.#game.logic.score}`, margin, this.#game.canvas.height - lineHeight * line++);
-        ctx.fillText(`Wave: ${this.#game.logic.wave}`, margin, this.#game.canvas.height - lineHeight * line++);
+        if (this.#game.logic.wave !== undefined) {
+            ctx.fillText(`Wave: ${this.#game.logic.wave}`, margin, this.#game.canvas.height - lineHeight * line++);
+        }
+
+        const nearbyDoor = this.#game.player.getComponent('interactor').target?.components.door;
+        if (nearbyDoor !== undefined) {
+            const doorAction = nearbyDoor.isOpen ? 'close' : 'open';
+            ctx.textAlign = 'center';
+            ctx.fillText(`E: ${doorAction} door`, this.#game.canvas.width / 2, this.#game.canvas.height - lineHeight);
+            ctx.textAlign = 'start';
+        }
     }
 
     drawDebug(ctx : CanvasRenderingContext2D) {
@@ -95,7 +110,10 @@ export class GameInterface implements IUI {
             const lineGap = 10;
             loop(selected);
             function loop(obj : object) {
-                for (const [key, value] of Object.entries(obj)) {
+                const keys = Object.keys(obj);
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    const value : unknown = (obj as Record<string, unknown>)[key];
                     if (key[0] !== '_' && typeof value !== 'function' && !(value instanceof Image)) {
                         if (typeof value === 'object' && value !== null) {
                             ctx.fillText(`${key}:`, space, line);

@@ -22,8 +22,9 @@ export class InputHandler implements IUpdate {
     }
 
     load() {
-        for (const controller of this.#controllers) {
-            controller.load(this.#inputState);
+        const controllers = this.#controllers;
+        for (let i = 0; i < controllers.length; i++) {
+            controllers[i].load(this.#inputState);
         }
     }
 
@@ -31,8 +32,9 @@ export class InputHandler implements IUpdate {
         this.#inputState.movementCoordinates.reset();
         this.#inputState.directionCoordinates.reset();
 
-        for (const controller of this.#controllers) {
-            controller.update(dt);
+        const controllers = this.#controllers;
+        for (let i = 0; i < controllers.length; i++) {
+            controllers[i].update(dt);
         }
     }
 

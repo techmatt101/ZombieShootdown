@@ -55,13 +55,13 @@ export class GamepadController implements IInputController {
     }
 
     #updateButtons(gamepad : Gamepad) {
-        const buttonState = gamepad.buttons.map((button) => button.pressed);
-        if (this.#lastButtonState.length === 0) {
-            this.#lastButtonState = buttonState;
-        }
-
-        for (const [i, pressed] of buttonState.entries()) {
-            const changed = pressed !== this.#lastButtonState[i];
+        const buttons = gamepad.buttons;
+        const lastButtonState = this.#lastButtonState;
+        const isFirstPoll = lastButtonState.length === 0;
+        for (let i = 0; i < buttons.length; i++) {
+            const pressed = buttons[i].pressed;
+            const changed = !isFirstPoll && pressed !== lastButtonState[i];
+            lastButtonState[i] = pressed;
             if (changed) {
                 const action = this.#keys.get(`Button${i}`);
                 if (pressed) {
@@ -71,6 +71,5 @@ export class GamepadController implements IInputController {
                 }
             }
         }
-        this.#lastButtonState = buttonState;
     }
 }

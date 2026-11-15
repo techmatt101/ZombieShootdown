@@ -21,8 +21,8 @@ export class Level {
     }
 
     addEntities(entities : Entity[]) {
-        for (const entity of entities) {
-            this.addEntity(entity);
+        for (let i = 0; i < entities.length; i++) {
+            this.addEntity(entities[i]);
         }
     }
 }

@@ -40,9 +40,10 @@ export class Collision implements IComponent, IObserver<CollisionEvent> {
     }
 
     testBehaviours(collision : Collision) {
-        for (const getBehaviour of this.#behaviourList) {
-            const our = getBehaviour(this.behaviours),
-                their = getBehaviour(collision.behaviours);
+        const behaviourList = this.#behaviourList;
+        for (let i = 0; i < behaviourList.length; i++) {
+            const our = behaviourList[i](this.behaviours),
+                their = behaviourList[i](collision.behaviours);
 
             if (our !== undefined && their !== undefined) {
                 if (our.dominant && their.passive) {
@@ -57,7 +58,9 @@ export class Collision implements IComponent, IObserver<CollisionEvent> {
 
     buildBehaviours() {
         this.#behaviourList = [];
-        for (const key of Object.keys(this.behaviours) as Array<keyof CollisionBehaviourList>) {
+        const keys = Object.keys(this.behaviours) as Array<keyof CollisionBehaviourList>;
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
             this.#behaviourList.push((b) => b[key]);
         }
     }

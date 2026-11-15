@@ -51,9 +51,10 @@ export class Entity implements IUpdate, IPool {
     }
 
     build() {
-        for (const component of this.#componentList) {
-            component.active = true;
-            component.build(this.components);
+        const componentList = this.#componentList;
+        for (let i = 0; i < componentList.length; i++) {
+            componentList[i].active = true;
+            componentList[i].build(this.components);
         }
     }
 
@@ -63,9 +64,10 @@ export class Entity implements IUpdate, IPool {
 
     update(dt : number) {
         if (this.active) {
-            for (const component of this.#componentList) {
-                if (component.active) {
-                    component.update(dt);
+            const componentList = this.#componentList;
+            for (let i = 0; i < componentList.length; i++) {
+                if (componentList[i].active) {
+                    componentList[i].update(dt);
                 }
             }
         }
@@ -73,9 +75,10 @@ export class Entity implements IUpdate, IPool {
 
     drawDebug(ctx : CanvasRenderingContext2D) {
         if (this.active) {
-            for (const component of this.#componentList) {
-                if (component.active) {
-                    component.drawDebug(ctx);
+            const componentList = this.#componentList;
+            for (let i = 0; i < componentList.length; i++) {
+                if (componentList[i].active) {
+                    componentList[i].drawDebug(ctx);
                 }
             }
         }

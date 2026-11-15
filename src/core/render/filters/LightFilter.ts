@@ -1,35 +1,24 @@
-import { MapManager } from '../../level/MapManager';
 import type { IFilter } from './IFilter';
+import { computeVisibilityPolygon } from '../../../lighting/visibility';
+import { loadImage } from '../../../lib/assets';
 import { Camera } from '../../../lib/Camera';
 import { Canvas } from '../../../lib/Canvas';
 import { Vector } from '../../../lib/geometry/Vector';
 import type { IUpdate } from '../../../lib/IUpdate';
-import { loadImage } from '../../../lib/assets';
-
-import type { IVector } from '../../../lib/geometry/IVector';
-
-export type LightPolygon = IVector[];
+import type { TileMap } from '../../../world/TileMap';
 
 const VISION_RADIUS = 900;
+const MIN_LIGHT_MOVEMENT = 0.5;
 
 export class LightFilter implements IUpdate, IFilter {
-    #map : MapManager;
+    #tileMap : TileMap;
     #lightSource = new Vector(0, 0);
-    #polygons : LightPolygon[] = [];
-
-    #worker = new Worker(new URL("../../../workers/lighting.ts", import.meta.url), { type: "module" });
-    #workerWorking = false;
-
+    #polygon : Float32Array = new Float32Array();
+    #litFrom = { x: Number.NaN, y: Number.NaN, tileMapVersion: -1 };
     #visionImage : HTMLImageElement | null = null;
 
-    constructor(map : MapManager) {
-        this.#map = map;
-
-        this.#worker.onmessage = (e : MessageEvent<LightPolygon[]>) => {
-            this.#workerWorking = false;
-            this.#polygons = e.data;
-        };
-
+    constructor(tileMap : TileMap) {
+        this.#tileMap = tileMap;
         loadImage('vision').then((img) => {
             this.#visionImage = img;
         });
@@ -39,11 +28,20 @@ export class LightFilter implements IUpdate, IFilter {
         this.#lightSource = lightSource;
     }
 
+    update(dt : number) {
+        const { x, y } = this.#lightSource;
+        const lightMoved = Math.hypot(x - this.#litFrom.x, y - this.#litFrom.y) > MIN_LIGHT_MOVEMENT || Number.isNaN(this.#litFrom.x);
+        const tilesChanged = this.#tileMap.version !== this.#litFrom.tileMapVersion;
+        if (lightMoved || tilesChanged) {
+            this.#polygon = computeVisibilityPolygon(this.#tileMap, x, y, VISION_RADIUS);
+            this.#litFrom = { x, y, tileMapVersion: this.#tileMap.version };
+        }
+    }
+
     init(ctx : CanvasRenderingContext2D, canvas : Canvas, camera : Camera) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(camera.pos.x - camera.viewportOffset.x, camera.pos.y - camera.viewportOffset.y, canvas.width, canvas.height);
-        this.draw(ctx);
-
+        this.#drawLitArea(ctx);
         ctx.globalCompositeOperation = 'source-atop';
     }
 
@@ -51,26 +49,19 @@ export class LightFilter implements IUpdate, IFilter {
         ctx.globalCompositeOperation = 'source-over';
     }
 
-    update(dt : number) {
-        if (!this.#workerWorking) {
-            this.#worker.postMessage({
-                x: this.#lightSource.x,
-                y: this.#lightSource.y,
-                s: this.#map.segments
-            });
-            this.#workerWorking = true;
-        }
-    }
-
     drawDebug(ctx : CanvasRenderingContext2D) {
     }
 
-    draw(ctx : CanvasRenderingContext2D) {
-        for (let i = 1; i < this.#polygons.length; i++) {
-            this.#drawPolygon(this.#polygons[i], ctx, "rgba(0,0,0,0.2)");
-        }
-        if (this.#polygons.length > 0) {
-            this.#drawPolygon(this.#polygons[0], ctx, "#000");
+    #drawLitArea(ctx : CanvasRenderingContext2D) {
+        const polygon = this.#polygon;
+        if (polygon.length >= 6) {
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.moveTo(polygon[0], polygon[1]);
+            for (let i = 2; i < polygon.length; i += 2) {
+                ctx.lineTo(polygon[i], polygon[i + 1]);
+            }
+            ctx.fill();
         }
 
         if (this.#visionImage === null) return;
@@ -80,16 +71,5 @@ export class LightFilter implements IUpdate, IFilter {
             this.#lightSource.x - VISION_RADIUS, this.#lightSource.y - VISION_RADIUS,
             VISION_RADIUS * 2, VISION_RADIUS * 2
         );
-    }
-
-    #drawPolygon(polygon : LightPolygon, ctx : CanvasRenderingContext2D, fillStyle : string) {
-        ctx.fillStyle = fillStyle;
-        ctx.beginPath();
-        ctx.moveTo(polygon[0].x, polygon[0].y);
-        for (let i = 1; i < polygon.length; i++) {
-            const intersect = polygon[i];
-            ctx.lineTo(intersect.x, intersect.y);
-        }
-        ctx.fill();
     }
 }

@@ -1,4 +1,4 @@
-import { bunnyTestSetup, singlePlayerGameSetup } from '../../app';
+import { arcadeGameSetup, bunnyTestSetup, devLevelSetup } from '../../app';
 import type { IUI } from './IUI';
 import { Config } from '../../config';
 import { byId } from '../../lib/dom';
@@ -10,6 +10,7 @@ export class MenuInterface implements IUI {
         const menu = byId('interface');
         const about = byId('about');
         const option = byId('option');
+        const devLevel = byId('dev');
         const view = byId('game-container');
         const canvas = byId<HTMLCanvasElement>('game');
 
@@ -30,11 +31,15 @@ export class MenuInterface implements IUI {
             setTimeout(setup, 0);
         };
 
-        play.addEventListener('click', () => hideMenuThenStartAfterRepaint(singlePlayerGameSetup));
+        play.addEventListener('click', () => hideMenuThenStartAfterRepaint(arcadeGameSetup));
+        devLevel.addEventListener('click', () => hideMenuThenStartAfterRepaint(devLevelSetup));
         option.addEventListener('click', () => hideMenuThenStartAfterRepaint(bunnyTestSetup));
 
-        if (Config.skipMenu) {
-            setTimeout(() => hideMenuThenStartAfterRepaint(singlePlayerGameSetup), 100);
+        const startsInDevLevel = new URLSearchParams(location.search).has('dev');
+        if (startsInDevLevel) {
+            setTimeout(() => hideMenuThenStartAfterRepaint(devLevelSetup), 100);
+        } else if (Config.skipMenu) {
+            setTimeout(() => hideMenuThenStartAfterRepaint(arcadeGameSetup), 100);
         }
     }
 

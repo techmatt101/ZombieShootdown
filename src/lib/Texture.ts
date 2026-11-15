@@ -1,13 +1,15 @@
 import { Box } from './geometry/Box';
 import { Vector } from './geometry/Vector';
 
+export type TextureSource = HTMLImageElement | HTMLCanvasElement | OffscreenCanvas | ImageBitmap;
+
 export class Texture extends Box {
-    img : HTMLImageElement;
+    img : TextureSource;
     sourcePos : Vector;
     sourceWidth : number;
     sourceHeight : number;
 
-    constructor(img : HTMLImageElement,
+    constructor(img : TextureSource,
                 pos : Vector,
                 width : number,
                 height : number,

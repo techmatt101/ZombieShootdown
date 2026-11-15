@@ -41,7 +41,10 @@ export class BunnyTest<T> {
 
     update(dt : number) {
         if (this.fpsBuffer.length > 64) {
-            const sum = this.fpsBuffer.reduce((total, fps) => total + fps, 0);
+            let sum = 0;
+            for (let i = 0; i < this.fpsBuffer.length; i++) {
+                sum += this.fpsBuffer[i];
+            }
             this.fps = Math.trunc(sum / this.fpsBuffer.length);
             this.fpsBuffer = [];
         }

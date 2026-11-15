@@ -6,9 +6,11 @@ export type KeyBindings = Map<string, InputAction>;
 
 export function resolveKeyMappings(mappings : KeyMappings) : KeyBindings {
     const bindings : KeyBindings = new Map();
-    for (const [code, actionName] of Object.entries(mappings)) {
+    const codes = Object.keys(mappings);
+    for (let i = 0; i < codes.length; i++) {
+        const actionName = mappings[codes[i]];
         if (actionName !== undefined) {
-            bindings.set(code, InputAction[actionName]);
+            bindings.set(codes[i], InputAction[actionName]);
         }
     }
     console.info('Key Mappings Loaded');

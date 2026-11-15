@@ -9,14 +9,16 @@ export class Systems<T> {
     }
 
     add(object : T) {
-        for (const system of this.#systems) {
-            system.add(object);
+        const systems = this.#systems;
+        for (let i = 0; i < systems.length; i++) {
+            systems[i].add(object);
         }
     }
 
     update(dt : number) {
-        for (const system of this.#systems) {
-            system.update(dt);
+        const systems = this.#systems;
+        for (let i = 0; i < systems.length; i++) {
+            systems[i].update(dt);
         }
     }
 }

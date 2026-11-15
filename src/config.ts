@@ -26,7 +26,8 @@ export const Config : GameConfig = {
         ArrowRight: 'RIGHT',
         Space: 'ACTION_1',
         Mouse0: 'ACTION_1',
-        Mouse2: 'ACTION_2',
+        KeyE: 'INTERACT',
+        Mouse2: 'INTERACT',
         Escape: 'MENU',
     },
 

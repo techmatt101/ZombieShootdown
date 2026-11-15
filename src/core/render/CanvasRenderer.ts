@@ -6,12 +6,17 @@ import { Canvas } from '../../lib/Canvas';
 
 const SUBPIXEL_SNAP_MARGIN = 1;
 
+export interface BackgroundLayer {
+    draw(ctx : CanvasRenderingContext2D) : void;
+}
+
 export class CanvasRenderer {
     #ctx : CanvasRenderingContext2D;
     #canvas : Canvas;
     #camera : Camera;
     #filters : IFilter[] = [];
     #entities : Entity[] = [];
+    #background : BackgroundLayer | null = null;
 
 
     constructor(canvas : Canvas, camera : Camera) {
@@ -23,6 +28,10 @@ export class CanvasRenderer {
 
     getCtx() {
         return this.#ctx;
+    }
+
+    setBackground(layer : BackgroundLayer) {
+        this.#background = layer;
     }
 
     addFilter(filter : IFilter) {
@@ -38,20 +47,24 @@ export class CanvasRenderer {
         this.#ctx.scale(this.#camera.zoom, this.#camera.zoom);
         this.#ctx.translate(Math.trunc(-this.#camera.viewport.pos.x), Math.trunc(-this.#camera.viewport.pos.y));
 
-        for (const filter of this.#filters) {
-            filter.init(this.#ctx, this.#canvas, this.#camera);
+        const filters = this.#filters;
+        for (let i = 0; i < filters.length; i++) {
+            filters[i].init(this.#ctx, this.#canvas, this.#camera);
         }
 
         this.#ctx.fillStyle = '#000';
+        this.#background?.draw(this.#ctx);
 
-        for (const entity of this.#entities) {
+        const entities = this.#entities;
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (entity.hasActiveComponent(Material) && this.#isVisible(entity)) {
                 this.#drawEntity(entity);
             }
         }
 
-        for (const filter of this.#filters) {
-            filter.close(this.#ctx, this.#canvas, this.#camera);
+        for (let i = 0; i < filters.length; i++) {
+            filters[i].close(this.#ctx, this.#canvas, this.#camera);
         }
 
         this.#ctx.translate(Math.trunc(this.#camera.viewport.pos.x), Math.trunc(this.#camera.viewport.pos.y));

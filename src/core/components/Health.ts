@@ -22,6 +22,7 @@ export class Health implements IComponent, IObserver<HealthEvent> {
     }
 
     set(n : number) {
+        this.value = n;
         this.isDead = false;
     }
 

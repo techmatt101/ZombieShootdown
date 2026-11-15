@@ -1,50 +1,65 @@
 import type { IAI } from './IAI';
-import { checkLineOfSight } from './lineOfSight';
 import { Movement } from '../components/Movement';
 import { Entity } from '../Entity';
 import { Vector } from '../../lib/geometry/Vector';
-import type { Segment } from '../../lib/geometry/Segment';
+import { TILE_SIZE } from '../../world/constants';
+import { createRandom, type Random } from '../../world/random';
+import type { TileMap } from '../../world/TileMap';
+
+const SIGHT_RANGE = 900;
+const CHASE_SPEED = 15;
+const WANDER_SPEED = 3;
+const WANDER_RADIUS = TILE_SIZE * 5;
+const ARRIVAL_DISTANCE = 20;
+const MAX_WANDER_TIME = 60;
 
 export class ZombieAI implements IAI {
     #zombie : Entity;
     #player : Entity;
+    #random : Random;
 
     #canSeePlayer = false;
-    #checkingSight = false;
-
-    #headingLocation = new Vector(40, 40);
+    #wanderTarget : Vector | null = null;
+    #wanderTime = 0;
 
 
     constructor(entity : Entity, player : Entity) {
         this.#zombie = entity;
         this.#player = player;
+        this.#random = createRandom(Math.floor(Math.random() * 2 ** 32));
     }
 
-    updatePathFind(segments : Segment[]) {
-        if (this.#checkingSight) {
-            return;
+    think(tileMap : TileMap) {
+        const zombie = this.#zombie.pos, player = this.#player.pos;
+        const isInSightRange = Math.hypot(player.x - zombie.x, player.y - zombie.y) <= SIGHT_RANGE;
+        this.#canSeePlayer = isInSightRange && tileMap.hasLineOfSight(zombie, player);
+
+        if (!this.#canSeePlayer && this.#needsNewWanderTarget()) {
+            this.#wanderTarget = tileMap.randomOpenFloorNear(zombie, WANDER_RADIUS, this.#random);
+            this.#wanderTime = 0;
         }
-        this.#checkingSight = true;
-        void checkLineOfSight(this.#zombie.pos, this.#player.pos, segments).then((visible) => {
-            this.#canSeePlayer = visible;
-            this.#checkingSight = false;
-        });
     }
 
     update(dt : number) {
         const movement = this.#zombie.components.movement;
-        if (movement && this.#zombie.hasActiveComponent(Movement)) {
-            let pos : Vector;
-            if (this.#canSeePlayer) {
-                pos = this.#player.pos;
-                movement.speed = 15;
-            } else {
-                movement.speed = 3;
-                pos = this.#headingLocation;
-            }
+        if (!movement || !this.#zombie.hasActiveComponent(Movement)) return;
 
-            this.#zombie.pos.rotateDirection(pos);
-            movement.direction.copy(pos).sub(this.#zombie.pos);
+        this.#wanderTime += dt;
+        const target = this.#canSeePlayer ? this.#player.pos : this.#wanderTarget;
+        movement.speed = this.#canSeePlayer ? CHASE_SPEED : WANDER_SPEED;
+        if (target === null) {
+            movement.direction.reset();
+            return;
         }
+        this.#zombie.pos.rotateDirection(target);
+        movement.direction.copy(target).sub(this.#zombie.pos);
+    }
+
+    #needsNewWanderTarget() {
+        const target = this.#wanderTarget;
+        if (target === null || this.#wanderTime > MAX_WANDER_TIME) {
+            return true;
+        }
+        return Math.hypot(target.x - this.#zombie.pos.x, target.y - this.#zombie.pos.y) < ARRIVAL_DISTANCE;
     }
 }

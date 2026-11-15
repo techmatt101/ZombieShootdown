@@ -3,7 +3,7 @@ import type { ISystem } from './ISystem';
 import { Camera } from '../../lib/Camera';
 
 export class DebugSystem implements ISystem<Entity> {
-    #enmities : Entity[] = [];
+    #entities : Entity[] = [];
     #camera : Camera;
 
     constructor(camera : Camera) {
@@ -11,7 +11,7 @@ export class DebugSystem implements ISystem<Entity> {
     }
 
     add(entity : Entity) {
-        this.#enmities.push(entity);
+        this.#entities.push(entity);
     }
 
     update(dt : number) {
@@ -20,9 +20,10 @@ export class DebugSystem implements ISystem<Entity> {
     paint(ctx : CanvasRenderingContext2D) {
         ctx.scale(this.#camera.zoom, this.#camera.zoom);
         ctx.translate(Math.trunc(-this.#camera.viewport.pos.x), Math.trunc(-this.#camera.viewport.pos.y));
-        for (const entity of this.#enmities) {
+        const entities = this.#entities;
+        for (let i = 0; i < entities.length; i++) {
             ctx.save();
-            entity.drawDebug(ctx);
+            entities[i].drawDebug(ctx);
             ctx.restore();
         }
         ctx.translate(Math.trunc(this.#camera.viewport.pos.x), Math.trunc(this.#camera.viewport.pos.y));

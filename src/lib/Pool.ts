@@ -47,7 +47,14 @@ export class Pool <T extends IPool> {
     }
 
     #updateAvailability() {
-        this.#available = this.#objects.filter((obj) => obj.available);
+        const objects = this.#objects;
+        const available = this.#available;
+        available.length = 0;
+        for (let i = 0; i < objects.length; i++) {
+            if (objects[i].available) {
+                available.push(objects[i]);
+            }
+        }
         this.#nextAvailableId = this.#available.length - 1;
     }
 }

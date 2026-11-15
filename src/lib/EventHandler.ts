@@ -11,8 +11,8 @@ export class EventHandler<T extends PropertyKey> {
     fire(key : T, data? : unknown) {
         const listeners = this.#listeners.get(key);
         if (listeners !== undefined) {
-            for (const listener of listeners) {
-                listener(data);
+            for (let i = 0; i < listeners.length; i++) {
+                listeners[i](data);
             }
         }
     }

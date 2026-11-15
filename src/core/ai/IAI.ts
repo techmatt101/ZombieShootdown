@@ -1,6 +1,6 @@
-import type { Segment } from '../../lib/geometry/Segment';
+import type { TileMap } from '../../world/TileMap';
 
 export interface IAI {
-    updatePathFind(segments : Segment[]) : void;
+    think(tileMap : TileMap) : void;
     update(dt : number) : void;
 }

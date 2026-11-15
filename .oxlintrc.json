@@ -15,7 +15,7 @@
     "unicorn/prefer-math-trunc": "error",
     "unicorn/prefer-number-properties": "error",
     "unicorn/prefer-spread": "error",
-    "typescript/prefer-for-of": "error",
+    "unicorn/no-array-for-each": "error",
     "typescript/no-this-alias": "error",
     "typescript/consistent-type-assertions": "error",
     "typescript/no-extraneous-class": "error"

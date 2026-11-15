@@ -1,14 +1,15 @@
 import { ui } from '../app';
-import type { IWaveLogic } from './logic/IWaveLogic';
+import type { IGameLogic } from './logic/IGameLogic';
 import { Config } from '../config';
 import { Entity } from '../core/Entity';
-import { MapManager } from '../core/level/MapManager';
 import { TopDownLevel } from '../core/level/TopDownLevel';
 import { CanvasRenderer } from '../core/render/CanvasRenderer';
 import { LightFilter } from '../core/render/filters/LightFilter';
 import { PixelFilter } from '../core/render/filters/PixelFilter';
 import { Systems } from '../core/Systems';
+import { DoorSpawner } from '../core/level/DoorSpawner';
 import { CollisionSystem } from '../core/systems/CollisionSystem';
+import { InteractionSystem } from '../core/systems/InteractionSystem';
 import { DebugSystem } from '../core/systems/DebugSystem';
 import { LogicSystem } from '../core/systems/LogicSystem';
 import { RenderSystem } from '../core/systems/RenderSystem';
@@ -22,9 +23,14 @@ import { MouseAndKeyboardAdaptor } from '../lib/controllers/MouseAndKeyboardAdap
 import { MouseAndKeyboardController } from '../lib/controllers/MouseAndKeyboardController';
 import { Sound, SoundController } from '../lib/controllers/SoundController';
 import { GameLoop } from '../lib/GameLoop';
-import { Vector } from '../lib/geometry/Vector';
 import { byId } from '../lib/dom';
-import { loadSound, whenAssetsLoaded } from '../lib/assets';
+import { PerfStats } from '../lib/PerfStats';
+import { PerfOverlay } from './PerfOverlay';
+import { loadImage, loadSound, whenAssetsLoaded } from '../lib/assets';
+import { CHUNK_SIZE } from '../world/constants';
+import { ChunkStreamer } from '../world/ChunkStreamer';
+import { TileMap } from '../world/TileMap';
+import { WorldLayer } from '../world/WorldLayer';
 import { TaskCollection } from '../lib/TaskCollection';
 
 export abstract class Game {
@@ -38,25 +44,29 @@ export abstract class Game {
     systems : Systems<Entity>;
     debugSystem? : DebugSystem;
 
-    map : MapManager;
+    chunks : ChunkStreamer;
+    tileMap : TileMap;
     camera : Camera;
     level : TopDownLevel;
-    abstract logic : IWaveLogic;
+    collisionSystem : CollisionSystem;
+    abstract logic : IGameLogic;
 
     player! : Entity;
     pointer! : Entity;
 
     levelSetupTasks : TaskCollection;
+    perf = new PerfStats();
+    #perfOverlay = new PerfOverlay(this.perf);
 
 
-    constructor() {
+    constructor(seed : number) {
         this.loop = new GameLoop((dt) => this.update(dt));
 
         this.canvas = new Canvas(byId<HTMLCanvasElement>('game'));
 
-        this.map = new MapManager(new Vector(0, 0), 1300, 1000, this.canvas);
+        this.chunks = new ChunkStreamer(seed);
+        this.tileMap = new TileMap(this.chunks);
         this.camera = new Camera(this.canvas);
-        this.camera.setBoundary(this.map);
 
         this.sound = new SoundController();
         this.input = new InputHandler();
@@ -71,21 +81,25 @@ export abstract class Game {
         this.input.loadController(mouseAndKeyboardControllerAdaptor);
 
         this.renderer = new CanvasRenderer(this.canvas, this.camera);
+        this.renderer.setBackground(new WorldLayer(this.chunks, this.camera));
         if (Config.lighting) {
-            this.lighting = new LightFilter(this.map);
+            this.lighting = new LightFilter(this.tileMap);
             this.renderer.addFilter(this.lighting);
         }
         this.renderer.addFilter(new PixelFilter());
 
         this.systems = new Systems<Entity>();
         this.systems.schedule(new LogicSystem());
-        this.systems.schedule(new CollisionSystem());
+        this.collisionSystem = new CollisionSystem(this.tileMap);
+        this.systems.schedule(this.collisionSystem);
+        this.systems.schedule(new InteractionSystem());
         this.systems.schedule(new RenderSystem(this.renderer));
         if (Config.debug) {
             this.debugSystem = new DebugSystem(this.camera);
             this.systems.schedule(this.debugSystem);
         }
-        this.level = new TopDownLevel(this.map, this.camera, this.systems);
+        this.level = new TopDownLevel(this.chunks, this.tileMap, this.camera, this.systems);
+        const doorSpawner = new DoorSpawner(this.level);
 
         this.levelSetupTasks = new TaskCollection('Level Setup')
             .add('Controllers', () => {
@@ -99,27 +113,66 @@ export abstract class Game {
                     this.sound.play(Sound.AMBIENT);
                 });
             })
-            .add('Map', () => {
-                this.map.loadMap(this.level);
+            .add('World', async () => {
+                const tileAtlas = await loadImage('tiles');
+                doorSpawner.useAtlas(tileAtlas);
+                await this.chunks.start(tileAtlas);
+                const spawnChunkCentre = { x: CHUNK_SIZE / 2, y: CHUNK_SIZE / 2 };
+                await this.chunks.whenLoadedAround(spawnChunkCentre, this.camera.viewportOffset.x, this.camera.viewportOffset.y);
             });
     }
 
     update(dt : number) {
+        this.perf.frame();
+
+        this.perf.begin('update');
+        this.#streamWorld();
         this.input.update(dt);
         this.systems.update(dt);
         this.camera.update(dt);
-        this.lighting?.update(dt);
         ui.update(dt);
-        this.renderer.paint();
+        this.perf.end('update');
 
+        this.perf.begin('lighting');
+        this.lighting?.update(dt);
+        this.perf.end('lighting');
+
+        this.perf.begin('render');
+        this.renderer.paint();
+        this.perf.end('render');
+
+        const ctx = this.renderer.getCtx();
         if (Config.debug) {
-            const ctx = this.renderer.getCtx();
             this.debugSystem?.paint(ctx);
             this.camera.drawDebug(ctx);
             ui.drawDebug(ctx);
         }
 
-        ui.paint(this.renderer.getCtx());
+        ui.paint(ctx);
+
+        if (Config.debug) {
+            this.perf.count('entities', this.#countActiveEntities());
+            this.perf.count('chunks', this.chunks.loadedCount);
+            this.perf.count('chunks pending', this.chunks.pendingCount);
+            this.perf.count('collision pairs', this.collisionSystem.pairsTested);
+            this.#perfOverlay.paint(ctx);
+        }
+    }
+
+    #countActiveEntities() {
+        const entities = this.level.getEntities();
+        let activeCount = 0;
+        for (let i = 0; i < entities.length; i++) {
+            if (entities[i].active) {
+                activeCount++;
+            }
+        }
+        return activeCount;
+    }
+
+    #streamWorld() {
+        const focus = this.camera.target ?? this.camera.pos;
+        this.chunks.update(focus, this.camera.viewportOffset.x / this.camera.zoom, this.camera.viewportOffset.y / this.camera.zoom);
     }
 
     onLoaded() {

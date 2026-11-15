@@ -9,4 +9,5 @@ export enum InputAction {
     MENU,
     ZOOM_IN,
     ZOOM_OUT,
+    INTERACT,
 }

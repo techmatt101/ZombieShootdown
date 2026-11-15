@@ -17,7 +17,9 @@ export class TaskCollection {
         console.group(this.name);
         console.time('Total Time');
 
-        for (const task of this.#tasks) {
+        const tasks = this.#tasks;
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
             console.time(task.name);
             await task.run();
             console.timeEnd(task.name);

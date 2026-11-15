@@ -1,8 +1,8 @@
 import { Entity } from '../../core/Entity';
 
-export interface IWaveLogic {
+export interface IGameLogic {
     score : number;
-    wave : number;
+    wave? : number;
 
     start(player : Entity) : void;
 }

@@ -1,5 +1,5 @@
-import type { Segment } from './Segment';
 import type { IShape } from './IShape';
+import type { IVector } from './IVector';
 import { Vector } from './Vector';
 
 export class Box implements IShape {
@@ -15,6 +15,12 @@ export class Box implements IShape {
             this.pos.x + this.width / 2 > box.pos.x - box.width / 2 &&
             this.pos.y - this.height / 2 < box.pos.y + box.height / 2 &&
             this.pos.y + this.height / 2 > box.pos.y - box.height / 2;
+    }
+
+    distanceTo(point : IVector) {
+        const dx = Math.max(this.pos.x - this.width / 2 - point.x, 0, point.x - this.pos.x - this.width / 2);
+        const dy = Math.max(this.pos.y - this.height / 2 - point.y, 0, point.y - this.pos.y - this.height / 2);
+        return Math.hypot(dx, dy);
     }
 
     getOffset(box : Box) {
@@ -37,20 +43,6 @@ export class Box implements IShape {
         this.#offset.y = ((this.#offset.y > 0) ? 1 : -1) * ((this.height + rectB.height) / 2) - this.#offset.y;
 
         return this.#offset;
-    }
-
-    toPolygon() : Segment[] {
-        const x = this.pos.x - this.width / 2;
-        const y = this.pos.y - this.height / 2;
-        const width = this.pos.x + this.width / 2;
-        const height = this.pos.y + this.height / 2;
-
-        return [
-            { a: { x, y }, b: { x: width, y } },
-            { a: { x: width, y }, b: { x: width, y: height } },
-            { a: { x: width, y: height }, b: { x, y: height } },
-            { a: { x, y: height }, b: { x, y } }
-        ]
     }
 
     toString() {
